@@ -301,9 +301,6 @@ table {
 thead {
   background: var(--black);
   color: var(--white);
-  position: sticky;
-  top: 64px;
-  z-index: 10;
 }
 
 th {
@@ -684,10 +681,6 @@ footer a:focus-visible {
   .table-status {
     min-height: 38px;
     padding: 8px 16px;
-  }
-
-  thead {
-    top: 56px;
   }
 
   footer {
