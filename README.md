@@ -11,6 +11,8 @@ The repository includes:
 - poster artwork and live “where to watch” links
 - saved films stored locally in the browser
 - a detail drawer for every title
+- a locally saved dream-collection builder
+- ranked Closet-person matches with optional OpenAI semantic embeddings
 - [five complete visual directions](./public/design-variations.html) in one
   standalone HTML comparison file
 
@@ -25,6 +27,23 @@ npm run dev
 
 Then open `http://localhost:3000`. The design study is at
 `http://localhost:3000/design-variations.html`.
+
+## Semantic Closet matching
+
+Visitors can add indexed films or type any custom title into a dream Criterion
+collection. The server compares that list with every indexed Closet visitor and
+returns the three closest taste profiles.
+
+The matcher works in two modes:
+
+- with `OPENAI_API_KEY`, it compares the collection and visitor profiles using
+  [`text-embedding-3-small`](https://developers.openai.com/api/docs/models/text-embedding-3-small)
+- without a key, it provides a transparent preview based on overlapping films,
+  directors, decades, and hand-curated thematic tags
+
+Copy `.env.example` to `.env.local` to enable embeddings locally. Never expose
+the key in client-side code; hosted keys should be set through the deployment
+environment.
 
 ## Data
 

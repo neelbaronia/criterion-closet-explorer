@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const origin = `${protocol}://${host}`;
   const title = "The Closet Index — Explore Criterion Closet Picks";
   const description =
-    "A navigable archive of the films actors, directors, and artists have chosen in the Criterion Closet.";
+    "Explore Criterion Closet Picks, build your dream collection, and find the visitor whose film taste is closest to yours.";
 
   return {
     title,

@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import filmsData from "../data/films.json";
+import { DreamListMatcher } from "./DreamListMatcher";
 
 type Film = (typeof filmsData)[number];
 type SortKey = "featured" | "title" | "year-desc" | "year-asc";
@@ -121,6 +122,7 @@ export default function Home() {
         </a>
         <nav aria-label="Primary navigation">
           <a href="#explore">Explore</a>
+          <a href="#dream-list">Build yours</a>
           <a href="#about">About</a>
           <a className="variations-link" href="/design-variations.html">
             5 design directions ↗
@@ -166,7 +168,7 @@ export default function Home() {
             <h2>Find a film</h2>
           </div>
           <p className="section-note">
-            A sourced prototype with 40 selections from 11 visitors. The data
+            A sourced prototype with 40 selections from 12 visitors. The data
             structure is ready for the complete archive.
           </p>
         </div>
@@ -296,6 +298,8 @@ export default function Home() {
         )}
       </section>
 
+      <DreamListMatcher />
+
       <section className="about" id="about">
         <p className="eyebrow">About the archive</p>
         <div>
@@ -316,7 +320,7 @@ export default function Home() {
             <span>films indexed</span>
           </p>
           <p>
-            <strong>11</strong>
+            <strong>12</strong>
             <span>closet visitors</span>
           </p>
           <p>

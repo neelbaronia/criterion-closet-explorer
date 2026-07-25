@@ -35,8 +35,62 @@ test("server-renders the Closet Index product shell", async () => {
   );
   assert.match(html, /What&#x27;s in/);
   assert.match(html, /Find a film/);
+  assert.match(html, /Build your/);
+  assert.match(html, /dream collection/);
   assert.match(html, /Criterion Closet/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("returns ranked dream-list matches without requiring an API key", async () => {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("match-test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  const response = await worker.fetch(
+    new Request("http://localhost/api/match", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        films: [
+          {
+            id: "stalker",
+            title: "Stalker",
+            year: 1979,
+            director: "Andrei Tarkovsky",
+          },
+          {
+            id: "cure",
+            title: "Cure",
+            year: 1997,
+            director: "Kiyoshi Kurosawa",
+          },
+          {
+            id: "late-spring",
+            title: "Late Spring",
+            year: 1949,
+            director: "Yasujiro Ozu",
+          },
+        ],
+      }),
+    }),
+    {
+      ASSETS: {
+        fetch: async () => new Response("Not found", { status: 404 }),
+      },
+    },
+    {
+      waitUntil() {},
+      passThroughOnException() {},
+    },
+  );
+
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.method, "metadata-fallback");
+  assert.equal(payload.matches.length, 3);
+  assert.equal(payload.matches[0].name, "Ryusuke Hamaguchi");
 });
 
 test("ships a standalone five-direction design study", async () => {
