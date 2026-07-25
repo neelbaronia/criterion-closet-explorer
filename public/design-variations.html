@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Closet Index — Five Design Directions</title>
+    <meta
+      name="description"
+      content="Five visual directions for a Criterion Closet film explorer."
+    />
+    <style>
+      :root {
+        --ink: #151512;
+        --paper: #f1efe7;
+        --red: #ed3c2b;
+        --yellow: #f6df58;
+        --blue: #1544ff;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        background: var(--ink);
+        color: var(--paper);
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+      }
+      button, input { color: inherit; font: inherit; }
+      button { cursor: pointer; }
+      .topbar {
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,.25);
+        display: flex;
+        height: 62px;
+        justify-content: space-between;
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(14px);
+        background: rgba(21,21,18,.9);
+      }
+      .topbar a { color: inherit; text-decoration: none; }
+      .topbar strong { font-size: 11px; letter-spacing: .16em; }
+      .topbar span { color: rgba(255,255,255,.6); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+      .intro {
+        display: grid;
+        gap: 60px;
+        grid-template-columns: 1fr 1.6fr;
+        min-height: 70vh;
+        padding: 70px 24px 90px;
+      }
+      .intro-copy { align-self: end; }
+      .label { font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+      .intro h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(70px, 11vw, 166px);
+        font-weight: 400;
+        letter-spacing: -.07em;
+        line-height: .76;
+        margin: 0;
+      }
+      .intro h1 em { color: var(--red); font-weight: 400; }
+      .intro-copy p { font-size: 17px; line-height: 1.5; margin: 28px 0 0; max-width: 460px; }
+      .directions {
+        border-top: 1px solid rgba(255,255,255,.3);
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+      }
+      .direction-tab {
+        background: transparent;
+        border: 0;
+        border-right: 1px solid rgba(255,255,255,.22);
+        min-height: 170px;
+        padding: 20px;
+        text-align: left;
+        transition: background .2s, color .2s;
+      }
+      .direction-tab:hover, .direction-tab.active { background: var(--paper); color: var(--ink); }
+      .direction-tab b { display: block; font-family: Georgia, serif; font-size: 38px; font-weight: 400; margin-bottom: 35px; }
+      .direction-tab strong { display: block; font-size: 11px; margin-bottom: 7px; text-transform: uppercase; }
+      .direction-tab small { font-size: 10px; opacity: .65; }
+      .preview-shell { background: var(--paper); color: var(--ink); min-height: 100vh; }
+      .preview-label {
+        align-items: center;
+        background: var(--ink);
+        color: white;
+        display: flex;
+        font-size: 10px;
+        justify-content: space-between;
+        letter-spacing: .12em;
+        padding: 13px 24px;
+        text-transform: uppercase;
+      }
+      .preview-label button { background: white; border: 0; color: var(--ink); font-size: 9px; font-weight: 700; padding: 8px 11px; text-transform: uppercase; }
+      .concept { display: none; min-height: 900px; }
+      .concept.active { display: block; }
+
+      /* 01 — Archival Grid */
+      .archive { background: #efede4; min-height: 950px; padding: 0 24px 90px; }
+      .archive-head {
+        align-items: end;
+        border-bottom: 1px solid;
+        display: grid;
+        grid-template-columns: 1.4fr .6fr;
+        padding: 65px 0 30px;
+      }
+      .archive-head h2 { font-family: Georgia, serif; font-size: clamp(70px, 9vw, 140px); font-weight: 400; letter-spacing: -.07em; line-height: .75; margin: 0; }
+      .archive-head h2 i { color: var(--red); font-weight: 400; }
+      .archive-head p { line-height: 1.5; margin: 0; max-width: 380px; }
+      .archive-search { border-bottom: 1px solid; display: grid; grid-template-columns: 2fr 1fr 1fr; }
+      .archive-search div { border-right: 1px solid rgba(0,0,0,.25); font-size: 11px; padding: 20px; }
+      .archive-search div:last-child { border-right: 0; }
+      .archive-grid { display: grid; gap: 50px 16px; grid-template-columns: repeat(4, 1fr); padding-top: 24px; }
+      .archive-card img { aspect-ratio: 2 / 3; display: block; object-fit: cover; width: 100%; }
+      .archive-card h3 { font-family: Georgia, serif; font-size: 23px; font-weight: 400; letter-spacing: -.03em; margin: 13px 0 5px; }
+      .archive-card p { font-size: 10px; margin: 0 0 12px; }
+      .archive-card small { border-top: 1px solid rgba(0,0,0,.3); display: block; font-size: 9px; padding-top: 8px; text-transform: uppercase; }
+
+      /* 02 — Filmstrip */
+      .filmstrip { background: #090909; color: #eee; min-height: 950px; overflow: hidden; padding: 42px 0 90px; }
+      .filmstrip-nav { align-items: center; display: flex; justify-content: space-between; padding: 0 28px 60px; }
+      .filmstrip-logo { font-family: "Courier New", monospace; font-size: 14px; letter-spacing: .14em; }
+      .filmstrip-nav div:last-child { display: flex; font-size: 10px; gap: 28px; text-transform: uppercase; }
+      .filmstrip-hero { padding: 0 28px; }
+      .filmstrip-hero p { color: #ff5a43; font-family: "Courier New", monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+      .filmstrip-hero h2 { font-size: clamp(68px, 10vw, 150px); font-weight: 800; letter-spacing: -.075em; line-height: .75; margin: 0; text-transform: uppercase; }
+      .filmstrip-hero h2 span { color: transparent; -webkit-text-stroke: 1px #eee; }
+      .reel {
+        border-bottom: 9px dotted #eee;
+        border-top: 9px dotted #eee;
+        display: flex;
+        gap: 7px;
+        margin-top: 70px;
+        overflow-x: auto;
+        padding: 24px 28px;
+        scrollbar-width: none;
+      }
+      .reel-card { flex: 0 0 min(29vw, 350px); position: relative; }
+      .reel-card img { aspect-ratio: 1.45 / 1; display: block; filter: grayscale(1) contrast(1.15); object-fit: cover; object-position: top; width: 100%; }
+      .reel-card:first-child img, .reel-card:hover img { filter: none; }
+      .reel-card span { background: #eee; bottom: 8px; color: #090909; font-family: "Courier New", monospace; font-size: 9px; left: 8px; padding: 6px; position: absolute; }
+      .filmstrip-details { display: grid; gap: 40px; grid-template-columns: 1fr 1fr 1fr; padding: 42px 28px; }
+      .filmstrip-details h3 { font-size: 26px; margin: 0 0 8px; text-transform: uppercase; }
+      .filmstrip-details p { color: #aaa; font-family: "Courier New", monospace; font-size: 11px; line-height: 1.6; margin: 0; }
+
+      /* 03 — Index cards */
+      .cards-concept {
+        background-color: #d6d0bf;
+        background-image: radial-gradient(#968e7d 1px, transparent 1px);
+        background-size: 15px 15px;
+        min-height: 1000px;
+        padding: 38px 35px 100px;
+      }
+      .desk-head { align-items: start; display: flex; justify-content: space-between; }
+      .desk-head h2 { background: var(--yellow); box-shadow: 5px 5px 0 rgba(0,0,0,.25); font-family: "Courier New", monospace; font-size: clamp(44px, 7vw, 100px); font-weight: 400; letter-spacing: -.06em; line-height: .85; margin: 30px 0 80px; padding: 17px 22px; transform: rotate(-1deg); }
+      .desk-head p { background: white; border: 1px solid #aaa; box-shadow: 4px 6px 12px rgba(0,0,0,.15); font-family: "Courier New", monospace; font-size: 10px; line-height: 1.6; margin: 0; padding: 18px; transform: rotate(2deg); width: 230px; }
+      .index-grid { display: grid; gap: 34px; grid-template-columns: repeat(3, 1fr); }
+      .index-card { background: #f4f1e7; border: 1px solid #999; box-shadow: 4px 7px 14px rgba(0,0,0,.14); display: grid; gap: 18px; grid-template-columns: 104px 1fr; min-height: 190px; padding: 16px; position: relative; }
+      .index-card:nth-child(2n) { transform: rotate(1.2deg); }
+      .index-card:nth-child(3n) { transform: rotate(-1deg); }
+      .index-card::before { background: rgba(236,64,45,.4); content: ""; height: 24px; left: 42%; position: absolute; top: -13px; transform: rotate(-2deg); width: 90px; }
+      .index-card img { height: 156px; object-fit: cover; width: 104px; }
+      .typed { font-family: "Courier New", monospace; }
+      .typed b { display: block; font-size: 16px; line-height: 1.1; margin: 10px 0 12px; text-transform: uppercase; }
+      .typed p { font-size: 10px; line-height: 1.5; margin: 0 0 14px; }
+      .typed small { border-top: 1px dashed #777; display: block; font-size: 9px; padding-top: 9px; }
+
+      /* 04 — Signal red */
+      .signal { background: #f03e2d; min-height: 1000px; padding: 30px; }
+      .signal-head { align-items: center; display: flex; justify-content: space-between; }
+      .signal-head span { border: 1px solid; border-radius: 30px; font-size: 9px; letter-spacing: .12em; padding: 10px 15px; text-transform: uppercase; }
+      .signal h2 { font-family: Georgia, serif; font-size: clamp(88px, 15vw, 230px); font-weight: 400; letter-spacing: -.085em; line-height: .65; margin: 80px 0 20px; }
+      .signal h2 i { color: #f8d8cf; font-weight: 400; }
+      .poster-wall { align-items: end; display: grid; gap: 5px; grid-template-columns: 1.4fr .9fr 1.1fr .7fr; margin-top: 80px; }
+      .wall-card { position: relative; }
+      .wall-card:nth-child(n+5) { display: none; }
+      .wall-card img { display: block; filter: saturate(.8); max-height: 560px; object-fit: cover; width: 100%; }
+      .wall-card:nth-child(2) img { max-height: 410px; }
+      .wall-card:nth-child(4) img { max-height: 330px; }
+      .wall-card div { background: #f7e8df; bottom: 12px; left: 12px; padding: 11px; position: absolute; right: 12px; }
+      .wall-card h3 { font-family: Georgia, serif; font-size: 20px; font-weight: 400; margin: 0; }
+      .wall-card p { font-size: 9px; margin: 4px 0 0; text-transform: uppercase; }
+
+      /* 05 — Ledger */
+      .ledger { background: #f9f8f3; min-height: 1000px; padding: 25px 28px 100px; }
+      .ledger-head { border-bottom: 3px double; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 0 0 20px; }
+      .ledger-head p { font-size: 9px; letter-spacing: .14em; margin: 0; text-transform: uppercase; }
+      .ledger-head p:nth-child(2) { text-align: center; }
+      .ledger-head p:last-child { text-align: right; }
+      .ledger-title { align-items: end; display: grid; grid-template-columns: 1.6fr .4fr; padding: 48px 0 28px; }
+      .ledger-title h2 { font-family: Georgia, serif; font-size: clamp(70px, 10vw, 150px); font-weight: 400; letter-spacing: -.075em; line-height: .72; margin: 0; }
+      .ledger-title p { font-family: Georgia, serif; font-size: 17px; font-style: italic; line-height: 1.35; margin: 0; }
+      .ledger-row { align-items: center; border-top: 1px solid; display: grid; gap: 12px; grid-template-columns: 48px minmax(210px, 1.5fr) 1fr 70px 1fr 34px; min-height: 78px; }
+      .ledger-row:last-child { border-bottom: 1px solid; }
+      .ledger-row span { font-size: 10px; }
+      .ledger-row strong { font-family: Georgia, serif; font-size: clamp(22px, 2.5vw, 38px); font-weight: 400; letter-spacing: -.04em; }
+      .ledger-row img { display: none; }
+      .ledger-row:hover { background: var(--blue); color: white; padding: 0 12px; }
+      .ledger-row:hover img { display: block; height: 140px; object-fit: cover; position: fixed; right: 3vw; top: 30vh; transform: rotate(3deg); width: 94px; z-index: 3; }
+      .ledger-row em { font-family: Georgia, serif; font-size: 25px; font-weight: 400; }
+      .page-end { align-items: center; background: var(--ink); color: white; display: flex; font-size: 10px; justify-content: space-between; padding: 24px; text-transform: uppercase; }
+      .page-end a { color: inherit; }
+      @media (max-width: 800px) {
+        .intro { grid-template-columns: 1fr; min-height: 0; }
+        .intro-copy { align-self: start; }
+        .directions { grid-template-columns: 1fr; }
+        .direction-tab { min-height: 95px; }
+        .direction-tab b { display: inline-block; margin: 0 18px 0 0; }
+        .archive-grid { grid-template-columns: repeat(2, 1fr); }
+        .archive-head { grid-template-columns: 1fr; gap: 25px; }
+        .archive-search { grid-template-columns: 1fr; }
+        .filmstrip-details { grid-template-columns: 1fr; }
+        .index-grid { grid-template-columns: 1fr; }
+        .desk-head p { display: none; }
+        .poster-wall { grid-template-columns: 1fr 1fr; }
+        .wall-card:nth-child(2) img, .wall-card:nth-child(4) img { max-height: 520px; }
+        .ledger-title { grid-template-columns: 1fr; gap: 25px; }
+        .ledger-row { grid-template-columns: 36px 1.7fr 1fr 60px; }
+        .ledger-row span:nth-of-type(2) { display: none; }
+        .ledger-row em { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a href="/"><strong>THE CLOSET INDEX</strong></a>
+      <span>Visual direction study · 01—05</span>
+      <a href="/">Back to explorer ↗</a>
+    </header>
+    <main>
+      <section class="intro">
+        <div class="intro-copy">
+          <span class="label">A design choice, not a moodboard</span>
+          <p>
+            Five complete visual systems for the same film database. Pick a
+            number—or steal the best parts from two.
+          </p>
+        </div>
+        <h1>Choose the<br /><em>closet.</em></h1>
+      </section>
+      <nav class="directions" aria-label="Design directions">
+        <button class="direction-tab active" data-concept="01">
+          <b>01</b><strong>The Archive</strong><small>Editorial · warm · tactile</small>
+        </button>
+        <button class="direction-tab" data-concept="02">
+          <b>02</b><strong>The Filmstrip</strong><small>Cinematic · dark · kinetic</small>
+        </button>
+        <button class="direction-tab" data-concept="03">
+          <b>03</b><strong>The Card File</strong><small>Analog · playful · personal</small>
+        </button>
+        <button class="direction-tab" data-concept="04">
+          <b>04</b><strong>The Poster Wall</strong><small>Graphic · bold · artful</small>
+        </button>
+        <button class="direction-tab" data-concept="05">
+          <b>05</b><strong>The Ledger</strong><small>Typographic · precise · fast</small>
+        </button>
+      </nav>
+      <section class="preview-shell" id="preview">
+        <div class="preview-label">
+          <span id="active-label">Direction 01 · The Archive</span>
+          <button type="button" id="next-concept">Next direction →</button>
+        </div>
+
+        <article class="concept active" data-panel="01">
+          <div class="archive">
+            <div class="archive-head">
+              <h2>The <i>Closet</i><br />Index</h2>
+              <p>A living index of the films that filmmakers, actors, and artists carried out of the Criterion Closet.</p>
+            </div>
+            <div class="archive-search">
+              <div>⌕ &nbsp; Search title, director, or visitor</div>
+              <div>All visitors ↓</div>
+              <div>All decades ↓</div>
+            </div>
+            <div class="archive-grid" id="archive-grid"></div>
+          </div>
+        </article>
+
+        <article class="concept" data-panel="02">
+          <div class="filmstrip">
+            <div class="filmstrip-nav">
+              <div class="filmstrip-logo">[ C—INDEX ]</div>
+              <div><span>Explore</span><span>People</span><span>Saved 04</span></div>
+            </div>
+            <div class="filmstrip-hero">
+              <p>Now threading · all closet selections</p>
+              <h2>Roll the<br /><span>favorites.</span></h2>
+            </div>
+            <div class="reel" id="reel"></div>
+            <div class="filmstrip-details">
+              <h3>Inside the reel</h3>
+              <p>Drag horizontally through the picks. Stop on a frame to reveal the story, the visitor, and where to watch.</p>
+              <p>040 FILMS&nbsp;&nbsp; / &nbsp;&nbsp;011 VISITORS<br />1946—2021&nbsp;&nbsp; / &nbsp;&nbsp;US EDITION</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept" data-panel="03">
+          <div class="cards-concept">
+            <div class="desk-head">
+              <h2>CLOSET<br />CARD FILE</h2>
+              <p>NOTE TO SELF:<br /><br />The picks feel personal. Make the interface feel handled, marked up, and passed between friends.</p>
+            </div>
+            <div class="index-grid" id="index-grid"></div>
+          </div>
+        </article>
+
+        <article class="concept" data-panel="04">
+          <div class="signal">
+            <div class="signal-head">
+              <span>Closet Index / 2026</span>
+              <span>Search the walls ⌕</span>
+            </div>
+            <h2>Great taste<br /><i>leaves clues.</i></h2>
+            <div class="poster-wall" id="poster-wall"></div>
+          </div>
+        </article>
+
+        <article class="concept" data-panel="05">
+          <div class="ledger">
+            <div class="ledger-head">
+              <p>The Closet Index</p><p>Film ledger № 001</p><p>Updated 25 July 2026</p>
+            </div>
+            <div class="ledger-title">
+              <h2>Every pick,<br />in its place.</h2>
+              <p>A quick-reading index for the person who already has three films in mind.</p>
+            </div>
+            <div id="ledger-rows"></div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <footer class="page-end">
+      <span>Five directions · one shared dataset</span>
+      <a href="/">Open the working explorer ↗</a>
+    </footer>
+    <script>
+      const films = [
+        { title: "Do the Right Thing", year: 1989, director: "Spike Lee", picker: "John Leguizamo + Jeremy Pope", poster: "https://media.themoviedb.org/t/p/w500/63rmSDPahrH7C1gEFYzRuIBAN9W.jpg" },
+        { title: "Stalker", year: 1979, director: "Andrei Tarkovsky", picker: "Jude Law", poster: "https://media.themoviedb.org/t/p/w500/1qhOyf5C4s9ZdvY8d5JDx9DFMeT.jpg" },
+        { title: "Late Spring", year: 1949, director: "Yasujiro Ozu", picker: "Ryusuke Hamaguchi", poster: "https://media.themoviedb.org/t/p/w500/iNtRSY2AGjW1VDXDR79bKsNUdus.jpg" },
+        { title: "Lost Highway", year: 1997, director: "David Lynch", picker: "Christopher Nolan", poster: "https://media.themoviedb.org/t/p/w500/fdTtij6H0sX9AzIjUeynh5zbfm7.jpg" },
+        { title: "Paris Is Burning", year: 1990, director: "Jennie Livingston", picker: "Jeremy Pope", poster: "https://media.themoviedb.org/t/p/w500/90rCWH41mj9hjHUEy2SOHfuAOl3.jpg" },
+        { title: "Amarcord", year: 1973, director: "Federico Fellini", picker: "Roger Corman", poster: "https://media.themoviedb.org/t/p/w500/kS7i093sQpkLTawUEdgf4HVOHSc.jpg" },
+        { title: "Certified Copy", year: 2010, director: "Abbas Kiarostami", picker: "Pablo Larraín", poster: "https://media.themoviedb.org/t/p/w500/soBvtCR33Gv1j6gXwXOIc3JTlNc.jpg" },
+        { title: "La haine", year: 1995, director: "Mathieu Kassovitz", picker: "Ryusuke Hamaguchi", poster: "https://media.themoviedb.org/t/p/w500/hY4exng4s29RzDbtQInjx9MA3PZ.jpg" }
+      ];
+      const archive = document.querySelector("#archive-grid");
+      const reel = document.querySelector("#reel");
+      const cards = document.querySelector("#index-grid");
+      const wall = document.querySelector("#poster-wall");
+      const ledger = document.querySelector("#ledger-rows");
+      films.forEach((film, index) => {
+        archive.insertAdjacentHTML("beforeend", `<div class="archive-card"><img src="${film.poster}" alt="${film.title} poster"><h3>${film.title}</h3><p>${film.year} · ${film.director}</p><small>Picked by ${film.picker}</small></div>`);
+        reel.insertAdjacentHTML("beforeend", `<div class="reel-card"><img src="${film.poster}" alt="${film.title} poster"><span>FRAME ${String(index + 1).padStart(3, "0")} / ${film.title}</span></div>`);
+        cards.insertAdjacentHTML("beforeend", `<div class="index-card"><img src="${film.poster}" alt="${film.title} poster"><div class="typed"><b>${film.title}</b><p>${film.year}<br>DIR. ${film.director}</p><small>FILED BY:<br>${film.picker}</small></div></div>`);
+        wall.insertAdjacentHTML("beforeend", `<div class="wall-card"><img src="${film.poster}" alt="${film.title} poster"><div><h3>${film.title}</h3><p>${film.year} · ${film.picker}</p></div></div>`);
+        ledger.insertAdjacentHTML("beforeend", `<div class="ledger-row"><span>${String(index + 1).padStart(2, "0")}</span><strong>${film.title}</strong><span>${film.director}</span><span>${film.year}</span><span>${film.picker}</span><em>↗</em><img src="${film.poster}" alt=""></div>`);
+      });
+      const labels = {
+        "01": "Direction 01 · The Archive",
+        "02": "Direction 02 · The Filmstrip",
+        "03": "Direction 03 · The Card File",
+        "04": "Direction 04 · The Poster Wall",
+        "05": "Direction 05 · The Ledger"
+      };
+      let current = "01";
+      function selectConcept(id) {
+        current = id;
+        document.querySelectorAll(".direction-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.concept === id));
+        document.querySelectorAll(".concept").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === id));
+        document.querySelector("#active-label").textContent = labels[id];
+        document.querySelector("#preview").scrollIntoView({ behavior: "smooth" });
+      }
+      document.querySelectorAll(".direction-tab").forEach((tab) => tab.addEventListener("click", () => selectConcept(tab.dataset.concept)));
+      document.querySelector("#next-concept").addEventListener("click", () => {
+        const next = String((Number(current) % 5) + 1).padStart(2, "0");
+        selectConcept(next);
+      });
+    </script>
+  </body>
+</html>

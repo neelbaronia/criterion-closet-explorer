@@ -1,0 +1,322 @@
+[
+  {
+    "id": "boyhood",
+    "title": "Boyhood",
+    "year": 2014,
+    "director": "Richard Linklater",
+    "pickers": ["Christopher Nolan"],
+    "poster": "https://media.themoviedb.org/t/p/w500/2BvtvDUyxiMJ4dmKfiQf4qdOHQN.jpg"
+  },
+  {
+    "id": "lost-highway",
+    "title": "Lost Highway",
+    "year": 1997,
+    "director": "David Lynch",
+    "pickers": ["Christopher Nolan"],
+    "poster": "https://media.themoviedb.org/t/p/w500/fdTtij6H0sX9AzIjUeynh5zbfm7.jpg"
+  },
+  {
+    "id": "malcolm-x",
+    "title": "Malcolm X",
+    "year": 1992,
+    "director": "Spike Lee",
+    "pickers": ["Christopher Nolan"],
+    "poster": "https://media.themoviedb.org/t/p/w500/o2s9ow0uRRm1BcF3teznk5twd90.jpg"
+  },
+  {
+    "id": "el-norte",
+    "title": "El Norte",
+    "year": 1983,
+    "director": "Gregory Nava",
+    "pickers": ["John Leguizamo"],
+    "poster": "https://media.themoviedb.org/t/p/w500/bgpz7gTpWmmBb26CcjVtiPE7Kfo.jpg"
+  },
+  {
+    "id": "do-the-right-thing",
+    "title": "Do the Right Thing",
+    "year": 1989,
+    "director": "Spike Lee",
+    "pickers": ["John Leguizamo", "Jeremy Pope"],
+    "poster": "https://media.themoviedb.org/t/p/w500/63rmSDPahrH7C1gEFYzRuIBAN9W.jpg"
+  },
+  {
+    "id": "a-man-escaped",
+    "title": "A Man Escaped",
+    "year": 1956,
+    "director": "Robert Bresson",
+    "pickers": ["John Leguizamo"],
+    "poster": "https://media.themoviedb.org/t/p/w500/gkoZ8fFib24zhB2DKpjQ09SK9FU.jpg"
+  },
+  {
+    "id": "y-tu-mama-tambien",
+    "title": "Y tu mamá también",
+    "year": 2001,
+    "director": "Alfonso Cuarón",
+    "pickers": ["Pablo Larraín"],
+    "poster": "https://media.themoviedb.org/t/p/w500/aj3rqjab8jfc2fWmcS3H3c5qbur.jpg"
+  },
+  {
+    "id": "all-about-my-mother",
+    "title": "All About My Mother",
+    "year": 1999,
+    "director": "Pedro Almodóvar",
+    "pickers": ["Pablo Larraín"],
+    "poster": "https://media.themoviedb.org/t/p/w500/hjQhzhkGYXPNM96k0mOgob6HMmn.jpg"
+  },
+  {
+    "id": "certified-copy",
+    "title": "Certified Copy",
+    "year": 2010,
+    "director": "Abbas Kiarostami",
+    "pickers": ["Pablo Larraín"],
+    "poster": "https://media.themoviedb.org/t/p/w500/soBvtCR33Gv1j6gXwXOIc3JTlNc.jpg"
+  },
+  {
+    "id": "local-hero",
+    "title": "Local Hero",
+    "year": 1983,
+    "director": "Bill Forsyth",
+    "pickers": ["Andrew Stanton", "Jude Law"],
+    "poster": "https://media.themoviedb.org/t/p/w500/jqxD0H9a1rg5bXftsm6gsNOjt4n.jpg"
+  },
+  {
+    "id": "worst-person",
+    "title": "The Worst Person in the World",
+    "year": 2021,
+    "director": "Joachim Trier",
+    "pickers": ["Andrew Stanton"],
+    "poster": "https://media.themoviedb.org/t/p/w500/1NxGNQchGBTHXJ6RShLY1IlZqWn.jpg"
+  },
+  {
+    "id": "paper-moon",
+    "title": "Paper Moon",
+    "year": 1973,
+    "director": "Peter Bogdanovich",
+    "pickers": ["Andrew Stanton"],
+    "poster": "https://media.themoviedb.org/t/p/w500/3GHG0kTcBWHKdXjj3RdK8GjBCd6.jpg"
+  },
+  {
+    "id": "brazil",
+    "title": "Brazil",
+    "year": 1985,
+    "director": "Terry Gilliam",
+    "pickers": ["Andrew Stanton"],
+    "poster": "https://media.themoviedb.org/t/p/w500/aewan59WcFThBimkTVVoNf2o5Vb.jpg"
+  },
+  {
+    "id": "night-hunter",
+    "title": "The Night of the Hunter",
+    "year": 1955,
+    "director": "Charles Laughton",
+    "pickers": ["Jude Law"],
+    "poster": "https://media.themoviedb.org/t/p/w500/rBka0nFWiHxabHRLr0KfIA8Yiaq.jpg"
+  },
+  {
+    "id": "stalker",
+    "title": "Stalker",
+    "year": 1979,
+    "director": "Andrei Tarkovsky",
+    "pickers": ["Jude Law"],
+    "poster": "https://media.themoviedb.org/t/p/w500/1qhOyf5C4s9ZdvY8d5JDx9DFMeT.jpg"
+  },
+  {
+    "id": "purple-noon",
+    "title": "Purple Noon",
+    "year": 1960,
+    "director": "René Clément",
+    "pickers": ["Jude Law"],
+    "poster": "https://media.themoviedb.org/t/p/w500/x41Zx8GeZhducquhOq9nE7z1GBG.jpg"
+  },
+  {
+    "id": "wages-of-fear",
+    "title": "The Wages of Fear",
+    "year": 1953,
+    "director": "Henri-Georges Clouzot",
+    "pickers": ["Jude Law"],
+    "poster": "https://media.themoviedb.org/t/p/w500/sNOvIp4X0fmCMfgEs2ww5IyMgFm.jpg"
+  },
+  {
+    "id": "devil-blue-dress",
+    "title": "Devil in a Blue Dress",
+    "year": 1995,
+    "director": "Carl Franklin",
+    "pickers": ["Jeremy Pope"],
+    "poster": "https://media.themoviedb.org/t/p/w500/5lcJhwKGavLbPva17QkTBhLfqEk.jpg"
+  },
+  {
+    "id": "paris-burning",
+    "title": "Paris Is Burning",
+    "year": 1990,
+    "director": "Jennie Livingston",
+    "pickers": ["Jeremy Pope"],
+    "poster": "https://media.themoviedb.org/t/p/w500/90rCWH41mj9hjHUEy2SOHfuAOl3.jpg"
+  },
+  {
+    "id": "one-night-miami",
+    "title": "One Night in Miami...",
+    "year": 2020,
+    "director": "Regina King",
+    "pickers": ["Jeremy Pope"],
+    "poster": "https://media.themoviedb.org/t/p/w500/1DLUb9PTDqXMSgsD7RmiJs7ZJIx.jpg"
+  },
+  {
+    "id": "gunfighter",
+    "title": "The Gunfighter",
+    "year": 1950,
+    "director": "Henry King",
+    "pickers": ["Roger Corman"],
+    "poster": "https://media.themoviedb.org/t/p/w500/rqRgjWqSmK9oI6duvigPmn49aVG.jpg"
+  },
+  {
+    "id": "war-and-peace",
+    "title": "War and Peace",
+    "year": 1966,
+    "director": "Sergei Bondarchuk",
+    "pickers": ["Roger Corman"],
+    "poster": "https://media.themoviedb.org/t/p/w500/rABVHrbkLki8DWNuMKJdbQLjM2m.jpg"
+  },
+  {
+    "id": "raging-bull",
+    "title": "Raging Bull",
+    "year": 1980,
+    "director": "Martin Scorsese",
+    "pickers": ["Roger Corman"],
+    "poster": "https://media.themoviedb.org/t/p/w500/1WV7WlTS8LI1L5NkCgjWT9GSW3O.jpg"
+  },
+  {
+    "id": "targets",
+    "title": "Targets",
+    "year": 1968,
+    "director": "Peter Bogdanovich",
+    "pickers": ["Roger Corman"],
+    "poster": "https://media.themoviedb.org/t/p/w500/n0xQThLhrymktXzQbD0KwwUMXSB.jpg"
+  },
+  {
+    "id": "amarcord",
+    "title": "Amarcord",
+    "year": 1973,
+    "director": "Federico Fellini",
+    "pickers": ["Roger Corman"],
+    "poster": "https://media.themoviedb.org/t/p/w500/kS7i093sQpkLTawUEdgf4HVOHSc.jpg"
+  },
+  {
+    "id": "la-promesse",
+    "title": "La promesse",
+    "year": 1996,
+    "director": "Jean-Pierre & Luc Dardenne",
+    "pickers": ["Agnès Varda"],
+    "poster": "https://media.themoviedb.org/t/p/w500/pmGx73cJ3gVCCli1JAVQOaLbdnY.jpg"
+  },
+  {
+    "id": "tiny-furniture",
+    "title": "Tiny Furniture",
+    "year": 2010,
+    "director": "Lena Dunham",
+    "pickers": ["Agnès Varda"],
+    "poster": "https://media.themoviedb.org/t/p/w500/5T81WvUlc1Our3UwmluXBBc3L0k.jpg"
+  },
+  {
+    "id": "angel-table",
+    "title": "An Angel at My Table",
+    "year": 1990,
+    "director": "Jane Campion",
+    "pickers": ["Agnès Varda"],
+    "poster": "https://media.themoviedb.org/t/p/w500/sDICHxQRDkS4TvIDcUgO9URJxu1.jpg"
+  },
+  {
+    "id": "maria-braun",
+    "title": "The Marriage of Maria Braun",
+    "year": 1979,
+    "director": "Rainer Werner Fassbinder",
+    "pickers": ["Agnès Varda"],
+    "poster": "https://media.themoviedb.org/t/p/w500/tXjZEzlf4WQwZ4Dt53gXeJVuO7p.jpg"
+  },
+  {
+    "id": "band-outsiders",
+    "title": "Band of Outsiders",
+    "year": 1964,
+    "director": "Jean-Luc Godard",
+    "pickers": ["Agnès Varda"],
+    "poster": "https://media.themoviedb.org/t/p/w500/9oqyj79xmcypxLajJdefOtrYx64.jpg"
+  },
+  {
+    "id": "crumb",
+    "title": "Crumb",
+    "year": 1994,
+    "director": "Terry Zwigoff",
+    "pickers": ["Guillermo del Toro"],
+    "poster": "https://media.themoviedb.org/t/p/w500/9ocTHdBCJdwJ65Tubg3lYlfMxEY.jpg"
+  },
+  {
+    "id": "magician",
+    "title": "The Magician",
+    "year": 1958,
+    "director": "Ingmar Bergman",
+    "pickers": ["Guillermo del Toro", "Alec Baldwin"],
+    "poster": "https://media.themoviedb.org/t/p/w500/qjKOJmmIC1rIXw1u2TYHFcyn5Bl.jpg"
+  },
+  {
+    "id": "400-blows",
+    "title": "The 400 Blows",
+    "year": 1959,
+    "director": "François Truffaut",
+    "pickers": ["Guillermo del Toro"],
+    "poster": "https://media.themoviedb.org/t/p/w500/12PuU23kkDLvTd0nb8hMlE3oShB.jpg"
+  },
+  {
+    "id": "thin-red-line",
+    "title": "The Thin Red Line",
+    "year": 1998,
+    "director": "Terrence Malick",
+    "pickers": ["Guillermo del Toro"],
+    "poster": "https://media.themoviedb.org/t/p/w500/seMydAaoxQP6F0xbE1jOcTmn5Jr.jpg"
+  },
+  {
+    "id": "la-haine",
+    "title": "La haine",
+    "year": 1995,
+    "director": "Mathieu Kassovitz",
+    "pickers": ["Ryusuke Hamaguchi"],
+    "poster": "https://media.themoviedb.org/t/p/w500/hY4exng4s29RzDbtQInjx9MA3PZ.jpg"
+  },
+  {
+    "id": "cure",
+    "title": "Cure",
+    "year": 1997,
+    "director": "Kiyoshi Kurosawa",
+    "pickers": ["Ryusuke Hamaguchi"],
+    "poster": "https://media.themoviedb.org/t/p/w500/xNVJr9q6AtSbjosS6Ed9YirOkSo.jpg"
+  },
+  {
+    "id": "late-spring",
+    "title": "Late Spring",
+    "year": 1949,
+    "director": "Yasujiro Ozu",
+    "pickers": ["Ryusuke Hamaguchi"],
+    "poster": "https://media.themoviedb.org/t/p/w500/iNtRSY2AGjW1VDXDR79bKsNUdus.jpg"
+  },
+  {
+    "id": "my-darling-clementine",
+    "title": "My Darling Clementine",
+    "year": 1946,
+    "director": "John Ford",
+    "pickers": ["Ryusuke Hamaguchi"],
+    "poster": "https://media.themoviedb.org/t/p/w500/o7G5klSt9i8LQZdUNvrWUJbbxAO.jpg"
+  },
+  {
+    "id": "mishima",
+    "title": "Mishima: A Life in Four Chapters",
+    "year": 1985,
+    "director": "Paul Schrader",
+    "pickers": ["Gaspar Noé"],
+    "poster": "https://media.themoviedb.org/t/p/w500/c8SfIgwR5mfu0c0qTBKbsvBfecJ.jpg"
+  },
+  {
+    "id": "salo",
+    "title": "Salò, or the 120 Days of Sodom",
+    "year": 1975,
+    "director": "Pier Paolo Pasolini",
+    "pickers": ["Gaspar Noé"],
+    "poster": "https://media.themoviedb.org/t/p/w500/xnaDdiRfZlJaTf6JRc4in40eaeI.jpg"
+  }
+]
