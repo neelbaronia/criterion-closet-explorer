@@ -21,6 +21,18 @@ function channelUrl(title: string) {
   return `https://www.criterionchannel.com/search?q=${encodeURIComponent(title)}`;
 }
 
+function netflixUrl(title: string) {
+  return `https://www.netflix.com/search?q=${encodeURIComponent(title)}`;
+}
+
+function primeVideoUrl(title: string) {
+  return `https://www.amazon.com/s?k=${encodeURIComponent(title)}&i=instant-video`;
+}
+
+function maxUrl(title: string) {
+  return `https://www.justwatch.com/us/provider/hbo-max/movies?q=${encodeURIComponent(title)}`;
+}
+
 function initials(name: string) {
   return name
     .split(/\s+/)
@@ -254,7 +266,7 @@ export default function Home() {
             films
           </p>
           <p className="availability-note">
-            Watch links open current U.S. availability searches.
+            Provider searches may require sign-in. Catalogs vary by region.
           </p>
           {filtersActive && (
             <button type="button" onClick={clearFilters}>
@@ -267,36 +279,39 @@ export default function Home() {
           <div className="sprocket-rail" aria-hidden="true" />
           <div className="table-wrap">
             <table>
-            <thead>
-              <tr>
-                <th className="poster-column" scope="col">
-                  Poster
-                </th>
-                <th scope="col" aria-sort={ariaSort("title")}>
-                  <button type="button" onClick={() => toggleSort("title")}>
-                    Title <span>{sortMark("title")}</span>
-                  </button>
-                </th>
-                <th scope="col" aria-sort={ariaSort("year")}>
-                  <button type="button" onClick={() => toggleSort("year")}>
-                    Year <span>{sortMark("year")}</span>
-                  </button>
-                </th>
-                <th scope="col" aria-sort={ariaSort("director")}>
-                  <button type="button" onClick={() => toggleSort("director")}>
-                    Director <span>{sortMark("director")}</span>
-                  </button>
-                </th>
-                <th scope="col" aria-sort={ariaSort("picker")}>
-                  <button type="button" onClick={() => toggleSort("picker")}>
-                    Closet picker <span>{sortMark("picker")}</span>
-                  </button>
-                </th>
-                <th className="watch-column" scope="col">
-                  Where to watch
-                </th>
-              </tr>
-            </thead>
+              <thead>
+                <tr>
+                  <th className="poster-column" scope="col">
+                    Poster
+                  </th>
+                  <th scope="col" aria-sort={ariaSort("title")}>
+                    <button type="button" onClick={() => toggleSort("title")}>
+                      Title <span>{sortMark("title")}</span>
+                    </button>
+                  </th>
+                  <th scope="col" aria-sort={ariaSort("year")}>
+                    <button type="button" onClick={() => toggleSort("year")}>
+                      Year <span>{sortMark("year")}</span>
+                    </button>
+                  </th>
+                  <th scope="col" aria-sort={ariaSort("director")}>
+                    <button
+                      type="button"
+                      onClick={() => toggleSort("director")}
+                    >
+                      Director <span>{sortMark("director")}</span>
+                    </button>
+                  </th>
+                  <th scope="col" aria-sort={ariaSort("picker")}>
+                    <button type="button" onClick={() => toggleSort("picker")}>
+                      Closet picker <span>{sortMark("picker")}</span>
+                    </button>
+                  </th>
+                  <th className="watch-column" scope="col">
+                    Where to watch
+                  </th>
+                </tr>
+              </thead>
               <tbody>
                 {filteredFilms.map((film, index) => (
                   <tr key={film.id}>
@@ -336,14 +351,38 @@ export default function Home() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          JustWatch ↗
+                          All services ↗
                         </a>
                         <a
                           href={channelUrl(film.title)}
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Criterion Channel ↗
+                          Criterion ↗
+                        </a>
+                        <a
+                          href={netflixUrl(film.title)}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Search Netflix for ${film.title}`}
+                        >
+                          Netflix ↗
+                        </a>
+                        <a
+                          href={primeVideoUrl(film.title)}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Search Prime Video for ${film.title}`}
+                        >
+                          Prime ↗
+                        </a>
+                        <a
+                          href={maxUrl(film.title)}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Check Max availability for ${film.title}`}
+                        >
+                          Max ↗
                         </a>
                       </div>
                     </td>

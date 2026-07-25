@@ -293,7 +293,7 @@ footer {
 table {
   background: var(--paper);
   border-collapse: collapse;
-  min-width: 1080px;
+  min-width: 1180px;
   table-layout: fixed;
   width: 100%;
 }
@@ -307,7 +307,7 @@ th {
   border-right: 1px solid #333;
   font-size: 9px;
   font-weight: 500;
-  height: 43px;
+  height: 39px;
   letter-spacing: 0.08em;
   padding: 0 16px;
   text-align: left;
@@ -324,7 +324,7 @@ th button {
   border: 0;
   color: inherit;
   display: flex;
-  height: 43px;
+  height: 39px;
   justify-content: space-between;
   margin: 0 -16px;
   padding: 0 16px;
@@ -343,7 +343,7 @@ th button span {
 }
 
 .poster-column {
-  width: 108px;
+  width: 82px;
 }
 
 th:nth-child(2) {
@@ -351,7 +351,7 @@ th:nth-child(2) {
 }
 
 th:nth-child(3) {
-  width: 88px;
+  width: 72px;
 }
 
 th:nth-child(4) {
@@ -363,7 +363,7 @@ th:nth-child(5) {
 }
 
 .watch-column {
-  width: 250px;
+  width: 330px;
 }
 
 tbody tr {
@@ -377,9 +377,9 @@ tbody tr:hover {
 
 td {
   border-right: 1px solid var(--line);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.35;
-  padding: 18px 16px;
+  padding: 8px 12px;
   vertical-align: middle;
 }
 
@@ -388,47 +388,47 @@ td:last-child {
 }
 
 .poster-cell {
-  padding: 10px 16px;
+  padding: 6px 12px;
 }
 
 .poster-frame {
   background: var(--black);
-  padding: 13px 7px;
+  padding: 9px 5px;
   position: relative;
-  width: 80px;
+  width: 58px;
 }
 
 .poster-frame::before,
 .poster-frame::after {
   background: repeating-linear-gradient(
     90deg,
-    transparent 0 3px,
-    var(--paper) 3px 9px,
-    transparent 9px 13px
+    transparent 0 2px,
+    var(--paper) 2px 6px,
+    transparent 6px 9px
   );
   content: "";
-  height: 5px;
-  left: 4px;
+  height: 3px;
+  left: 3px;
   position: absolute;
-  right: 4px;
+  right: 3px;
 }
 
 .poster-frame::before {
-  top: 4px;
+  top: 3px;
 }
 
 .poster-frame::after {
-  bottom: 4px;
+  bottom: 3px;
 }
 
 .poster-frame img {
   background: #deddd6;
   display: block;
   filter: grayscale(1);
-  height: 100px;
+  height: 72px;
   object-fit: cover;
   transition: filter 160ms ease;
-  width: 66px;
+  width: 48px;
 }
 
 tbody tr:hover .poster-frame img {
@@ -436,7 +436,7 @@ tbody tr:hover .poster-frame img {
 }
 
 .title-cell strong {
-  font-size: clamp(16px, 1.5vw, 23px);
+  font-size: clamp(15px, 1.3vw, 19px);
   font-weight: 750;
   letter-spacing: -0.035em;
   line-height: 1.05;
@@ -449,18 +449,18 @@ tbody tr:hover .poster-frame img {
 
 .year-cell {
   color: var(--red);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .picker-cell {
-  font-size: 11px;
+  font-size: 9px;
   text-transform: uppercase;
 }
 
 .person-entry {
   align-items: center;
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .person-entry > span:last-child {
@@ -473,16 +473,16 @@ tbody tr:hover .poster-frame img {
   border: 2px solid var(--paper);
   color: var(--yellow);
   display: inline-flex;
-  flex: 0 0 44px;
+  flex: 0 0 32px;
   font-family: var(--font-mono), monospace;
-  font-size: 9px;
+  font-size: 7px;
   font-weight: 600;
-  height: 44px;
+  height: 32px;
   justify-content: center;
   outline: 1px solid var(--black);
   overflow: hidden;
   position: relative;
-  width: 44px;
+  width: 32px;
 }
 
 .person-avatar img {
@@ -505,22 +505,22 @@ tbody tr:hover .person-avatar img {
 }
 
 .avatar-stack .person-avatar + .person-avatar {
-  margin-left: -10px;
+  margin-left: -7px;
 }
 
 .watch-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 4px;
 }
 
 .watch-links a {
   background: var(--white);
   border: 1px solid var(--black);
   font-family: var(--font-mono), monospace;
-  font-size: 8px;
+  font-size: 7px;
   letter-spacing: 0.03em;
-  padding: 8px 9px;
+  padding: 6px 7px;
   text-decoration: none;
   text-transform: uppercase;
 }

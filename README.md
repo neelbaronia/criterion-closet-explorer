@@ -8,7 +8,8 @@ The repository includes:
 
 - a responsive, searchable film table
 - 40 sourced selections from 12 Closet visitors as a starter dataset
-- poster artwork and live “where to watch” links
+- poster artwork and live searches across JustWatch, Criterion Channel,
+  Netflix, Prime Video, and Max
 - director and Closet-picker profile photos
 - sorting by title, year, director, or Closet picker
 - filters for Closet picker, director, and decade
