@@ -460,6 +460,57 @@ tbody tr:hover .poster-frame img {
   text-transform: uppercase;
 }
 
+.person-entry {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.person-entry > span:last-child {
+  min-width: 0;
+}
+
+.person-avatar {
+  align-items: center;
+  background: var(--black);
+  border: 2px solid var(--paper);
+  color: var(--yellow);
+  display: inline-flex;
+  flex: 0 0 44px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 600;
+  height: 44px;
+  justify-content: center;
+  outline: 1px solid var(--black);
+  overflow: hidden;
+  position: relative;
+  width: 44px;
+}
+
+.person-avatar img {
+  filter: grayscale(1);
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  transition: filter 160ms ease;
+  width: 100%;
+}
+
+tbody tr:hover .person-avatar img {
+  filter: grayscale(0);
+}
+
+.avatar-stack {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.avatar-stack .person-avatar + .person-avatar {
+  margin-left: -10px;
+}
+
 .watch-links {
   display: flex;
   flex-wrap: wrap;

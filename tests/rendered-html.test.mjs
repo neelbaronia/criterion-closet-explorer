@@ -40,6 +40,8 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /All closet pickers/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
+  assert.match(html, /person-avatar/);
+  assert.match(html, /Wikimedia Commons/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

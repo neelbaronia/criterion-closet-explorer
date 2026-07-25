@@ -9,6 +9,7 @@ The repository includes:
 - a responsive, searchable film table
 - 40 sourced selections from 12 Closet visitors as a starter dataset
 - poster artwork and live “where to watch” links
+- director and Closet-picker profile photos
 - sorting by title, year, director, or Closet picker
 - filters for Closet picker, director, and decade
 - [five complete visual directions](./public/design-variations.html) in one
@@ -46,7 +47,8 @@ they automatically become searchable, filterable, and sortable.
 
 Selection data is sourced from the
 [official Criterion Closet Picks archive](https://www.criterion.com/closet-picks).
-Poster imagery is delivered by TMDB. Streaming links intentionally open current
+Poster imagery is delivered by TMDB. Profile photos are delivered by Wikimedia
+Commons, with a TMDB fallback. Streaming links intentionally open current
 JustWatch and Criterion Channel searches because availability changes by date
 and region.
 

@@ -3,12 +3,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import filmsData from "../data/films.json";
+import peopleData from "../data/people.json";
 
 type Film = (typeof filmsData)[number];
 type SortField = "title" | "year" | "director" | "picker";
 type SortDirection = "asc" | "desc";
 
 const films = filmsData as Film[];
+const peopleImages = peopleData as Record<string, string>;
 const sourceUrl = "https://www.criterion.com/closet-picks";
 
 function watchUrl(title: string) {
@@ -17,6 +19,34 @@ function watchUrl(title: string) {
 
 function channelUrl(title: string) {
   return `https://www.criterionchannel.com/search?q=${encodeURIComponent(title)}`;
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter((part) => part !== "&")
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function PersonAvatar({ name }: { name: string }) {
+  return (
+    <span className="person-avatar" aria-hidden="true">
+      <span>{initials(name)}</span>
+      {peopleImages[name] && (
+        <img
+          src={peopleImages[name]}
+          alt=""
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
+        />
+      )}
+    </span>
+  );
 }
 
 export default function Home() {
@@ -283,8 +313,22 @@ export default function Home() {
                       <strong>{film.title}</strong>
                     </td>
                     <td className="year-cell">{film.year}</td>
-                    <td>{film.director}</td>
-                    <td className="picker-cell">{film.pickers.join(" + ")}</td>
+                    <td>
+                      <div className="person-entry">
+                        <PersonAvatar name={film.director} />
+                        <span>{film.director}</span>
+                      </div>
+                    </td>
+                    <td className="picker-cell">
+                      <div className="person-entry">
+                        <div className="avatar-stack">
+                          {film.pickers.map((name) => (
+                            <PersonAvatar key={name} name={name} />
+                          ))}
+                        </div>
+                        <span>{film.pickers.join(" + ")}</span>
+                      </div>
+                    </td>
                     <td>
                       <div className="watch-links">
                         <a
@@ -323,7 +367,8 @@ export default function Home() {
 
         <footer>
           <p>
-            Film selections sourced from Criterion. Poster imagery via TMDB.
+            Film selections sourced from Criterion. Posters via TMDB; profile
+            photos via Wikimedia Commons and TMDB.
           </p>
           <p>
             Independent project; not affiliated with The Criterion Collection.
