@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const origin = `${protocol}://${host}`;
   const title = "The Closet Index — Explore Criterion Closet Picks";
   const description =
-    "Explore Criterion Closet Picks, cut your dream film reel, and find the visitor whose taste is closest to yours.";
+    "Search and sort Criterion Closet Picks by film, year, director, picker, and current streaming availability.";
 
   return {
     title,
@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: `${origin}/og.png`,
           width: 1200,
           height: 630,
-          alt: "The Closet Index — Roll the favorites.",
+          alt: "The Closet Index — Criterion Closet Picks database.",
         },
       ],
     },

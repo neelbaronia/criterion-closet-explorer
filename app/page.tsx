@@ -1,28 +1,15 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Posters are remote archive data. */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import filmsData from "../data/films.json";
-import { DreamListMatcher } from "./DreamListMatcher";
 
 type Film = (typeof filmsData)[number];
-type SortKey = "featured" | "title" | "year-desc" | "year-asc";
+type SortField = "title" | "year" | "director" | "picker";
+type SortDirection = "asc" | "desc";
 
 const films = filmsData as Film[];
 const sourceUrl = "https://www.criterion.com/closet-picks";
-const featureIds = [
-  "lost-highway",
-  "do-the-right-thing",
-  "stalker",
-  "paris-burning",
-  "late-spring",
-  "cure",
-  "amarcord",
-  "malcolm-x",
-];
-const featuredFilms = featureIds
-  .map((id) => films.find((film) => film.id === id))
-  .filter((film): film is Film => Boolean(film));
 
 function watchUrl(title: string) {
   return `https://www.justwatch.com/us/search?q=${encodeURIComponent(title)}`;
@@ -34,16 +21,25 @@ function channelUrl(title: string) {
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [picker, setPicker] = useState("All visitors");
-  const [era, setEra] = useState("All decades");
-  const [sort, setSort] = useState<SortKey>("featured");
-  const [activeFilm, setActiveFilm] = useState<Film | null>(null);
-  const [saved, setSaved] = useState<string[]>([]);
-  const [savedReady, setSavedReady] = useState(false);
+  const [picker, setPicker] = useState("All closet pickers");
+  const [director, setDirector] = useState("All directors");
+  const [decade, setDecade] = useState("All decades");
+  const [sortField, setSortField] = useState<SortField>("title");
+  const [sortDirection, setSortDirection] =
+    useState<SortDirection>("asc");
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const pickers = useMemo(
     () =>
       [...new Set(films.flatMap((film) => film.pickers))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [],
+  );
+
+  const directors = useMemo(
+    () =>
+      [...new Set(films.map((film) => film.director))].sort((a, b) =>
         a.localeCompare(b),
       ),
     [],
@@ -58,7 +54,7 @@ export default function Home() {
   );
 
   const filteredFilms = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = query.trim().toLocaleLowerCase();
     const results = films.filter((film) => {
       const searchable = [
         film.title,
@@ -67,389 +63,268 @@ export default function Home() {
         ...film.pickers,
       ]
         .join(" ")
-        .toLowerCase();
-      const matchesQuery =
-        !normalizedQuery || searchable.includes(normalizedQuery);
-      const matchesPicker =
-        picker === "All visitors" || film.pickers.includes(picker);
-      const matchesEra =
-        era === "All decades" ||
-        Math.floor(film.year / 10) * 10 === Number(era);
-      return matchesQuery && matchesPicker && matchesEra;
+        .toLocaleLowerCase();
+
+      return (
+        (!normalizedQuery || searchable.includes(normalizedQuery)) &&
+        (picker === "All closet pickers" || film.pickers.includes(picker)) &&
+        (director === "All directors" || film.director === director) &&
+        (decade === "All decades" ||
+          Math.floor(film.year / 10) * 10 === Number(decade))
+      );
     });
 
-    return [...results].sort((a, b) => {
-      if (sort === "title") return a.title.localeCompare(b.title);
-      if (sort === "year-desc") return b.year - a.year;
-      if (sort === "year-asc") return a.year - b.year;
-      return b.pickers.length - a.pickers.length;
+    return results.sort((a, b) => {
+      let comparison = 0;
+      if (sortField === "title") comparison = a.title.localeCompare(b.title);
+      if (sortField === "year") comparison = a.year - b.year;
+      if (sortField === "director") {
+        comparison = a.director.localeCompare(b.director);
+      }
+      if (sortField === "picker") {
+        comparison = a.pickers.join(", ").localeCompare(b.pickers.join(", "));
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
     });
-  }, [era, picker, query, sort]);
+  }, [decade, director, picker, query, sortDirection, sortField]);
+
+  const filtersActive =
+    Boolean(query) ||
+    picker !== "All closet pickers" ||
+    director !== "All directors" ||
+    decade !== "All decades";
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const stored = window.localStorage.getItem("closet-index-saved");
-      if (stored) setSaved(JSON.parse(stored));
-      setSavedReady(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
-
-  useEffect(() => {
-    if (!savedReady) return;
-    window.localStorage.setItem("closet-index-saved", JSON.stringify(saved));
-  }, [saved, savedReady]);
-
-  useEffect(() => {
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setActiveFilm(null);
+    function focusSearch(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
     }
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
   }, []);
-
-  function toggleSaved(id: string) {
-    setSaved((current) =>
-      current.includes(id)
-        ? current.filter((filmId) => filmId !== id)
-        : [...current, id],
-    );
-  }
 
   function clearFilters() {
     setQuery("");
-    setPicker("All visitors");
-    setEra("All decades");
+    setPicker("All closet pickers");
+    setDirector("All directors");
+    setDecade("All decades");
+  }
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+      return;
+    }
+    setSortField(field);
+    setSortDirection(field === "year" ? "desc" : "asc");
+  }
+
+  function ariaSort(
+    field: SortField,
+  ): "none" | "ascending" | "descending" {
+    if (sortField !== field) return "none";
+    return sortDirection === "asc" ? "ascending" : "descending";
+  }
+
+  function sortMark(field: SortField) {
+    if (sortField !== field) return "↕";
+    return sortDirection === "asc" ? "↑" : "↓";
   }
 
   return (
-    <main>
+    <main id="top">
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="The Closet Index home">
-          <span className="wordmark-mark">[</span>
-          <span>C—INDEX</span>
-          <span className="wordmark-end">]</span>
+          [ C—INDEX ]
         </a>
-        <nav aria-label="Primary navigation">
-          <a href="#explore">01 / Explore</a>
-          <a href="#dream-list">02 / Build yours</a>
-          <a href="#about">03 / About</a>
-          <a className="variations-link" href="/design-variations.html">
-            Concept archive ↗
+        <p>Criterion Closet Picks / Unofficial database</p>
+        <nav aria-label="Archive links">
+          <a href="/design-variations.html">Design study</a>
+          <a href={sourceUrl} target="_blank" rel="noreferrer">
+            Criterion source ↗
           </a>
         </nav>
-        <div className="saved-count" aria-label={`${saved.length} saved films`}>
-          Saved / <span>{String(saved.length).padStart(2, "0")}</span>
-        </div>
       </header>
 
-      <section className="hero" id="top">
-        <div className="hero-kicker">
-          <span>Now threading · all Closet selections</span>
-          <span>Unofficial archive / Est. 2010</span>
-          <span>040 frames loaded</span>
-        </div>
-        <h1>
-          Roll the
-          <br />
-          <em>favorites.</em>
-        </h1>
-
-        <div className="hero-reel-shell">
-          <div className="reel-perforations" aria-hidden="true" />
-          <div className="hero-reel">
-            {featuredFilms.map((film, index) => (
-              <button
-                type="button"
-                className="hero-frame"
-                key={film.id}
-                onClick={() => setActiveFilm(film)}
-                aria-label={`Open ${film.title}`}
-              >
-                <img src={film.poster} alt="" />
-                <span>
-                  FRAME {String(index + 1).padStart(3, "0")} / {film.title}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="reel-perforations" aria-hidden="true" />
-        </div>
-
-        <div className="hero-bottom">
-          <p>
-            Thread through the films directors, actors, and artists carried out
-            of the Criterion Closet—and find your next watch.
-          </p>
-          <div className="hero-stats">
-            <span>040 films</span>
-            <span>012 visitors</span>
-            <span>1946—2021</span>
-          </div>
-          <a className="round-link" href="#explore" aria-label="Start exploring">
-            ↓
-          </a>
-        </div>
-        <div className="marquee" aria-hidden="true">
-          <span>
-            CHRISTOPHER NOLAN · AGNÈS VARDA · JUDE LAW · GUILLERMO DEL TORO ·
-            RYUSUKE HAMAGUCHI · JOHN LEGUIZAMO · PABLO LARRAÍN ·&nbsp;
-          </span>
-        </div>
-      </section>
-
-      <section className="explorer" id="explore">
-        <div className="section-heading">
+      <section className="database-shell" aria-labelledby="database-title">
+        <div className="database-heading">
           <div>
-            <p className="eyebrow">Reel 01 / The working index</p>
-            <h2>
-              Search the
-              <br />
-              <span>reels.</span>
-            </h2>
+            <p className="eyebrow">The working index</p>
+            <h1 id="database-title">Criterion Closet picks</h1>
           </div>
-          <p className="section-note">
-            Forty sourced selections, twelve visitors, and one searchable
-            contact sheet. Filter by who chose it, when it was made, or the name
-            on the frame.
-          </p>
+          <div className="database-count">
+            <strong>{String(films.length).padStart(3, "0")}</strong>
+            <span>films indexed</span>
+          </div>
         </div>
 
-        <div className="search-panel">
+        <div className="filter-panel" aria-label="Filter the film table">
           <label className="search-field">
-            <span className="sr-only">Search films, directors, or visitors</span>
-            <span aria-hidden="true">⌕</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Film, director, or closet visitor"
-              type="search"
-            />
-            <kbd>⌘ K</kbd>
+            <span>Search</span>
+            <div>
+              <span aria-hidden="true">⌕</span>
+              <input
+                ref={searchRef}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Title, director, picker, or year"
+                type="search"
+              />
+              <kbd>⌘ K</kbd>
+            </div>
           </label>
+
           <label>
-            <span>Visitor</span>
+            <span>Closet picker</span>
             <select
               value={picker}
               onChange={(event) => setPicker(event.target.value)}
             >
-              <option>All visitors</option>
+              <option>All closet pickers</option>
               {pickers.map((name) => (
                 <option key={name}>{name}</option>
               ))}
             </select>
           </label>
+
+          <label>
+            <span>Director</span>
+            <select
+              value={director}
+              onChange={(event) => setDirector(event.target.value)}
+            >
+              <option>All directors</option>
+              {directors.map((name) => (
+                <option key={name}>{name}</option>
+              ))}
+            </select>
+          </label>
+
           <label>
             <span>Decade</span>
-            <select value={era} onChange={(event) => setEra(event.target.value)}>
+            <select
+              value={decade}
+              onChange={(event) => setDecade(event.target.value)}
+            >
               <option>All decades</option>
-              {decades.map((decade) => (
-                <option key={decade} value={decade}>
-                  {decade}s
+              {decades.map((value) => (
+                <option key={value} value={value}>
+                  {value}s
                 </option>
               ))}
             </select>
           </label>
-          <label>
-            <span>Order</span>
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
-            >
-              <option value="featured">Most picked</option>
-              <option value="title">Title A–Z</option>
-              <option value="year-desc">Newest first</option>
-              <option value="year-asc">Oldest first</option>
-            </select>
-          </label>
         </div>
 
-        <div className="results-bar">
+        <div className="table-status" aria-live="polite">
           <p>
             Showing <strong>{filteredFilms.length}</strong> of {films.length}{" "}
             films
           </p>
-          {(query || picker !== "All visitors" || era !== "All decades") && (
+          <p className="availability-note">
+            Watch links open current U.S. availability searches.
+          </p>
+          {filtersActive && (
             <button type="button" onClick={clearFilters}>
               Clear filters ×
             </button>
           )}
         </div>
 
-        {filteredFilms.length ? (
-          <div className="film-grid">
-            {filteredFilms.map((film, index) => {
-              const isSaved = saved.includes(film.id);
-              return (
-                <article className="film-card" key={film.id}>
-                  <div className="poster-wrap">
-                    <button
-                      className="poster-button"
-                      type="button"
-                      onClick={() => setActiveFilm(film)}
-                      aria-label={`View details for ${film.title}`}
-                    >
-                      <img
-                        src={film.poster}
-                        alt={`${film.title} poster`}
-                        loading={index < 6 ? "eager" : "lazy"}
-                      />
-                      <span className="poster-action">Open frame ↗</span>
-                    </button>
-                    <span className="catalog-number">
-                      FRAME—{String(index + 1).padStart(3, "0")}
-                    </span>
-                    <button
-                      className={`save-button ${isSaved ? "is-saved" : ""}`}
-                      type="button"
-                      onClick={() => toggleSaved(film.id)}
-                      aria-pressed={isSaved}
-                      aria-label={`${isSaved ? "Remove" : "Add"} ${film.title} ${
-                        isSaved ? "from" : "to"
-                      } saved films`}
-                    >
-                      {isSaved ? "★" : "☆"}
-                    </button>
-                  </div>
-                  <button
-                    className="film-copy"
-                    type="button"
-                    onClick={() => setActiveFilm(film)}
-                  >
-                    <span className="film-year">{film.year}</span>
-                    <h3>{film.title}</h3>
-                    <p>{film.director}</p>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th className="poster-column" scope="col">
+                  Poster
+                </th>
+                <th scope="col" aria-sort={ariaSort("title")}>
+                  <button type="button" onClick={() => toggleSort("title")}>
+                    Title <span>{sortMark("title")}</span>
                   </button>
-                  <div className="picked-by">
-                    <span>Picked by</span>
-                    <p>{film.pickers.join(" + ")}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <span>∅</span>
-            <h3>That shelf is empty.</h3>
-            <p>Try another visitor, decade, or search term.</p>
-            <button type="button" onClick={clearFilters}>
-              Reset the index
-            </button>
-          </div>
-        )}
-      </section>
+                </th>
+                <th scope="col" aria-sort={ariaSort("year")}>
+                  <button type="button" onClick={() => toggleSort("year")}>
+                    Year <span>{sortMark("year")}</span>
+                  </button>
+                </th>
+                <th scope="col" aria-sort={ariaSort("director")}>
+                  <button type="button" onClick={() => toggleSort("director")}>
+                    Director <span>{sortMark("director")}</span>
+                  </button>
+                </th>
+                <th scope="col" aria-sort={ariaSort("picker")}>
+                  <button type="button" onClick={() => toggleSort("picker")}>
+                    Closet picker <span>{sortMark("picker")}</span>
+                  </button>
+                </th>
+                <th className="watch-column" scope="col">
+                  Where to watch
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredFilms.map((film, index) => (
+                <tr key={film.id}>
+                  <td className="poster-cell">
+                    <img
+                      src={film.poster}
+                      alt={`${film.title} poster`}
+                      loading={index < 8 ? "eager" : "lazy"}
+                    />
+                  </td>
+                  <td className="title-cell">
+                    <strong>{film.title}</strong>
+                  </td>
+                  <td className="year-cell">{film.year}</td>
+                  <td>{film.director}</td>
+                  <td className="picker-cell">{film.pickers.join(" + ")}</td>
+                  <td>
+                    <div className="watch-links">
+                      <a
+                        href={watchUrl(film.title)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        JustWatch ↗
+                      </a>
+                      <a
+                        href={channelUrl(film.title)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Criterion Channel ↗
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      <DreamListMatcher />
-
-      <section className="about" id="about">
-        <p className="eyebrow">Reel 03 / About the archive</p>
-        <div>
-          <h2>
-            A living reel
-            <br />
-            of movie taste.
-          </h2>
-          <p>
-            The Closet Index is an independent, searchable companion to
-            Criterion&apos;s Closet Picks series. This first build proves the
-            browsing model; the next data pass can expand it to every recorded
-            visitor and selection.
-          </p>
-          <a href={sourceUrl} target="_blank" rel="noreferrer">
-            Visit the official Closet Picks archive ↗
-          </a>
-        </div>
-        <div className="about-stats">
-          <p>
-            <strong>40</strong>
-            <span>films indexed</span>
-          </p>
-          <p>
-            <strong>12</strong>
-            <span>closet visitors</span>
-          </p>
-          <p>
-            <strong>1946—2021</strong>
-            <span>years represented</span>
-          </p>
-        </div>
-      </section>
-
-      <footer>
-        <p>[ C—INDEX ] © 2026</p>
-        <p>
-          Film data sourced from Criterion. Poster imagery via TMDB. This
-          project is not affiliated with The Criterion Collection.
-        </p>
-        <a href="#top">Back to top ↑</a>
-      </footer>
-
-      {activeFilm && (
-        <div
-          className="drawer-backdrop"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setActiveFilm(null);
-          }}
-        >
-          <section
-            className="film-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="drawer-title"
-          >
-            <button
-              className="drawer-close"
-              type="button"
-              onClick={() => setActiveFilm(null)}
-              aria-label="Close details"
-            >
-              Close ×
-            </button>
-            <div className="drawer-poster">
-              <img
-                src={activeFilm.poster}
-                alt={`${activeFilm.title} poster`}
-              />
+          {!filteredFilms.length && (
+            <div className="empty-state">
+              <strong>No films found.</strong>
+              <p>Try another title, director, picker, or decade.</p>
+              <button type="button" onClick={clearFilters}>
+                Reset filters
+              </button>
             </div>
-            <div className="drawer-content">
-              <p className="eyebrow">Frame selection</p>
-              <h2 id="drawer-title">{activeFilm.title}</h2>
-              <p className="drawer-meta">
-                {activeFilm.year} · Directed by {activeFilm.director}
-              </p>
-              <div className="drawer-picker">
-                <span>Carried out of the closet by</span>
-                <strong>{activeFilm.pickers.join(" + ")}</strong>
-              </div>
-              <div className="watch-links">
-                <a
-                  href={watchUrl(activeFilm.title)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Check streaming options ↗
-                </a>
-                <a
-                  href={channelUrl(activeFilm.title)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Search Criterion Channel ↗
-                </a>
-                <a href={sourceUrl} target="_blank" rel="noreferrer">
-                  See Closet Picks source ↗
-                </a>
-              </div>
-              <p className="availability-note">
-                Streaming rights change frequently. Links open live search
-                results for the current U.S. availability.
-              </p>
-            </div>
-          </section>
+          )}
         </div>
-      )}
+
+        <footer>
+          <p>
+            Film selections sourced from Criterion. Poster imagery via TMDB.
+          </p>
+          <p>
+            Independent project; not affiliated with The Criterion Collection.
+          </p>
+          <a href="#top">Back to top ↑</a>
+        </footer>
+      </section>
     </main>
   );
 }
