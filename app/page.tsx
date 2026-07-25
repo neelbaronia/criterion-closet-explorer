@@ -233,8 +233,10 @@ export default function Home() {
           )}
         </div>
 
-        <div className="table-wrap">
-          <table>
+        <div className="filmstrip-table">
+          <div className="sprocket-rail" aria-hidden="true" />
+          <div className="table-wrap">
+            <table>
             <thead>
               <tr>
                 <th className="poster-column" scope="col">
@@ -265,54 +267,58 @@ export default function Home() {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {filteredFilms.map((film, index) => (
-                <tr key={film.id}>
-                  <td className="poster-cell">
-                    <img
-                      src={film.poster}
-                      alt={`${film.title} poster`}
-                      loading={index < 8 ? "eager" : "lazy"}
-                    />
-                  </td>
-                  <td className="title-cell">
-                    <strong>{film.title}</strong>
-                  </td>
-                  <td className="year-cell">{film.year}</td>
-                  <td>{film.director}</td>
-                  <td className="picker-cell">{film.pickers.join(" + ")}</td>
-                  <td>
-                    <div className="watch-links">
-                      <a
-                        href={watchUrl(film.title)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        JustWatch ↗
-                      </a>
-                      <a
-                        href={channelUrl(film.title)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Criterion Channel ↗
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              <tbody>
+                {filteredFilms.map((film, index) => (
+                  <tr key={film.id}>
+                    <td className="poster-cell">
+                      <div className="poster-frame">
+                        <img
+                          src={film.poster}
+                          alt={`${film.title} poster`}
+                          loading={index < 8 ? "eager" : "lazy"}
+                        />
+                      </div>
+                    </td>
+                    <td className="title-cell">
+                      <strong>{film.title}</strong>
+                    </td>
+                    <td className="year-cell">{film.year}</td>
+                    <td>{film.director}</td>
+                    <td className="picker-cell">{film.pickers.join(" + ")}</td>
+                    <td>
+                      <div className="watch-links">
+                        <a
+                          href={watchUrl(film.title)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          JustWatch ↗
+                        </a>
+                        <a
+                          href={channelUrl(film.title)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Criterion Channel ↗
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          {!filteredFilms.length && (
-            <div className="empty-state">
-              <strong>No films found.</strong>
-              <p>Try another title, director, picker, or decade.</p>
-              <button type="button" onClick={clearFilters}>
-                Reset filters
-              </button>
-            </div>
-          )}
+            {!filteredFilms.length && (
+              <div className="empty-state">
+                <strong>No films found.</strong>
+                <p>Try another title, director, picker, or decade.</p>
+                <button type="button" onClick={clearFilters}>
+                  Reset filters
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="sprocket-rail" aria-hidden="true" />
         </div>
 
         <footer>

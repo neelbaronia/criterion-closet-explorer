@@ -261,7 +261,31 @@ footer {
   text-underline-offset: 3px;
 }
 
+.filmstrip-table {
+  background: var(--black);
+}
+
+.sprocket-rail {
+  background: var(--black);
+  height: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sprocket-rail::before {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 9px,
+    var(--paper) 9px 25px,
+    transparent 25px 38px
+  );
+  content: "";
+  inset: 8px 0;
+  position: absolute;
+}
+
 .table-wrap {
+  background: var(--paper);
   overflow-x: auto;
   position: relative;
 }
@@ -370,7 +394,37 @@ td:last-child {
   padding: 10px 16px;
 }
 
-.poster-cell img {
+.poster-frame {
+  background: var(--black);
+  padding: 13px 7px;
+  position: relative;
+  width: 80px;
+}
+
+.poster-frame::before,
+.poster-frame::after {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 3px,
+    var(--paper) 3px 9px,
+    transparent 9px 13px
+  );
+  content: "";
+  height: 5px;
+  left: 4px;
+  position: absolute;
+  right: 4px;
+}
+
+.poster-frame::before {
+  top: 4px;
+}
+
+.poster-frame::after {
+  bottom: 4px;
+}
+
+.poster-frame img {
   background: #deddd6;
   display: block;
   filter: grayscale(1);
@@ -380,7 +434,7 @@ td:last-child {
   width: 66px;
 }
 
-tbody tr:hover .poster-cell img {
+tbody tr:hover .poster-frame img {
   filter: grayscale(0);
 }
 
