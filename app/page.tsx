@@ -10,6 +10,19 @@ type SortKey = "featured" | "title" | "year-desc" | "year-asc";
 
 const films = filmsData as Film[];
 const sourceUrl = "https://www.criterion.com/closet-picks";
+const featureIds = [
+  "lost-highway",
+  "do-the-right-thing",
+  "stalker",
+  "paris-burning",
+  "late-spring",
+  "cure",
+  "amarcord",
+  "malcolm-x",
+];
+const featuredFilms = featureIds
+  .map((id) => films.find((film) => film.id === id))
+  .filter((film): film is Film => Boolean(film));
 
 function watchUrl(title: string) {
   return `https://www.justwatch.com/us/search?q=${encodeURIComponent(title)}`;
@@ -113,42 +126,66 @@ export default function Home() {
     <main>
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="The Closet Index home">
-          <span className="wordmark-mark">C</span>
-          <span>
-            THE CLOSET
-            <br />
-            INDEX
-          </span>
+          <span className="wordmark-mark">[</span>
+          <span>C—INDEX</span>
+          <span className="wordmark-end">]</span>
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#explore">Explore</a>
-          <a href="#dream-list">Build yours</a>
-          <a href="#about">About</a>
+          <a href="#explore">01 / Explore</a>
+          <a href="#dream-list">02 / Build yours</a>
+          <a href="#about">03 / About</a>
           <a className="variations-link" href="/design-variations.html">
-            5 design directions ↗
+            Concept archive ↗
           </a>
         </nav>
         <div className="saved-count" aria-label={`${saved.length} saved films`}>
-          Saved <span>{String(saved.length).padStart(2, "0")}</span>
+          Saved / <span>{String(saved.length).padStart(2, "0")}</span>
         </div>
       </header>
 
       <section className="hero" id="top">
         <div className="hero-kicker">
-          <span>Unofficial archive</span>
-          <span>Est. 2010</span>
-          <span>Prototype edition · 040 films</span>
+          <span>Now threading · all Closet selections</span>
+          <span>Unofficial archive / Est. 2010</span>
+          <span>040 frames loaded</span>
         </div>
         <h1>
-          What&apos;s in
+          Roll the
           <br />
-          <em>their</em> tote bag?
+          <em>favorites.</em>
         </h1>
+
+        <div className="hero-reel-shell">
+          <div className="reel-perforations" aria-hidden="true" />
+          <div className="hero-reel">
+            {featuredFilms.map((film, index) => (
+              <button
+                type="button"
+                className="hero-frame"
+                key={film.id}
+                onClick={() => setActiveFilm(film)}
+                aria-label={`Open ${film.title}`}
+              >
+                <img src={film.poster} alt="" />
+                <span>
+                  FRAME {String(index + 1).padStart(3, "0")} / {film.title}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="reel-perforations" aria-hidden="true" />
+        </div>
+
         <div className="hero-bottom">
           <p>
-            Search the films that directors, actors, and artists carried out of
-            the Criterion Closet—and find your next watch.
+            Thread through the films directors, actors, and artists carried out
+            of the Criterion Closet—and find your next watch.
           </p>
+          <div className="hero-stats">
+            <span>040 films</span>
+            <span>012 visitors</span>
+            <span>1946—2021</span>
+          </div>
           <a className="round-link" href="#explore" aria-label="Start exploring">
             ↓
           </a>
@@ -164,12 +201,17 @@ export default function Home() {
       <section className="explorer" id="explore">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">The working index</p>
-            <h2>Find a film</h2>
+            <p className="eyebrow">Reel 01 / The working index</p>
+            <h2>
+              Search the
+              <br />
+              <span>reels.</span>
+            </h2>
           </div>
           <p className="section-note">
-            A sourced prototype with 40 selections from 12 visitors. The data
-            structure is ready for the complete archive.
+            Forty sourced selections, twelve visitors, and one searchable
+            contact sheet. Filter by who chose it, when it was made, or the name
+            on the frame.
           </p>
         </div>
 
@@ -252,10 +294,10 @@ export default function Home() {
                         alt={`${film.title} poster`}
                         loading={index < 6 ? "eager" : "lazy"}
                       />
-                      <span className="poster-action">View title ↗</span>
+                      <span className="poster-action">Open frame ↗</span>
                     </button>
                     <span className="catalog-number">
-                      CI—{String(index + 1).padStart(3, "0")}
+                      FRAME—{String(index + 1).padStart(3, "0")}
                     </span>
                     <button
                       className={`save-button ${isSaved ? "is-saved" : ""}`}
@@ -301,9 +343,13 @@ export default function Home() {
       <DreamListMatcher />
 
       <section className="about" id="about">
-        <p className="eyebrow">About the archive</p>
+        <p className="eyebrow">Reel 03 / About the archive</p>
         <div>
-          <h2>A map of taste, one tote bag at a time.</h2>
+          <h2>
+            A living reel
+            <br />
+            of movie taste.
+          </h2>
           <p>
             The Closet Index is an independent, searchable companion to
             Criterion&apos;s Closet Picks series. This first build proves the
@@ -331,7 +377,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <p>THE CLOSET INDEX © 2026</p>
+        <p>[ C—INDEX ] © 2026</p>
         <p>
           Film data sourced from Criterion. Poster imagery via TMDB. This
           project is not affiliated with The Criterion Collection.
@@ -368,7 +414,7 @@ export default function Home() {
               />
             </div>
             <div className="drawer-content">
-              <p className="eyebrow">Closet selection</p>
+              <p className="eyebrow">Frame selection</p>
               <h2 id="drawer-title">{activeFilm.title}</h2>
               <p className="drawer-meta">
                 {activeFilm.year} · Directed by {activeFilm.director}

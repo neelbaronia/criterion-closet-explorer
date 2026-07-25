@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Libre_Caslon_Display } from "next/font/google";
+import { IBM_Plex_Mono, Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
@@ -8,10 +8,10 @@ const sans = Inter({
   subsets: ["latin"],
 });
 
-const serif = Libre_Caslon_Display({
-  variable: "--font-serif",
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const origin = `${protocol}://${host}`;
   const title = "The Closet Index — Explore Criterion Closet Picks";
   const description =
-    "Explore Criterion Closet Picks, build your dream collection, and find the visitor whose film taste is closest to yours.";
+    "Explore Criterion Closet Picks, cut your dream film reel, and find the visitor whose taste is closest to yours.";
 
   return {
     title,
@@ -42,9 +42,9 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [
         {
           url: `${origin}/og.png`,
-          width: 1731,
-          height: 909,
-          alt: "The Closet Index — Every pick. One place.",
+          width: 1200,
+          height: 630,
+          alt: "The Closet Index — Roll the favorites.",
         },
       ],
     },
@@ -64,7 +64,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${sans.variable} ${serif.variable}`}>{children}</body>
+      <body className={`${sans.variable} ${mono.variable}`}>{children}</body>
     </html>
   );
 }

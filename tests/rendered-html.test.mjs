@@ -33,10 +33,11 @@ test("server-renders the Closet Index product shell", async () => {
     html,
     /<title>The Closet Index — Explore Criterion Closet Picks<\/title>/i,
   );
-  assert.match(html, /What&#x27;s in/);
-  assert.match(html, /Find a film/);
-  assert.match(html, /Build your/);
-  assert.match(html, /dream collection/);
+  assert.match(html, /Now threading/);
+  assert.match(html, /Roll the/);
+  assert.match(html, /Search the/);
+  assert.match(html, /Cut your own/);
+  assert.match(html, /dream reel/);
   assert.match(html, /Criterion Closet/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

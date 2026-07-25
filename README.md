@@ -79,7 +79,7 @@ The standalone study contains five visual systems:
 4. **The Poster Wall** — graphic, saturated, museum-like
 5. **The Ledger** — typographic, fast, information-dense
 
-The production explorer currently uses **The Archive** direction.
+The production explorer currently uses **The Filmstrip** direction.
 
 ## Notes
 

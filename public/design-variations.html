@@ -239,10 +239,10 @@
         <h1>Choose the<br /><em>closet.</em></h1>
       </section>
       <nav class="directions" aria-label="Design directions">
-        <button class="direction-tab active" data-concept="01">
+        <button class="direction-tab" data-concept="01">
           <b>01</b><strong>The Archive</strong><small>Editorial · warm · tactile</small>
         </button>
-        <button class="direction-tab" data-concept="02">
+        <button class="direction-tab active" data-concept="02">
           <b>02</b><strong>The Filmstrip</strong><small>Cinematic · dark · kinetic</small>
         </button>
         <button class="direction-tab" data-concept="03">
@@ -257,11 +257,11 @@
       </nav>
       <section class="preview-shell" id="preview">
         <div class="preview-label">
-          <span id="active-label">Direction 01 · The Archive</span>
+          <span id="active-label">Direction 02 · The Filmstrip</span>
           <button type="button" id="next-concept">Next direction →</button>
         </div>
 
-        <article class="concept active" data-panel="01">
+        <article class="concept" data-panel="01">
           <div class="archive">
             <div class="archive-head">
               <h2>The <i>Closet</i><br />Index</h2>
@@ -276,7 +276,7 @@
           </div>
         </article>
 
-        <article class="concept" data-panel="02">
+        <article class="concept active" data-panel="02">
           <div class="filmstrip">
             <div class="filmstrip-nav">
               <div class="filmstrip-logo">[ C—INDEX ]</div>
@@ -364,7 +364,7 @@
         "04": "Direction 04 · The Poster Wall",
         "05": "Direction 05 · The Ledger"
       };
-      let current = "01";
+      let current = "02";
       function selectConcept(id) {
         current = id;
         document.querySelectorAll(".direction-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.concept === id));

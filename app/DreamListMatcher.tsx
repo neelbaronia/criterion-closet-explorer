@@ -173,11 +173,11 @@ export function DreamListMatcher() {
   return (
     <section className="dream-section" id="dream-list">
       <div className="dream-intro">
-        <p className="eyebrow">Your turn in the closet</p>
+        <p className="eyebrow">Reel 02 / Your turn in the closet</p>
         <h2>
-          Build your
+          Cut your own
           <br />
-          <em>dream collection.</em>
+          <em>dream reel.</em>
         </h2>
         <p>
           Pick at least three films—inside or outside the current index. We&apos;ll
@@ -197,7 +197,7 @@ export function DreamListMatcher() {
       <div className="dream-builder">
         <div className="builder-heading">
           <div>
-            <span>Dream tote</span>
+            <span>Dream reel</span>
             <strong>{String(dream.length).padStart(2, "0")} / 20</strong>
           </div>
           {dream.length > 0 ? (
@@ -308,7 +308,7 @@ export function DreamListMatcher() {
           ) : (
             <div>
               <span>∅</span>
-              <p>Your tote is empty. Start with the film you&apos;d grab first.</p>
+              <p>Your reel is empty. Start with the film you&apos;d thread first.</p>
             </div>
           )}
         </div>
