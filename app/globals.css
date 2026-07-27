@@ -343,7 +343,7 @@ th button span {
 }
 
 .poster-column {
-  width: 82px;
+  width: 88px;
 }
 
 th:nth-child(2) {
@@ -368,6 +368,7 @@ th:nth-child(5) {
 
 tbody tr {
   border-bottom: 1px solid var(--line);
+  height: 96px;
   transition: background 140ms ease;
 }
 
@@ -388,47 +389,23 @@ td:last-child {
 }
 
 .poster-cell {
-  padding: 6px 12px;
+  height: 96px;
+  padding: 0 12px;
 }
 
 .poster-frame {
-  background: var(--black);
-  padding: 9px 5px;
-  position: relative;
-  width: 58px;
-}
-
-.poster-frame::before,
-.poster-frame::after {
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0 2px,
-    var(--paper) 2px 6px,
-    transparent 6px 9px
-  );
-  content: "";
-  height: 3px;
-  left: 3px;
-  position: absolute;
-  right: 3px;
-}
-
-.poster-frame::before {
-  top: 3px;
-}
-
-.poster-frame::after {
-  bottom: 3px;
+  height: 96px;
+  width: 64px;
 }
 
 .poster-frame img {
   background: #deddd6;
   display: block;
   filter: grayscale(1);
-  height: 72px;
+  height: 100%;
   object-fit: cover;
   transition: filter 160ms ease;
-  width: 48px;
+  width: 100%;
 }
 
 tbody tr:hover .poster-frame img {
@@ -473,16 +450,16 @@ tbody tr:hover .poster-frame img {
   border: 2px solid var(--paper);
   color: var(--yellow);
   display: inline-flex;
-  flex: 0 0 32px;
+  flex: 0 0 44px;
   font-family: var(--font-mono), monospace;
   font-size: 7px;
   font-weight: 600;
-  height: 32px;
+  height: 44px;
   justify-content: center;
   outline: 1px solid var(--black);
   overflow: hidden;
   position: relative;
-  width: 32px;
+  width: 44px;
 }
 
 .person-avatar img {
@@ -505,7 +482,7 @@ tbody tr:hover .person-avatar img {
 }
 
 .avatar-stack .person-avatar + .person-avatar {
-  margin-left: -7px;
+  margin-left: -10px;
 }
 
 .watch-links {
