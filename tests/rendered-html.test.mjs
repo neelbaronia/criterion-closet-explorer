@@ -222,6 +222,17 @@ test("ships a standalone semantic-map design lab", async () => {
   assert.match(html, /Semantic constellation/);
   assert.match(html, /Explainable match cards/);
   assert.match(html, /Prototype scores are illustrative/);
+  assert.match(html, /Taste neighborhoods/);
+  assert.match(html, /Similarity matrix/);
+  assert.match(html, /Picker fingerprints/);
+  assert.match(html, /Taste subway/);
+  assert.match(html, /Pairwise comparison/);
+  assert.match(html, /Poster taste atlas/);
+  assert.equal((html.match(/class="short-tab(?: active)?"/g) ?? []).length, 6);
+  assert.equal(
+    (html.match(/class="short-example(?: active)?"/g) ?? []).length,
+    6,
+  );
   assert.equal((html.match(/class="concept-tab(?: active)?"/g) ?? []).length, 12);
   assert.equal((html.match(/class="concept(?: active)?"/g) ?? []).length, 12);
 });

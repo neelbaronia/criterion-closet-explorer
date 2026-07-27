@@ -938,6 +938,543 @@
         line-height: 1;
       }
 
+      .shortlist {
+        background: var(--paper);
+        border-bottom: 1px solid var(--ink);
+        padding: 72px 26px 94px;
+      }
+
+      .shortlist-head {
+        align-items: end;
+        display: grid;
+        gap: 40px;
+        grid-template-columns: 1fr 0.68fr;
+        margin-bottom: 42px;
+      }
+
+      .shortlist-head h2 {
+        font-size: clamp(54px, 8vw, 112px);
+        letter-spacing: -0.07em;
+        line-height: 0.82;
+        margin: 14px 0 0;
+        text-transform: uppercase;
+      }
+
+      .shortlist-head p {
+        line-height: 1.55;
+        margin: 0;
+        max-width: 540px;
+      }
+
+      .short-tabs {
+        border: 1px solid var(--ink);
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      .short-tab {
+        background: var(--white);
+        border: 0;
+        border-right: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        min-height: 72px;
+        padding: 11px;
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .short-tab:last-child {
+        border-right: 0;
+      }
+
+      .short-tab b {
+        color: var(--red);
+        display: block;
+        font-size: 10px;
+        margin-bottom: 7px;
+      }
+
+      .short-tab:hover,
+      .short-tab.active {
+        background: var(--yellow);
+      }
+
+      .short-example {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        border-top: 0;
+        display: none;
+        min-height: 650px;
+      }
+
+      .short-example.active {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.42fr) 1.58fr;
+      }
+
+      .short-copy {
+        border-right: 1px solid var(--ink);
+        padding: 30px 26px;
+      }
+
+      .short-copy > span,
+      .short-prototype-head,
+      .short-readout {
+        font-family: var(--mono);
+        font-size: 8px;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .short-copy > span {
+        color: var(--red);
+      }
+
+      .short-copy h3 {
+        font-size: clamp(38px, 5vw, 70px);
+        letter-spacing: -0.06em;
+        line-height: 0.86;
+        margin: 22px 0;
+        text-transform: uppercase;
+      }
+
+      .short-copy > p {
+        line-height: 1.52;
+      }
+
+      .short-copy ul {
+        border-top: 1px solid var(--line);
+        list-style: none;
+        margin: 30px 0 0;
+        padding: 0;
+      }
+
+      .short-copy li {
+        border-bottom: 1px solid var(--line);
+        font-size: 11px;
+        line-height: 1.4;
+        padding: 13px 0;
+      }
+
+      .short-copy li b {
+        color: var(--muted);
+        display: block;
+        font-family: var(--mono);
+        font-size: 7px;
+        letter-spacing: 0.08em;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+
+      .short-prototype {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .short-prototype-head {
+        align-items: center;
+        border-bottom: 1px solid var(--ink);
+        display: flex;
+        justify-content: space-between;
+        min-height: 50px;
+        padding: 0 16px;
+      }
+
+      .short-prototype-head select {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        padding: 7px 24px 7px 8px;
+        text-transform: uppercase;
+      }
+
+      .short-frame {
+        height: 599px;
+        position: relative;
+      }
+
+      .short-readout {
+        background: var(--black);
+        bottom: 12px;
+        color: var(--white);
+        left: 12px;
+        line-height: 1.45;
+        max-width: calc(100% - 24px);
+        padding: 9px 11px;
+        position: absolute;
+        z-index: 12;
+      }
+
+      .short-neighborhoods {
+        background: #d8d4c8;
+        display: grid;
+        gap: 6px;
+        grid-template-columns: 1.1fr 0.9fr;
+        grid-template-rows: 1fr 1fr;
+        padding: 6px;
+      }
+
+      .neighborhood {
+        border: 1px solid var(--ink);
+        color: var(--ink);
+        overflow: hidden;
+        padding: 18px;
+        position: relative;
+        text-align: left;
+      }
+
+      .neighborhood:first-child {
+        background: var(--red);
+        color: var(--white);
+        grid-row: 1 / 3;
+      }
+
+      .neighborhood:nth-child(2) {
+        background: var(--yellow);
+      }
+
+      .neighborhood:nth-child(3) {
+        background: var(--cyan);
+      }
+
+      .neighborhood:hover,
+      .neighborhood.selected {
+        box-shadow: inset 0 0 0 5px var(--ink);
+      }
+
+      .neighborhood small {
+        font-family: var(--mono);
+        font-size: 7px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .neighborhood h4 {
+        font-size: clamp(25px, 3.2vw, 48px);
+        letter-spacing: -0.05em;
+        line-height: 0.9;
+        margin: 9px 0;
+        text-transform: uppercase;
+      }
+
+      .neighborhood p {
+        font-family: var(--mono);
+        font-size: 8px;
+        line-height: 1.45;
+        margin: 0;
+        text-transform: uppercase;
+      }
+
+      .neighborhood-posters {
+        bottom: 18px;
+        display: flex;
+        gap: 7px;
+        position: absolute;
+        right: 18px;
+      }
+
+      .neighborhood-posters img {
+        border: 1px solid var(--ink);
+        display: block;
+        height: 112px;
+        object-fit: cover;
+        width: 76px;
+      }
+
+      .short-matrix-wrap {
+        background: #e8e4d9;
+        overflow: auto;
+        padding: 22px;
+      }
+
+      .short-matrix {
+        display: grid;
+        gap: 3px;
+        grid-template-columns: 100px repeat(6, minmax(52px, 1fr));
+        min-width: 600px;
+      }
+
+      .short-matrix > * {
+        align-items: center;
+        display: flex;
+        font-family: var(--mono);
+        font-size: 8px;
+        justify-content: center;
+        min-height: 60px;
+        text-transform: uppercase;
+      }
+
+      .short-matrix button {
+        border: 0;
+      }
+
+      .short-matrix button:hover,
+      .short-matrix button.selected {
+        box-shadow: inset 0 0 0 4px var(--ink);
+      }
+
+      .short-matrix .matrix-name {
+        justify-content: flex-start;
+        padding-right: 8px;
+      }
+
+      .short-matrix .matrix-top {
+        align-items: end;
+        min-height: 82px;
+        padding-bottom: 10px;
+        transform: rotate(-32deg);
+      }
+
+      .fingerprint-list {
+        background: #e7e3d8;
+        padding: 18px;
+      }
+
+      .fingerprint-person {
+        align-items: center;
+        background: var(--white);
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 120px 1fr 44px;
+        min-height: 93px;
+        padding: 12px;
+        text-align: left;
+        width: 100%;
+      }
+
+      .fingerprint-person:hover,
+      .fingerprint-person.selected {
+        background: var(--yellow);
+      }
+
+      .fingerprint-person > b,
+      .fingerprint-person > span {
+        font-family: var(--mono);
+        font-size: 8px;
+        text-transform: uppercase;
+      }
+
+      .fingerprint-stripe {
+        display: grid;
+        gap: 3px;
+        grid-template-columns: repeat(8, 1fr);
+        height: 38px;
+      }
+
+      .fingerprint-stripe i {
+        background: var(--red);
+        opacity: calc(0.14 + var(--v) * 0.0086);
+      }
+
+      .fingerprint-stripe i:nth-child(3n) { background: var(--blue); }
+      .fingerprint-stripe i:nth-child(4n) { background: var(--yellow); }
+      .fingerprint-stripe i:nth-child(5n) { background: #18a776; }
+
+      .fingerprint-key {
+        bottom: 18px;
+        display: grid;
+        font-family: var(--mono);
+        font-size: 7px;
+        gap: 3px;
+        grid-template-columns: repeat(8, 1fr);
+        left: 154px;
+        position: absolute;
+        right: 74px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .short-metro {
+        background: #efece2;
+        overflow: hidden;
+      }
+
+      .short-metro-line {
+        border-radius: 20px;
+        height: 8px;
+        left: 7%;
+        position: absolute;
+        width: 86%;
+      }
+
+      .short-metro-line.one { background: var(--red); top: 24%; transform: rotate(8deg); }
+      .short-metro-line.two { background: var(--blue); top: 47%; transform: rotate(-9deg); }
+      .short-metro-line.three { background: #18a776; top: 70%; transform: rotate(5deg); }
+      .short-metro-line.four { background: var(--yellow); top: 42%; transform: rotate(22deg); }
+
+      .short-station {
+        background: var(--white);
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        height: 20px;
+        padding: 0;
+        position: absolute;
+        width: 20px;
+        z-index: 3;
+      }
+
+      .short-station:hover,
+      .short-station.selected {
+        background: var(--yellow);
+        transform: scale(1.35);
+      }
+
+      .short-station b {
+        font-family: var(--mono);
+        font-size: 8px;
+        left: 22px;
+        position: absolute;
+        top: 1px;
+        white-space: nowrap;
+      }
+
+      .metro-key {
+        display: flex;
+        flex-wrap: wrap;
+        font-family: var(--mono);
+        font-size: 7px;
+        gap: 14px;
+        left: 18px;
+        position: absolute;
+        text-transform: uppercase;
+        top: 18px;
+      }
+
+      .metro-key i {
+        display: inline-block;
+        height: 6px;
+        margin-right: 5px;
+        width: 18px;
+      }
+
+      .pairwise {
+        background: #e7e3d8;
+        padding: 24px 25px 72px;
+      }
+
+      .pair-head {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: 22px;
+      }
+
+      .pair-head label {
+        font-family: var(--mono);
+        font-size: 7px;
+        text-transform: uppercase;
+      }
+
+      .pair-head select {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 6px;
+        padding: 10px;
+        width: 100%;
+      }
+
+      .pair-row {
+        align-items: center;
+        border-top: 1px solid #bcb8ad;
+        display: grid;
+        gap: 13px;
+        grid-template-columns: 1fr 118px 1fr;
+        min-height: 50px;
+      }
+
+      .pair-row > span {
+        font-family: var(--mono);
+        font-size: 8px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .pair-bar {
+        background: #d4d0c4;
+        display: flex;
+        height: 12px;
+      }
+
+      .pair-bar.left {
+        justify-content: flex-end;
+      }
+
+      .pair-bar i {
+        background: var(--red);
+        display: block;
+        height: 100%;
+        width: calc(var(--v) * 1%);
+      }
+
+      .pair-bar.right i {
+        background: var(--blue);
+      }
+
+      .poster-atlas {
+        background:
+          radial-gradient(ellipse at 21% 27%, rgba(239, 59, 45, 0.35) 0 9%, transparent 31%),
+          radial-gradient(ellipse at 76% 25%, rgba(36, 84, 255, 0.28) 0 10%, transparent 33%),
+          radial-gradient(ellipse at 72% 77%, rgba(128, 231, 224, 0.68) 0 9%, transparent 32%),
+          radial-gradient(ellipse at 25% 77%, rgba(244, 215, 25, 0.7) 0 9%, transparent 30%),
+          #e7e3d8;
+      }
+
+      .atlas-region-name {
+        color: rgba(0, 0, 0, 0.44);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        position: absolute;
+        text-transform: uppercase;
+      }
+
+      .poster-point {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        position: absolute;
+        text-align: left;
+        z-index: 2;
+      }
+
+      .poster-point img {
+        border: 2px solid var(--ink);
+        display: block;
+        height: 125px;
+        object-fit: cover;
+        width: 84px;
+      }
+
+      .poster-point b {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        display: block;
+        font-family: var(--mono);
+        font-size: 7px;
+        line-height: 1.25;
+        margin-top: 3px;
+        max-width: 112px;
+        padding: 4px;
+        text-transform: uppercase;
+      }
+
+      .poster-point:hover,
+      .poster-point.selected {
+        transform: translateY(-7px) rotate(-2deg);
+        z-index: 5;
+      }
+
+      .poster-point.selected img {
+        box-shadow: 7px 7px 0 var(--yellow);
+      }
+
       footer {
         background: var(--black);
         color: #999;
@@ -953,6 +1490,8 @@
         .intro,
         .method,
         .gallery-head,
+        .shortlist-head,
+        .short-example.active,
         .concept.active,
         .final-pick {
           grid-template-columns: 1fr;
@@ -963,8 +1502,21 @@
         }
 
         .method-intro,
+        .short-copy,
         .concept-copy {
           border-bottom: 1px solid var(--ink);
+          border-right: 0;
+        }
+
+        .short-tabs {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .short-tab {
+          border-bottom: 1px solid var(--ink);
+        }
+
+        .short-tab:nth-child(3n) {
           border-right: 0;
         }
 
@@ -1004,6 +1556,7 @@
         }
 
         .intro,
+        .shortlist,
         .gallery,
         .decision {
           padding-left: 16px;
@@ -1025,6 +1578,56 @@
 
         .concept-tabs {
           grid-template-columns: repeat(2, 1fr);
+        }
+
+        .short-tabs {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .short-tab:nth-child(3n) {
+          border-right: 1px solid var(--ink);
+        }
+
+        .short-tab:nth-child(2n) {
+          border-right: 0;
+        }
+
+        .short-frame {
+          height: 570px;
+        }
+
+        .short-neighborhoods {
+          display: block;
+          height: auto;
+          padding-bottom: 56px;
+        }
+
+        .neighborhood {
+          min-height: 185px;
+          margin-bottom: 6px;
+        }
+
+        .neighborhood-posters img {
+          height: 88px;
+          width: 60px;
+        }
+
+        .fingerprint-person {
+          grid-template-columns: 83px 1fr 32px;
+        }
+
+        .fingerprint-key {
+          display: none;
+        }
+
+        .pair-row {
+          gap: 7px;
+          grid-template-columns: 1fr 80px 1fr;
+        }
+
+        .poster-point img {
+          height: 100px;
+          width: 67px;
         }
 
         .concept-tab:nth-child(3n) {
@@ -1063,7 +1666,7 @@
   <body>
     <header class="topbar">
       <a href="/">[ C—INDEX ]</a>
-      <span>Semantic mapping study · 12 directions</span>
+      <span>Picker visualization study · six clearer alternatives</span>
       <a href="/taste-map">Open live Taste Map ↗</a>
     </header>
 
@@ -1073,8 +1676,8 @@
           <span class="kicker">Design lab / Picker similarity</span>
           <p>
             How do 396 Criterion Closet visits become a map of cinematic taste?
-            This study pairs a defensible similarity recipe with twelve very
-            different ways to explore the result.
+            This study now leads with six clearer production alternatives, then
+            keeps the original twelve-direction lab below for reference.
           </p>
           <span class="notice">Prototype scores are illustrative—not live embeddings</span>
         </div>
@@ -1082,10 +1685,250 @@
       </section>
 
       <aside class="recommendation">
-        <b>Current recommendation</b>
-        <strong>Constellation + evidence drawer + pairwise orbit</strong>
-        <span>Expressive overview / explainable details</span>
+        <b>New shortlist</b>
+        <strong>Neighborhoods → fingerprint → pairwise comparison</strong>
+        <span>Readable overview / cinematic detail / clear evidence</span>
       </aside>
+
+      <section class="shortlist" id="shortlist">
+        <div class="shortlist-head">
+          <div>
+            <span class="kicker">Six alternatives / working examples</span>
+            <h2>Make taste readable.</h2>
+          </div>
+          <p>
+            These options replace the all-at-once dot cloud with stronger
+            hierarchy, recognizable films, and interactions that answer one
+            question at a time. Choose a tab, then click inside each prototype.
+          </p>
+        </div>
+
+        <div class="short-tabs" role="tablist" aria-label="Six visualization alternatives">
+          <button class="short-tab active" data-short="short-neighborhoods" role="tab"><b>01</b>Taste neighborhoods</button>
+          <button class="short-tab" data-short="short-matrix-view" role="tab"><b>02</b>Similarity matrix</button>
+          <button class="short-tab" data-short="short-fingerprints" role="tab"><b>03</b>Picker fingerprints</button>
+          <button class="short-tab" data-short="short-subway" role="tab"><b>04</b>Taste subway</button>
+          <button class="short-tab" data-short="short-pairwise" role="tab"><b>05</b>Pairwise comparison</button>
+          <button class="short-tab" data-short="short-poster-atlas" role="tab"><b>06</b>Poster taste atlas</button>
+        </div>
+
+        <article class="short-example active" id="short-neighborhoods">
+          <div class="short-copy">
+            <span>01 / Strongest home screen</span>
+            <h3>Taste neighborhoods</h3>
+            <p>
+              Put the archive into a small number of named cinematic
+              communities. Each room has representative films, defining
+              dimensions, and residents instead of anonymous dots.
+            </p>
+            <ul>
+              <li><b>Answers</b>“What kinds of taste exist here, and where does this person belong?”</li>
+              <li><b>Interaction</b>Choose a neighborhood, then open its picker and film roster.</li>
+              <li><b>Tradeoff</b>Community names need editorial judgment, but they make the model memorable.</li>
+            </ul>
+          </div>
+          <div class="short-prototype">
+            <div class="short-prototype-head"><span>Community layer / 3 of 8 neighborhoods</span><span>Click a room</span></div>
+            <div class="short-frame short-neighborhoods">
+              <button class="neighborhood selected" data-neighborhood-note="DREAM LOGIC · 54 PICKERS · High surrealism, visual stylization, horror, and experimentation.">
+                <small>Neighborhood 03 / 54 residents</small>
+                <h4>Dream<br />Logic</h4>
+                <p>Lynch · Waters · Del Toro · Weerasethakul</p>
+                <span class="neighborhood-posters">
+                  <img src="https://s3.amazonaws.com/criterion-production/films/dfdd32ea78dc954d8cef1b54e34acbf0/sCfUtouYZPKwTEfBNRMEntUVk572AT_small.jpg" alt="Mulholland Dr. cover" />
+                  <img src="https://s3.amazonaws.com/criterion-production/films/8d8acfc8c2639a4725f219b6fc42245e/qSJsRYuddgUdKqcwTdI6fsk48KhXF7_small.jpg" alt="House cover" />
+                </span>
+              </button>
+              <button class="neighborhood" data-neighborhood-note="HUMAN WEATHER · 71 PICKERS · High intimacy, warmth, family, realism, and international cinema.">
+                <small>Neighborhood 05 / 71 residents</small>
+                <h4>Human Weather</h4>
+                <p>Jenkins · Varda · Gerwig · Kore-eda</p>
+                <span class="neighborhood-posters">
+                  <img src="https://s3.amazonaws.com/criterion-production/films/23ccfeaeb65bdd4286a7e7c6d25358cc/93jvZ2Ir3y2yMF3GPgNuDpnia3lDZh_small.jpg" alt="Pather Panchali cover" />
+                  <img src="https://s3.amazonaws.com/criterion-production/films/a3541a5f0da15d52f1e0698447349d88/0xRtJdrJILjqJQKskAYnvPQxoKCXn8_small.jpg" alt="In the Mood for Love cover" />
+                </span>
+              </button>
+              <button class="neighborhood" data-neighborhood-note="FORMAL SYSTEMS · 48 PICKERS · High dialogue, crime, classicism, tension, and visual control.">
+                <small>Neighborhood 01 / 48 residents</small>
+                <h4>Formal Systems</h4>
+                <p>Nolan · Park · Bong · Fincher</p>
+                <span class="neighborhood-posters">
+                  <img src="https://s3.amazonaws.com/criterion-production/films/daa1d614942bb086b7fa4d4e1eb8b0d0/aZoMem6iPcKUSkCDO0g26e1bKiwA8y_small.jpg" alt="The Red Shoes cover" />
+                  <img src="https://s3.amazonaws.com/criterion-production/films/a2edcc26e1eab799429c48ff7067cee7/E0TPdmb6xXiqaiuPmArJq90hdAs3xV_small.jpg" alt="Stalker cover" />
+                </span>
+              </button>
+              <div class="short-readout" id="neighborhood-readout">DREAM LOGIC · 54 PICKERS · High surrealism, visual stylization, horror, and experimentation.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="short-example" id="short-matrix-view">
+          <div class="short-copy">
+            <span>02 / Most analytical</span>
+            <h3>Similarity matrix</h3>
+            <p>
+              Every cell is one exact pairwise score. Ordering people by
+              community reveals dense blocks of agreement without pretending
+              that two projected axes explain everything.
+            </p>
+            <ul>
+              <li><b>Answers</b>“Exactly how similar are these two people?”</li>
+              <li><b>Interaction</b>Hover or select a cell to open the evidence behind that score.</li>
+              <li><b>Tradeoff</b>Rigorous and compact, but less immediately cinematic.</li>
+            </ul>
+          </div>
+          <div class="short-prototype">
+            <div class="short-prototype-head"><span>6-picker sample / clustered order</span><span>Yellow = closest</span></div>
+            <div class="short-frame short-matrix-wrap">
+              <div class="short-matrix" id="short-matrix-grid"></div>
+              <div class="short-readout" id="short-matrix-readout">Select any square to inspect a pair.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="short-example" id="short-fingerprints">
+          <div class="short-copy">
+            <span>03 / Best identity system</span>
+            <h3>Picker fingerprints</h3>
+            <p>
+              Give each picker a consistent 36-dimension barcode. Repeated
+              colors and intensities make kindred profiles recognizable without
+              requiring anyone to interpret coordinates.
+            </p>
+            <ul>
+              <li><b>Answers</b>“What makes this person’s taste distinctive?”</li>
+              <li><b>Interaction</b>Sort by similarity or select a row to expose its strongest dimensions.</li>
+              <li><b>Tradeoff</b>Excellent for comparison; weaker as a global overview by itself.</li>
+            </ul>
+          </div>
+          <div class="short-prototype">
+            <div class="short-prototype-head"><span>Top matches / eight-dimension excerpt</span><span>Intensity = strength</span></div>
+            <div class="short-frame fingerprint-list">
+              <button class="fingerprint-person selected" data-fingerprint-note="CHRISTOPHER NOLAN · Strongest: dialogue, crime, experimentation, visual stylization.">
+                <b>Christopher Nolan</b>
+                <span class="fingerprint-stripe"><i style="--v:92"></i><i style="--v:42"></i><i style="--v:81"></i><i style="--v:74"></i><i style="--v:89"></i><i style="--v:55"></i><i style="--v:77"></i><i style="--v:68"></i></span>
+                <span>100</span>
+              </button>
+              <button class="fingerprint-person" data-fingerprint-note="CARL FRANKLIN · Shared strength: crime, dialogue, classicism. Stronger realism than Nolan.">
+                <b>Carl Franklin</b>
+                <span class="fingerprint-stripe"><i style="--v:84"></i><i style="--v:51"></i><i style="--v:79"></i><i style="--v:61"></i><i style="--v:82"></i><i style="--v:72"></i><i style="--v:69"></i><i style="--v:77"></i></span>
+                <span>65</span>
+              </button>
+              <button class="fingerprint-person" data-fingerprint-note="BARRY JENKINS · Shared strength: dialogue and coming of age. Stronger warmth, intimacy, and identity.">
+                <b>Barry Jenkins</b>
+                <span class="fingerprint-stripe"><i style="--v:71"></i><i style="--v:91"></i><i style="--v:62"></i><i style="--v:68"></i><i style="--v:47"></i><i style="--v:89"></i><i style="--v:73"></i><i style="--v:80"></i></span>
+                <span>58</span>
+              </button>
+              <button class="fingerprint-person" data-fingerprint-note="MARY HARRON · Shared strength: crime, tension, and experimentation. Stronger identity and disturbance.">
+                <b>Mary Harron</b>
+                <span class="fingerprint-stripe"><i style="--v:76"></i><i style="--v:48"></i><i style="--v:83"></i><i style="--v:71"></i><i style="--v:81"></i><i style="--v:64"></i><i style="--v:88"></i><i style="--v:58"></i></span>
+                <span>57</span>
+              </button>
+              <button class="fingerprint-person" data-fingerprint-note="LAV DIAZ · Shared strength: experimentation and dialogue. Much stronger slow cinema and international breadth.">
+                <b>Lav Diaz</b>
+                <span class="fingerprint-stripe"><i style="--v:57"></i><i style="--v:54"></i><i style="--v:90"></i><i style="--v:88"></i><i style="--v:36"></i><i style="--v:86"></i><i style="--v:92"></i><i style="--v:85"></i></span>
+                <span>57</span>
+              </button>
+              <div class="fingerprint-key"><span>Dialogue</span><span>Warmth</span><span>Crime</span><span>Experiment</span><span>Visual</span><span>Intimacy</span><span>Identity</span><span>Global</span></div>
+              <div class="short-readout" id="fingerprint-readout">CHRISTOPHER NOLAN · Strongest: dialogue, crime, experimentation, visual stylization.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="short-example" id="short-subway">
+          <div class="short-copy">
+            <span>04 / Most playful</span>
+            <h3>Taste subway</h3>
+            <p>
+              Dimensions become colored transit lines and pickers become
+              stations. Interchanges immediately identify people who connect
+              otherwise separate cinematic traditions.
+            </p>
+            <ul>
+              <li><b>Answers</b>“Which taste currents does this picker connect?”</li>
+              <li><b>Interaction</b>Ride a line, click a station, or transfer into a different current.</li>
+              <li><b>Tradeoff</b>Memorable and navigable, but the line taxonomy must stay intentionally small.</li>
+            </ul>
+          </div>
+          <div class="short-prototype">
+            <div class="short-prototype-head"><span>Network layer / four strongest currents</span><span>Click a station</span></div>
+            <div class="short-frame short-metro">
+              <div class="metro-key"><span><i style="background:#ef3b2d"></i>Formal systems</span><span><i style="background:#2454ff"></i>Human realism</span><span><i style="background:#18a776"></i>Global modernism</span><span><i style="background:#f4d719"></i>Genre play</span></div>
+              <div class="short-metro-line one"></div><div class="short-metro-line two"></div><div class="short-metro-line three"></div><div class="short-metro-line four"></div>
+              <button class="short-station selected" style="left:15%;top:23%" data-station-note="GRETA GERWIG · Human realism + genre play"><b>Gerwig</b></button>
+              <button class="short-station" style="left:32%;top:34%" data-station-note="BARRY JENKINS · Human realism + global modernism"><b>Jenkins</b></button>
+              <button class="short-station" style="left:49%;top:45%" data-station-note="CHRISTOPHER NOLAN · Formal systems + genre play"><b>Nolan</b></button>
+              <button class="short-station" style="left:69%;top:31%" data-station-note="GUILLERMO DEL TORO · Formal systems + genre play + global modernism"><b>Del Toro</b></button>
+              <button class="short-station" style="left:22%;top:66%" data-station-note="JOHN WATERS · Genre play + human realism"><b>Waters</b></button>
+              <button class="short-station" style="left:60%;top:69%" data-station-note="BONG JOON HO · Formal systems + global modernism"><b>Bong</b></button>
+              <button class="short-station" style="left:79%;top:75%" data-station-note="PARK CHAN-WOOK · Formal systems + global modernism + genre play"><b>Park</b></button>
+              <button class="short-station" style="left:40%;top:78%" data-station-note="AYO EDEBIRI · Human realism + global modernism"><b>Edebiri</b></button>
+              <div class="short-readout" id="station-readout">GRETA GERWIG · Human realism + genre play</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="short-example" id="short-pairwise">
+          <div class="short-copy">
+            <span>05 / Clearest explanation</span>
+            <h3>Pairwise comparison</h3>
+            <p>
+              Put two people on opposite sides of the same dimensions. The
+              center labels hold still while mirrored bars expose agreements
+              and disagreements without visual clutter.
+            </p>
+            <ul>
+              <li><b>Answers</b>“Why are these two considered similar—or different?”</li>
+              <li><b>Interaction</b>Choose any two pickers and open the films responsible for each bar.</li>
+              <li><b>Tradeoff</b>The most legible evidence view, but it compares only two people at once.</li>
+            </ul>
+          </div>
+          <div class="short-prototype">
+            <div class="short-prototype-head"><span>Mirrored genome / eight dimensions</span><span>Change either picker</span></div>
+            <div class="short-frame pairwise">
+              <div class="pair-head">
+                <label>Left picker<select id="pair-left"><option>Christopher Nolan</option><option>Barry Jenkins</option><option>Mary Harron</option><option>Lav Diaz</option></select></label>
+                <label>Right picker<select id="pair-right"><option>Carl Franklin</option><option>Barry Jenkins</option><option>Mary Harron</option><option>Lav Diaz</option></select></label>
+              </div>
+              <div id="pairwise-rows"></div>
+              <div class="short-readout" id="pairwise-readout">NOLAN × FRANKLIN · Closest agreement: dialogue · Largest contrast: international cinema</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="short-example" id="short-poster-atlas">
+          <div class="short-copy">
+            <span>06 / Most cinematic</span>
+            <h3>Poster taste atlas</h3>
+            <p>
+              Let representative films become the geography. Poster clusters
+              define thematic regions, while each film reveals the pickers who
+              pull that area of the map together.
+            </p>
+            <ul>
+              <li><b>Answers</b>“Which films define this part of the taste landscape?”</li>
+              <li><b>Interaction</b>Select a poster to reveal its dimensions, pickers, and neighboring films.</li>
+              <li><b>Tradeoff</b>Beautiful and concrete, but it maps films first and people second.</li>
+            </ul>
+          </div>
+          <div class="short-prototype">
+            <div class="short-prototype-head"><span>Film-first atlas / representative titles</span><span>Click a poster</span></div>
+            <div class="short-frame poster-atlas">
+              <span class="atlas-region-name" style="left:7%;top:8%">Dream logic</span>
+              <span class="atlas-region-name" style="right:8%;top:8%">Formal systems</span>
+              <span class="atlas-region-name" style="left:8%;bottom:12%">Human weather</span>
+              <span class="atlas-region-name" style="right:8%;bottom:12%">Kinetic worlds</span>
+              <button class="poster-point selected" style="left:12%;top:18%" data-poster-note="MULHOLLAND DR. · Dream logic · Pickers nearby: Mary Harron, John Waters, Christopher Nolan"><img src="https://s3.amazonaws.com/criterion-production/films/dfdd32ea78dc954d8cef1b54e34acbf0/sCfUtouYZPKwTEfBNRMEntUVk572AT_small.jpg" alt="Mulholland Dr. cover" /><b>Mulholland Dr. · 2001</b></button>
+              <button class="poster-point" style="left:32%;top:33%" data-poster-note="HOUSE · Surrealism + horror + kinetic energy · Pickers nearby: Guillermo del Toro, Ayo Edebiri"><img src="https://s3.amazonaws.com/criterion-production/films/8d8acfc8c2639a4725f219b6fc42245e/qSJsRYuddgUdKqcwTdI6fsk48KhXF7_small.jpg" alt="House cover" /><b>House · 1977</b></button>
+              <button class="poster-point" style="right:13%;top:17%" data-poster-note="STALKER · Contemplation + cerebral + slow cinema · Pickers nearby: Christopher Nolan, Lav Diaz"><img src="https://s3.amazonaws.com/criterion-production/films/a2edcc26e1eab799429c48ff7067cee7/E0TPdmb6xXiqaiuPmArJq90hdAs3xV_small.jpg" alt="Stalker cover" /><b>Stalker · 1979</b></button>
+              <button class="poster-point" style="right:34%;top:39%" data-poster-note="THE RED SHOES · Visual stylization + classicism · Pickers nearby: Christopher Nolan, Martin Scorsese"><img src="https://s3.amazonaws.com/criterion-production/films/daa1d614942bb086b7fa4d4e1eb8b0d0/aZoMem6iPcKUSkCDO0g26e1bKiwA8y_small.jpg" alt="The Red Shoes cover" /><b>The Red Shoes · 1948</b></button>
+              <button class="poster-point" style="left:18%;bottom:12%" data-poster-note="PATHER PANCHALI · Family + realism + intimacy · Pickers nearby: Barry Jenkins, Christopher Nolan"><img src="https://s3.amazonaws.com/criterion-production/films/23ccfeaeb65bdd4286a7e7c6d25358cc/93jvZ2Ir3y2yMF3GPgNuDpnia3lDZh_small.jpg" alt="Pather Panchali cover" /><b>Pather Panchali · 1955</b></button>
+              <button class="poster-point" style="right:14%;bottom:10%" data-poster-note="THE PLAYER · Crime + dialogue + social critique · Pickers nearby: Christopher Nolan, Charlie Day"><img src="https://s3.amazonaws.com/criterion-production/films/0766da8ab2f5ffe38ca8fd231325b8f5/kAANocS3Pmyr9DXkivKYnVP0FH1Yjm_small.jpg" alt="The Player cover" /><b>The Player · 1992</b></button>
+              <div class="short-readout" id="poster-readout">MULHOLLAND DR. · Dream logic · Pickers nearby: Mary Harron, John Waters, Christopher Nolan</div>
+            </div>
+          </div>
+        </article>
+      </section>
 
       <section class="method" id="method">
         <div class="method-intro">
@@ -1153,13 +1996,13 @@
       <section class="gallery">
         <div class="gallery-head">
           <div>
-            <span class="kicker">How to show it</span>
-            <h2>Twelve directions</h2>
+            <span class="kicker">Earlier exploration / reference shelf</span>
+            <h2>Twelve more directions</h2>
           </div>
           <p>
-            Pick a tab to compare overview maps, pairwise explainers, analytic
-            tools, and more editorial interpretations. The strongest product
-            could combine two or three instead of choosing only one.
+            The original broad study remains here to compare more experimental
+            maps, analytic tools, and editorial interpretations against the six
+            focused alternatives above.
           </p>
         </div>
 
@@ -1451,15 +2294,15 @@
         <h2>Four product packages</h2>
         <div class="decision-grid">
           <article class="decision-card"><b>A / Fastest MVP</b><h3>Matches + evidence</h3><p>Ship explainable match cards first. It answers the core question cleanly and gives us a way to validate the scoring model before drawing a map.</p></article>
-          <article class="decision-card"><b>B / Recommended</b><h3>Constellation + orbit</h3><p>Use the constellation as the main overview. Clicking a picker opens their neighbor orbit and a factual evidence drawer.</p></article>
-          <article class="decision-card"><b>C / Editorial</b><h3>Atlas + metro</h3><p>Name the major communities and turn them into guided cinematic journeys. Strongest identity, most ongoing editorial work.</p></article>
-          <article class="decision-card"><b>D / Research mode</b><h3>Matrix + fingerprints</h3><p>Offer a precise heatmap and pairwise feature comparison for people who want to interrogate the model instead of simply browsing.</p></article>
+          <article class="decision-card"><b>B / Recommended</b><h3>Neighborhoods + fingerprints</h3><p>Use named communities as the overview, then make every picker’s profile concrete with a consistent dimensional barcode.</p></article>
+          <article class="decision-card"><b>C / Most cinematic</b><h3>Poster atlas + subway</h3><p>Make films and taste currents the primary geography. Strongest visual identity, with more editorial maintenance.</p></article>
+          <article class="decision-card"><b>D / Research mode</b><h3>Matrix + pairwise</h3><p>Offer exact pairwise scores and mirrored dimensional evidence for people who want to interrogate the model directly.</p></article>
         </div>
       </section>
 
       <aside class="final-pick">
         <span>My vote</span>
-        <strong>Start with explainable match cards, then graduate to the constellation once the scores feel right.</strong>
+        <strong>Lead with taste neighborhoods, open a fingerprint for each picker, and use the mirrored comparison as the evidence view.</strong>
       </aside>
     </main>
 
@@ -1474,6 +2317,165 @@
         "Del Toro", "Edebiri", "Hawke", "Park", "Questlove", "Coppola"
       ];
       const colors = ["#ef3b2d", "#2454ff", "#259b62", "#9e5ac7"];
+
+      document.querySelectorAll(".short-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".short-tab").forEach((item) => {
+            item.classList.remove("active");
+            item.setAttribute("aria-selected", "false");
+          });
+          document.querySelectorAll(".short-example").forEach((item) =>
+            item.classList.remove("active")
+          );
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          document.querySelector(`#${tab.dataset.short}`).classList.add("active");
+        });
+      });
+
+      function bindPrototypeSelection(selector, attribute, readoutId) {
+        document.querySelectorAll(selector).forEach((item) => {
+          item.addEventListener("click", () => {
+            document.querySelectorAll(selector).forEach((candidate) =>
+              candidate.classList.remove("selected")
+            );
+            item.classList.add("selected");
+            document.querySelector(readoutId).textContent =
+              item.dataset[attribute];
+          });
+        });
+      }
+
+      bindPrototypeSelection(
+        ".neighborhood",
+        "neighborhoodNote",
+        "#neighborhood-readout",
+      );
+      bindPrototypeSelection(
+        ".fingerprint-person",
+        "fingerprintNote",
+        "#fingerprint-readout",
+      );
+      bindPrototypeSelection(
+        ".short-station",
+        "stationNote",
+        "#station-readout",
+      );
+      bindPrototypeSelection(
+        ".poster-point",
+        "posterNote",
+        "#poster-readout",
+      );
+
+      function buildShortMatrix() {
+        const matrix = document.querySelector("#short-matrix-grid");
+        if (!matrix || matrix.children.length) return;
+        const sample = [
+          "Nolan",
+          "Franklin",
+          "Jenkins",
+          "Harron",
+          "Diaz",
+          "Waters",
+        ];
+        const scores = [
+          [100, 65, 58, 57, 57, 44],
+          [65, 100, 54, 51, 48, 46],
+          [58, 54, 100, 56, 62, 49],
+          [57, 51, 56, 100, 53, 66],
+          [57, 48, 62, 53, 100, 47],
+          [44, 46, 49, 66, 47, 100],
+        ];
+        matrix.append(document.createElement("span"));
+        sample.forEach((name) => {
+          const label = document.createElement("span");
+          label.className = "matrix-top";
+          label.textContent = name;
+          matrix.append(label);
+        });
+        sample.forEach((row, rowIndex) => {
+          const label = document.createElement("span");
+          label.className = "matrix-name";
+          label.textContent = row;
+          matrix.append(label);
+          sample.forEach((column, columnIndex) => {
+            const score = scores[rowIndex][columnIndex];
+            const cell = document.createElement("button");
+            cell.type = "button";
+            cell.textContent = score;
+            cell.style.background = `color-mix(in srgb, #f4d719 ${score}%, #2454ff)`;
+            cell.style.color = score > 62 ? "#171714" : "#fff";
+            cell.setAttribute(
+              "aria-label",
+              `${row} and ${column}: ${score}% similarity`,
+            );
+            cell.addEventListener("click", () => {
+              matrix.querySelectorAll("button").forEach((candidate) =>
+                candidate.classList.remove("selected")
+              );
+              cell.classList.add("selected");
+              document.querySelector("#short-matrix-readout").textContent =
+                row === column
+                  ? `${row.toUpperCase()} · SELF PROFILE · 100%`
+                  : `${row.toUpperCase()} × ${column.toUpperCase()} · ${score}% HYBRID SIMILARITY · CLICK THROUGH FOR SHARED FILMS AND DIMENSIONS`;
+            });
+            matrix.append(cell);
+          });
+        });
+      }
+
+      const pairDimensions = [
+        "Dialogue",
+        "Crime",
+        "Experiment",
+        "Visual style",
+        "Warmth",
+        "Intimacy",
+        "Global breadth",
+        "Slow cinema",
+      ];
+      const pairProfiles = {
+        "Christopher Nolan": [92, 81, 74, 89, 42, 55, 68, 33],
+        "Carl Franklin": [84, 79, 61, 82, 51, 72, 77, 41],
+        "Barry Jenkins": [71, 62, 68, 47, 91, 89, 80, 56],
+        "Mary Harron": [76, 83, 71, 81, 48, 64, 58, 44],
+        "Lav Diaz": [57, 45, 88, 36, 54, 86, 85, 92],
+      };
+
+      function buildPairwise() {
+        const leftName = document.querySelector("#pair-left").value;
+        const rightName = document.querySelector("#pair-right").value;
+        const leftValues = pairProfiles[leftName];
+        const rightValues = pairProfiles[rightName];
+        const rows = document.querySelector("#pairwise-rows");
+        rows.replaceChildren();
+        const differences = pairDimensions.map((dimension, index) => ({
+          dimension,
+          difference: Math.abs(leftValues[index] - rightValues[index]),
+        }));
+        pairDimensions.forEach((dimension, index) => {
+          const row = document.createElement("div");
+          row.className = "pair-row";
+          row.innerHTML = `
+            <div class="pair-bar left"><i style="--v:${leftValues[index]}"></i></div>
+            <span>${dimension}</span>
+            <div class="pair-bar right"><i style="--v:${rightValues[index]}"></i></div>
+          `;
+          rows.append(row);
+        });
+        const closest = [...differences].sort(
+          (left, right) => left.difference - right.difference,
+        )[0];
+        const contrast = [...differences].sort(
+          (left, right) => right.difference - left.difference,
+        )[0];
+        document.querySelector("#pairwise-readout").textContent =
+          `${leftName.toUpperCase()} × ${rightName.toUpperCase()} · CLOSEST AGREEMENT: ${closest.dimension.toUpperCase()} · LARGEST CONTRAST: ${contrast.dimension.toUpperCase()}`;
+      }
+
+      document
+        .querySelectorAll("#pair-left, #pair-right")
+        .forEach((select) => select.addEventListener("change", buildPairwise));
 
       document.querySelectorAll("[data-weight]").forEach((input) => {
         input.addEventListener("input", () => {
@@ -1748,6 +2750,8 @@
         buildBarcodes();
       }
 
+      buildShortMatrix();
+      buildPairwise();
       drawAll();
       window.addEventListener("resize", drawAll);
     </script>
