@@ -349,12 +349,8 @@ export default function Home() {
         <p>Criterion Closet Picks / Unofficial database</p>
         <nav aria-label="Archive links">
           <a href="/design-variations.html">Design study</a>
-          <a
-            href="/semantic-map-designs.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Semantic map
+          <a href="/taste-map" target="_blank" rel="noreferrer">
+            Taste map
           </a>
           <a href={sourceUrl} target="_blank" rel="noreferrer">
             Criterion source ↗

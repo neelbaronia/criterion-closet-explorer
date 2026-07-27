@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
+    new Request(`http://localhost${pathname}`, {
       headers: { accept: "text/html" },
     }),
     {
@@ -42,7 +42,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Newest Closet interviews/);
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
-  assert.match(html, /\/semantic-map-designs\.html/);
+  assert.match(html, /\/taste-map/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
@@ -65,6 +65,21 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /total movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("server-renders the quantified Closet Taste Map", async () => {
+  const response = await render("/taste-map");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>Taste Map — The Closet Index<\/title>/i);
+  assert.match(html, /Closet Taste Map/);
+  assert.match(html, /Criterion Genome/);
+  assert.match(html, /quantified dimensions/);
+  assert.match(html, /Christopher Nolan/);
+  assert.match(html, /Wikipedia/);
+  assert.match(html, /Design study/);
 });
 
 test("returns ranked dream-list matches without requiring an API key", async () => {
@@ -149,6 +164,40 @@ test("ships the complete generated Closet archive snapshot", async () => {
   assert.equal(films[0].picker, "Christopher Nolan");
   assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-24");
   assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-19");
+});
+
+test("ships a quantified and explainable picker Taste Map", async () => {
+  const tasteMap = JSON.parse(
+    await readFile(new URL("../data/taste-map.json", import.meta.url), "utf8"),
+  );
+
+  assert.equal(tasteMap.meta.pickerCount, 390);
+  assert.equal(tasteMap.meta.uniqueFilms, 1_262);
+  assert.equal(tasteMap.meta.dimensions.length, 36);
+  assert.ok(tasteMap.meta.filmCoverage >= 90);
+  assert.equal(tasteMap.pickers.length, 390);
+  assert.ok(tasteMap.edges.length > 500);
+
+  for (const picker of tasteMap.pickers) {
+    assert.equal(picker.profile.length, 36);
+    assert.ok(picker.profile.every((value) => value >= 0 && value <= 100));
+    assert.ok(picker.x >= 0 && picker.x <= 1);
+    assert.ok(picker.y >= 0 && picker.y <= 1);
+  }
+
+  const nolan = tasteMap.pickers.find(
+    (picker) => picker.name === "Christopher Nolan",
+  );
+  assert.ok(nolan);
+  assert.equal(tasteMap.matches[nolan.id].length, 12);
+  assert.ok(
+    tasteMap.matches[nolan.id].every(
+      (match) =>
+        match.coverage >= 0 &&
+        match.coverage <= 100 &&
+        match.sharedTraits.length > 0,
+    ),
+  );
 });
 
 test("ships a standalone five-direction design study", async () => {

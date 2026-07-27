@@ -18,8 +18,11 @@ The repository includes:
   year, director, or picker
 - filters for Closet picker, director, and decade
 - progressive 100-row rendering so the full archive remains fast to browse
+- an interactive picker Taste Map built from 36 quantified film dimensions,
+  rare shared picks, and director affinity
 - [five complete visual directions](./public/design-variations.html) in one
   standalone HTML comparison file
+- a [twelve-direction similarity-map design lab](./public/semantic-map-designs.html)
 
 ## Run locally
 
@@ -30,8 +33,10 @@ npm install
 npm run dev
 ```
 
-Then open `http://localhost:3000`. The design study is at
-`http://localhost:3000/design-variations.html`.
+Then open `http://localhost:3000`. The live Taste Map is at
+`http://localhost:3000/taste-map`; the visual studies are at
+`http://localhost:3000/design-variations.html` and
+`http://localhost:3000/semantic-map-designs.html`.
 
 ## Data and archive sync
 
@@ -79,6 +84,35 @@ release dates are matched by Criterion collection ID using the
 [Closet Picks machine-readable export](https://closetpicks.westenb.org/llm-export/).
 Streaming links open provider searches because availability changes by date and
 region.
+
+## Taste Map
+
+The generated similarity model lives in
+[`data/taste-map.json`](./data/taste-map.json). Every unique film gets a
+0–100 profile across 36 interpretable mood, form, theme, mode, and context
+dimensions. Picker profiles are rarity-weighted averages; oversized box sets are
+capped so they cannot dominate a person’s taste.
+
+The default match score combines:
+
+- 60% film-dimension similarity
+- 25% rarity-weighted exact film overlap
+- 15% rarity-weighted director overlap
+
+Map coordinates come from principal component analysis, and the interface
+exposes shared traits, contrasts, directors, and rare shared films for each
+match. Refresh the generated profiles with:
+
+```bash
+npm run data:taste
+```
+
+The model is inspired by the continuous relevance approach of the
+[MovieLens Tag Genome](https://grouplens.org/datasets/movielens/tag-genome/),
+but does not redistribute that research dataset. Instead, it derives its
+automated exploratory signals from Criterion metadata and
+[English Wikipedia](https://en.wikipedia.org/) summaries and categories. These
+scores are a navigation aid, not authoritative film criticism.
 
 ## Design directions
 
