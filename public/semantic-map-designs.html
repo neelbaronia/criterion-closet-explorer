@@ -1,0 +1,1755 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Closet Index — Semantic Map Design Lab</title>
+    <meta
+      name="description"
+      content="Twelve visual directions and a scoring model for mapping similarity between Criterion Closet pickers."
+    />
+    <style>
+      :root {
+        --black: #090909;
+        --ink: #171714;
+        --paper: #f3f1e9;
+        --white: #fff;
+        --red: #ef3b2d;
+        --yellow: #f4d719;
+        --blue: #2454ff;
+        --cyan: #80e7e0;
+        --muted: #74736d;
+        --line: #c9c6bb;
+        --mono: "Courier New", Courier, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--black);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+      }
+
+      button,
+      input,
+      select {
+        color: inherit;
+        font: inherit;
+      }
+
+      button,
+      select {
+        cursor: pointer;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .topbar {
+        align-items: center;
+        background: rgba(9, 9, 9, 0.94);
+        border-bottom: 1px solid #373737;
+        color: var(--white);
+        display: grid;
+        font-family: var(--mono);
+        grid-template-columns: 1fr auto 1fr;
+        height: 62px;
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .topbar a {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .topbar a:last-child {
+        justify-self: end;
+      }
+
+      .topbar span {
+        color: #9d9d9d;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .intro {
+        background: var(--paper);
+        display: grid;
+        gap: 48px;
+        grid-template-columns: minmax(260px, 0.65fr) 1.35fr;
+        min-height: 640px;
+        padding: 70px 26px 64px;
+      }
+
+      .intro-copy {
+        align-self: end;
+      }
+
+      .kicker {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .intro-copy p {
+        font-size: 18px;
+        line-height: 1.45;
+        margin: 26px 0 30px;
+        max-width: 460px;
+      }
+
+      .notice {
+        border: 1px solid var(--ink);
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.08em;
+        padding: 10px 12px;
+        text-transform: uppercase;
+      }
+
+      .intro h1 {
+        align-self: center;
+        font-size: clamp(72px, 12vw, 180px);
+        letter-spacing: -0.085em;
+        line-height: 0.74;
+        margin: 0;
+        text-transform: uppercase;
+      }
+
+      .intro h1 span {
+        color: var(--red);
+        display: block;
+      }
+
+      .recommendation {
+        background: var(--yellow);
+        border-bottom: 1px solid var(--ink);
+        border-top: 1px solid var(--ink);
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 190px 1fr auto;
+        padding: 18px 26px;
+      }
+
+      .recommendation b,
+      .recommendation span {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .recommendation strong {
+        font-size: 18px;
+      }
+
+      .method {
+        background: var(--paper);
+        border-bottom: 1px solid var(--ink);
+        display: grid;
+        grid-template-columns: minmax(280px, 0.75fr) 1.25fr;
+      }
+
+      .method-intro {
+        border-right: 1px solid var(--ink);
+        padding: 62px 26px;
+      }
+
+      .method h2,
+      .gallery-head h2,
+      .decision h2 {
+        font-size: clamp(48px, 7vw, 100px);
+        letter-spacing: -0.065em;
+        line-height: 0.84;
+        margin: 15px 0 24px;
+        text-transform: uppercase;
+      }
+
+      .method-intro > p {
+        line-height: 1.55;
+        max-width: 500px;
+      }
+
+      .pipeline {
+        border-top: 1px solid var(--line);
+        margin-top: 38px;
+      }
+
+      .pipeline div {
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        font-family: var(--mono);
+        font-size: 9px;
+        gap: 15px;
+        grid-template-columns: 32px 1fr;
+        line-height: 1.5;
+        padding: 12px 0;
+        text-transform: uppercase;
+      }
+
+      .pipeline b {
+        color: var(--red);
+      }
+
+      .mixer {
+        background: var(--white);
+        padding: 62px 26px;
+      }
+
+      .mixer-head {
+        align-items: end;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+
+      .mixer-head h3 {
+        font-size: 28px;
+        margin: 0;
+      }
+
+      .mixer-head strong {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 22px;
+      }
+
+      .weight {
+        align-items: center;
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 20px;
+        grid-template-columns: minmax(170px, 0.8fr) 1fr 48px;
+        min-height: 86px;
+      }
+
+      .weight:last-of-type {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .weight label {
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .weight label span {
+        color: var(--muted);
+        display: block;
+        font-family: var(--mono);
+        font-size: 8px;
+        font-weight: 400;
+        line-height: 1.35;
+        margin-top: 5px;
+        text-transform: uppercase;
+      }
+
+      input[type="range"] {
+        accent-color: var(--red);
+        width: 100%;
+      }
+
+      .weight output {
+        font-family: var(--mono);
+        font-size: 13px;
+        text-align: right;
+      }
+
+      .guardrails {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 26px;
+      }
+
+      .guardrails span {
+        background: var(--ink);
+        color: var(--white);
+        font-family: var(--mono);
+        font-size: 8px;
+        line-height: 1.4;
+        padding: 12px;
+        text-transform: uppercase;
+      }
+
+      .gallery {
+        background: var(--black);
+        color: var(--white);
+        padding: 65px 26px 90px;
+      }
+
+      .gallery-head {
+        align-items: end;
+        display: grid;
+        gap: 30px;
+        grid-template-columns: 1fr 0.7fr;
+        margin-bottom: 44px;
+      }
+
+      .gallery-head p {
+        color: #adadad;
+        line-height: 1.55;
+        margin: 0 0 5px;
+        max-width: 540px;
+      }
+
+      .concept-tabs {
+        border-bottom: 1px solid #3a3a3a;
+        border-top: 1px solid #3a3a3a;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        margin-bottom: 32px;
+      }
+
+      .concept-tab {
+        background: transparent;
+        border: 0;
+        border-right: 1px solid #3a3a3a;
+        color: #888;
+        font-family: var(--mono);
+        font-size: 9px;
+        min-height: 66px;
+        padding: 10px;
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .concept-tab:nth-child(6n) {
+        border-right: 0;
+      }
+
+      .concept-tab:nth-child(-n + 6) {
+        border-bottom: 1px solid #3a3a3a;
+      }
+
+      .concept-tab b {
+        color: var(--red);
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .concept-tab:hover,
+      .concept-tab.active {
+        background: var(--paper);
+        color: var(--ink);
+      }
+
+      .concept {
+        background: var(--paper);
+        color: var(--ink);
+        display: none;
+        min-height: 620px;
+      }
+
+      .concept.active {
+        display: grid;
+        grid-template-columns: minmax(250px, 0.52fr) 1.48fr;
+      }
+
+      .concept-copy {
+        border-right: 1px solid var(--ink);
+        padding: 28px;
+      }
+
+      .concept-number {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+
+      .concept-copy h3 {
+        font-size: clamp(35px, 4.4vw, 68px);
+        letter-spacing: -0.055em;
+        line-height: 0.9;
+        margin: 22px 0;
+        text-transform: uppercase;
+      }
+
+      .concept-copy > p {
+        line-height: 1.52;
+      }
+
+      .concept-copy dl {
+        border-top: 1px solid var(--line);
+        margin: 30px 0 0;
+      }
+
+      .concept-copy dl div {
+        border-bottom: 1px solid var(--line);
+        padding: 13px 0;
+      }
+
+      .concept-copy dt {
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 8px;
+        letter-spacing: 0.08em;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      .concept-copy dd {
+        font-size: 12px;
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      .prototype {
+        min-width: 0;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .prototype-head {
+        align-items: center;
+        border-bottom: 1px solid var(--ink);
+        display: flex;
+        font-family: var(--mono);
+        font-size: 9px;
+        justify-content: space-between;
+        min-height: 48px;
+        padding: 0 18px;
+        text-transform: uppercase;
+      }
+
+      .prototype-head select {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        font-size: 9px;
+        padding: 7px 26px 7px 8px;
+        text-transform: uppercase;
+      }
+
+      .canvas-wrap {
+        height: 570px;
+        position: relative;
+      }
+
+      canvas {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+
+      .legend {
+        bottom: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        font-family: var(--mono);
+        font-size: 8px;
+        gap: 14px;
+        left: 18px;
+        position: absolute;
+        text-transform: uppercase;
+      }
+
+      .legend span::before {
+        background: var(--red);
+        border-radius: 50%;
+        content: "";
+        display: inline-block;
+        height: 7px;
+        margin-right: 5px;
+        width: 7px;
+      }
+
+      .legend span:nth-child(2)::before {
+        background: var(--blue);
+      }
+
+      .legend span:nth-child(3)::before {
+        background: #259b62;
+      }
+
+      .legend span:nth-child(4)::before {
+        background: #9e5ac7;
+      }
+
+      .atlas {
+        background:
+          radial-gradient(ellipse at 20% 30%, rgba(239, 59, 45, 0.5) 0 9%, transparent 30%),
+          radial-gradient(ellipse at 75% 24%, rgba(36, 84, 255, 0.42) 0 10%, transparent 32%),
+          radial-gradient(ellipse at 70% 78%, rgba(128, 231, 224, 0.7) 0 9%, transparent 31%),
+          radial-gradient(ellipse at 28% 78%, rgba(244, 215, 25, 0.75) 0 9%, transparent 29%),
+          var(--paper);
+        height: 570px;
+        position: relative;
+      }
+
+      .atlas::before,
+      .atlas::after {
+        border: 1px dashed rgba(0, 0, 0, 0.35);
+        border-radius: 50%;
+        content: "";
+        inset: 12% 18%;
+        position: absolute;
+        transform: rotate(-7deg);
+      }
+
+      .atlas::after {
+        inset: 24% 29% 18%;
+        transform: rotate(13deg);
+      }
+
+      .atlas-label {
+        font-family: var(--mono);
+        font-size: 9px;
+        position: absolute;
+        text-transform: uppercase;
+      }
+
+      .atlas-label b {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 3px;
+      }
+
+      .atlas-label:nth-child(1) { left: 12%; top: 25%; }
+      .atlas-label:nth-child(2) { right: 10%; top: 19%; }
+      .atlas-label:nth-child(3) { right: 13%; bottom: 20%; }
+      .atlas-label:nth-child(4) { bottom: 18%; left: 12%; }
+      .atlas-label:nth-child(5) { left: 44%; top: 47%; }
+
+      .matrix-wrap {
+        background: var(--white);
+        height: 570px;
+        overflow: auto;
+        padding: 22px;
+      }
+
+      .matrix {
+        display: grid;
+        gap: 3px;
+        grid-template-columns: 112px repeat(8, minmax(38px, 1fr));
+        min-width: 620px;
+      }
+
+      .matrix div {
+        align-items: center;
+        display: flex;
+        font-family: var(--mono);
+        font-size: 8px;
+        justify-content: center;
+        min-height: 46px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .matrix .row-label {
+        justify-content: flex-start;
+        padding-right: 8px;
+      }
+
+      .matrix .column-label {
+        align-items: end;
+        justify-content: center;
+        min-height: 90px;
+        padding-bottom: 8px;
+        transform: rotate(-45deg);
+      }
+
+      .tree {
+        height: 570px;
+        overflow: hidden;
+        padding: 30px;
+        position: relative;
+      }
+
+      .tree-line {
+        background: var(--ink);
+        height: 1px;
+        position: absolute;
+        transform-origin: left center;
+      }
+
+      .tree-node {
+        background: var(--paper);
+        border: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        padding: 7px 8px;
+        position: absolute;
+        text-transform: uppercase;
+        z-index: 2;
+      }
+
+      .tree-node.root {
+        background: var(--red);
+        color: var(--white);
+      }
+
+      .metro {
+        background: #f7f3e9;
+        height: 570px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .metro-line {
+        border-radius: 20px;
+        height: 7px;
+        left: 8%;
+        position: absolute;
+        width: 84%;
+      }
+
+      .metro-line.red { background: var(--red); top: 24%; transform: rotate(8deg); }
+      .metro-line.blue { background: var(--blue); top: 48%; transform: rotate(-10deg); }
+      .metro-line.yellow { background: var(--yellow); top: 68%; transform: rotate(5deg); }
+      .metro-line.cyan { background: #37a99e; top: 39%; transform: rotate(22deg); }
+
+      .station {
+        background: var(--white);
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        height: 15px;
+        position: absolute;
+        width: 15px;
+      }
+
+      .station b {
+        font-family: var(--mono);
+        font-size: 8px;
+        left: 18px;
+        position: absolute;
+        top: -2px;
+        white-space: nowrap;
+      }
+
+      .barcode-view {
+        background: var(--white);
+        height: 570px;
+        overflow: auto;
+        padding: 18px 22px;
+      }
+
+      .barcode-row {
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 135px 1fr 38px;
+        min-height: 66px;
+      }
+
+      .barcode-row b,
+      .barcode-row span {
+        font-family: var(--mono);
+        font-size: 8px;
+        text-transform: uppercase;
+      }
+
+      .barcode {
+        display: flex;
+        gap: 2px;
+        height: 27px;
+      }
+
+      .barcode i {
+        background: var(--red);
+        display: block;
+        flex: 1;
+        opacity: 0.15;
+      }
+
+      .barcode i.on {
+        opacity: 1;
+      }
+
+      .barcode i:nth-child(3n).on { background: var(--blue); }
+      .barcode i:nth-child(4n).on { background: var(--yellow); }
+      .barcode i:nth-child(5n).on { background: #42b89c; }
+
+      .river {
+        background: #eef0ed;
+        height: 570px;
+        overflow: hidden;
+        padding: 42px 24px;
+        position: relative;
+      }
+
+      .river-axis {
+        display: flex;
+        font-family: var(--mono);
+        font-size: 8px;
+        justify-content: space-between;
+        text-transform: uppercase;
+      }
+
+      .stream {
+        border-radius: 999px;
+        height: 34px;
+        left: -5%;
+        opacity: 0.86;
+        position: absolute;
+        width: 110%;
+      }
+
+      .stream.one { background: var(--red); top: 25%; transform: rotate(4deg); }
+      .stream.two { background: var(--blue); height: 57px; top: 41%; transform: rotate(-5deg); }
+      .stream.three { background: var(--yellow); height: 29px; top: 61%; transform: rotate(7deg); }
+      .stream.four { background: #45bfa5; height: 44px; top: 74%; transform: rotate(-3deg); }
+
+      .river-tag {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        padding: 7px;
+        position: absolute;
+        text-transform: uppercase;
+        z-index: 2;
+      }
+
+      .match-list {
+        background: var(--white);
+        height: 570px;
+        overflow: auto;
+        padding: 14px 18px;
+      }
+
+      .match-card {
+        align-items: center;
+        border-bottom: 1px solid var(--ink);
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 48px 1fr 1.3fr 70px;
+        min-height: 92px;
+      }
+
+      .match-card > b {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 25px;
+        font-weight: 400;
+      }
+
+      .match-card h4 {
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .match-card p {
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.4;
+        margin: 4px 0 0;
+      }
+
+      .score {
+        border: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 9px;
+        text-align: center;
+      }
+
+      .counterfactual {
+        background: var(--paper);
+        height: 570px;
+        padding: 28px;
+      }
+
+      .counterfactual h4 {
+        font-size: clamp(30px, 4vw, 58px);
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+        margin: 20px 0 40px;
+        max-width: 700px;
+      }
+
+      .counterfactual-controls {
+        display: grid;
+        gap: 25px;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .counterfactual-controls label {
+        border-top: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 9px;
+        padding-top: 12px;
+        text-transform: uppercase;
+      }
+
+      .counter-results {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 48px;
+      }
+
+      .counter-results div {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        min-height: 120px;
+        padding: 14px;
+      }
+
+      .counter-results b {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 22px;
+      }
+
+      .counter-results span {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 9px;
+        text-transform: uppercase;
+      }
+
+      .rooms {
+        background: #e6e2d7;
+        display: grid;
+        gap: 7px;
+        grid-template-columns: 1.2fr 0.8fr 1fr;
+        grid-template-rows: 1fr 0.8fr;
+        height: 570px;
+        padding: 8px;
+      }
+
+      .room {
+        border: 1px solid var(--ink);
+        overflow: hidden;
+        padding: 18px;
+        position: relative;
+      }
+
+      .room:first-child {
+        background: var(--red);
+        grid-row: 1 / 3;
+      }
+
+      .room:nth-child(2) { background: var(--yellow); }
+      .room:nth-child(3) { background: var(--blue); color: var(--white); }
+      .room:nth-child(4) { background: var(--cyan); grid-column: 2 / 4; }
+
+      .room h4 {
+        font-size: clamp(22px, 3vw, 42px);
+        letter-spacing: -0.04em;
+        margin: 0 0 14px;
+        text-transform: uppercase;
+      }
+
+      .room p {
+        font-family: var(--mono);
+        font-size: 8px;
+        line-height: 1.5;
+        text-transform: uppercase;
+      }
+
+      .room .people {
+        bottom: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        left: 14px;
+        position: absolute;
+        right: 14px;
+      }
+
+      .room .people span {
+        background: var(--paper);
+        border: 1px solid var(--ink);
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        padding: 7px;
+        text-transform: uppercase;
+      }
+
+      .decision {
+        background: var(--paper);
+        border-top: 1px solid var(--ink);
+        padding: 70px 26px 90px;
+      }
+
+      .decision-grid {
+        border-bottom: 1px solid var(--ink);
+        border-top: 1px solid var(--ink);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .decision-card {
+        border-right: 1px solid var(--ink);
+        min-height: 260px;
+        padding: 20px;
+      }
+
+      .decision-card:last-child {
+        border-right: 0;
+      }
+
+      .decision-card b {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 9px;
+      }
+
+      .decision-card h3 {
+        font-size: 25px;
+        margin: 30px 0 16px;
+        text-transform: uppercase;
+      }
+
+      .decision-card p {
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .final-pick {
+        background: var(--ink);
+        color: var(--white);
+        display: grid;
+        gap: 30px;
+        grid-template-columns: 0.7fr 1.3fr;
+        padding: 45px 26px;
+      }
+
+      .final-pick span {
+        color: var(--yellow);
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+      }
+
+      .final-pick strong {
+        font-size: clamp(28px, 4vw, 55px);
+        letter-spacing: -0.045em;
+        line-height: 1;
+      }
+
+      footer {
+        background: var(--black);
+        color: #999;
+        display: flex;
+        font-family: var(--mono);
+        font-size: 9px;
+        justify-content: space-between;
+        padding: 25px 26px;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 900px) {
+        .intro,
+        .method,
+        .gallery-head,
+        .concept.active,
+        .final-pick {
+          grid-template-columns: 1fr;
+        }
+
+        .intro {
+          min-height: 0;
+        }
+
+        .method-intro,
+        .concept-copy {
+          border-bottom: 1px solid var(--ink);
+          border-right: 0;
+        }
+
+        .concept-tabs {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .concept-tab {
+          border-bottom: 1px solid #3a3a3a;
+        }
+
+        .concept-tab:nth-child(3n) {
+          border-right: 0;
+        }
+
+        .decision-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .decision-card:nth-child(2) {
+          border-right: 0;
+        }
+
+        .decision-card:nth-child(-n + 2) {
+          border-bottom: 1px solid var(--ink);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .topbar {
+          grid-template-columns: 1fr auto;
+          padding: 0 14px;
+        }
+
+        .topbar span {
+          display: none;
+        }
+
+        .intro,
+        .gallery,
+        .decision {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .recommendation {
+          grid-template-columns: 1fr;
+          padding: 16px;
+        }
+
+        .guardrails,
+        .counterfactual-controls,
+        .counter-results,
+        .rooms,
+        .decision-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .concept-tabs {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .concept-tab:nth-child(3n) {
+          border-right: 1px solid #3a3a3a;
+        }
+
+        .concept-tab:nth-child(2n) {
+          border-right: 0;
+        }
+
+        .match-card {
+          grid-template-columns: 38px 1fr 60px;
+        }
+
+        .match-card > div:nth-child(3) {
+          display: none;
+        }
+
+        .rooms {
+          display: block;
+          height: auto;
+        }
+
+        .room {
+          min-height: 220px;
+          margin-bottom: 7px;
+        }
+
+        .decision-card {
+          border-bottom: 1px solid var(--ink);
+          border-right: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a href="/">[ C—INDEX ]</a>
+      <span>Semantic mapping study · 12 directions</span>
+      <a href="/">Back to explorer ↗</a>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="intro-copy">
+          <span class="kicker">Design lab / Picker similarity</span>
+          <p>
+            How do 396 Criterion Closet visits become a map of cinematic taste?
+            This study pairs a defensible similarity recipe with twelve very
+            different ways to explore the result.
+          </p>
+          <span class="notice">Prototype scores are illustrative—not live embeddings</span>
+        </div>
+        <h1>Taste has <span>topology.</span></h1>
+      </section>
+
+      <aside class="recommendation">
+        <b>Current recommendation</b>
+        <strong>Constellation + evidence drawer + pairwise orbit</strong>
+        <span>Expressive overview / explainable details</span>
+      </aside>
+
+      <section class="method" id="method">
+        <div class="method-intro">
+          <span class="kicker">How to determine similarity</span>
+          <h2>A hybrid taste vector</h2>
+          <p>
+            No single signal is trustworthy enough. Exact overlap rewards shared
+            favorites but misses spiritually similar picks. Embeddings catch
+            meaning but can flatten eccentricity. The strongest model blends both,
+            downweights giant box sets, and explains every match in plain language.
+          </p>
+          <div class="pipeline">
+            <div><b>01</b><span>Build one profile per film from synopsis, director, country, language, movement, decade, and collection notes.</span></div>
+            <div><b>02</b><span>Embed every film, then create a rare-pick-weighted centroid for each Closet visit.</span></div>
+            <div><b>03</b><span>Deduplicate films within a visit and cap box-set influence so one purchase cannot dominate.</span></div>
+            <div><b>04</b><span>Blend cosine similarity with exact overlap, director affinity, and distribution distance.</span></div>
+            <div><b>05</b><span>Project the pairwise matrix into two dimensions with UMAP for the overview map.</span></div>
+            <div><b>06</b><span>Generate evidence: shared films, adjacent films, common directors, and strongest differences.</span></div>
+          </div>
+        </div>
+
+        <div class="mixer">
+          <div class="mixer-head">
+            <div>
+              <span class="kicker">Interactive scoring proposal</span>
+              <h3>Similarity weight mixer</h3>
+            </div>
+            <strong id="weight-total">100%</strong>
+          </div>
+
+          <div class="weight">
+            <label for="semantic-weight">Film semantics<span>Cosine similarity across plot, themes, movement, and cultural context</span></label>
+            <input id="semantic-weight" data-weight type="range" min="0" max="60" value="40" />
+            <output>40%</output>
+          </div>
+          <div class="weight">
+            <label for="overlap-weight">Exact + rare overlap<span>Jaccard overlap with an IDF boost for unusual shared selections</span></label>
+            <input id="overlap-weight" data-weight type="range" min="0" max="60" value="25" />
+            <output>25%</output>
+          </div>
+          <div class="weight">
+            <label for="director-weight">Director affinity<span>Shared auteurs and related creative lineages</span></label>
+            <input id="director-weight" data-weight type="range" min="0" max="40" value="15" />
+            <output>15%</output>
+          </div>
+          <div class="weight">
+            <label for="distribution-weight">Taste distributions<span>Era, country, language, format, and genre balance</span></label>
+            <input id="distribution-weight" data-weight type="range" min="0" max="40" value="15" />
+            <output>15%</output>
+          </div>
+          <div class="weight">
+            <label for="contrast-weight">Productive contrast<span>A small reward for illuminating differences—not just sameness</span></label>
+            <input id="contrast-weight" data-weight type="range" min="0" max="20" value="5" />
+            <output>5%</output>
+          </div>
+
+          <div class="guardrails">
+            <span>✓ Box-set contribution capped</span>
+            <span>✓ Repeat visitors stay visit-specific</span>
+            <span>✓ Every score has evidence</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="gallery">
+        <div class="gallery-head">
+          <div>
+            <span class="kicker">How to show it</span>
+            <h2>Twelve directions</h2>
+          </div>
+          <p>
+            Pick a tab to compare overview maps, pairwise explainers, analytic
+            tools, and more editorial interpretations. The strongest product
+            could combine two or three instead of choosing only one.
+          </p>
+        </div>
+
+        <div class="concept-tabs" role="tablist" aria-label="Semantic map design directions">
+          <button class="concept-tab active" data-concept="constellation" role="tab"><b>01</b>Constellation</button>
+          <button class="concept-tab" data-concept="orbit" role="tab"><b>02</b>Neighbor orbit</button>
+          <button class="concept-tab" data-concept="atlas" role="tab"><b>03</b>Taste atlas</button>
+          <button class="concept-tab" data-concept="matrix" role="tab"><b>04</b>Affinity matrix</button>
+          <button class="concept-tab" data-concept="tree" role="tab"><b>05</b>Family tree</button>
+          <button class="concept-tab" data-concept="metro" role="tab"><b>06</b>Cinema metro</button>
+          <button class="concept-tab" data-concept="radar" role="tab"><b>07</b>Fingerprints</button>
+          <button class="concept-tab" data-concept="barcode" role="tab"><b>08</b>Taste DNA</button>
+          <button class="concept-tab" data-concept="chords" role="tab"><b>09</b>Affinity chords</button>
+          <button class="concept-tab" data-concept="river" role="tab"><b>10</b>Taste river</button>
+          <button class="concept-tab" data-concept="matches" role="tab"><b>11</b>Match cards</button>
+          <button class="concept-tab" data-concept="counterfactual" role="tab"><b>12</b>What-if lab</button>
+        </div>
+
+        <article class="concept active" id="constellation">
+          <div class="concept-copy">
+            <span class="concept-number">01 / Recommended overview</span>
+            <h3>Semantic constellation</h3>
+            <p>Every picker is a star. UMAP places semantically similar taste profiles nearby; subtle links reveal only the strongest relationships.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Immediate exploration of all 396 visits.</dd></div>
+              <div><dt>Interaction</dt><dd>Search, zoom, hover, click to pin, then open evidence in a side drawer.</dd></div>
+              <div><dt>Strength</dt><dd>Feels magical while preserving a sense of the whole archive.</dd></div>
+              <div><dt>Risk</dt><dd>Two-dimensional distance can look more authoritative than it really is.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>All pickers / semantic UMAP</span><span>Distance = difference</span></div>
+            <div class="canvas-wrap">
+              <canvas id="constellation-canvas" aria-label="Illustrative picker constellation"></canvas>
+              <div class="legend"><span>New Hollywood</span><span>World modernism</span><span>Genre maximalists</span><span>Form breakers</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept" id="orbit">
+          <div class="concept-copy">
+            <span class="concept-number">02 / Best pairwise view</span>
+            <h3>Neighbor orbit</h3>
+            <p>Put one picker at the center. Their closest taste neighbors orbit near the core; surprising contrasts sit on the outer ring.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Answering “who is this person closest to?” without a crowded global map.</dd></div>
+              <div><dt>Interaction</dt><dd>Select any picker; click a neighbor to recenter the orbit.</dd></div>
+              <div><dt>Strength</dt><dd>Clear, playful, mobile-friendly, and easy to explain.</dd></div>
+              <div><dt>Evidence</dt><dd>Ring labels can expose shared films and biggest differences.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head">
+              <span>Anchor picker</span>
+              <select class="picker-select" aria-label="Choose anchor picker">
+                <option>Christopher Nolan</option><option>Greta Gerwig</option><option>Barry Jenkins</option><option>John Waters</option>
+              </select>
+            </div>
+            <div class="canvas-wrap"><canvas id="orbit-canvas" aria-label="Illustrative nearest-neighbor orbit"></canvas></div>
+          </div>
+        </article>
+
+        <article class="concept" id="atlas">
+          <div class="concept-copy">
+            <span class="concept-number">03 / Most editorial</span>
+            <h3>Taste atlas</h3>
+            <p>Turn the embedding into a fictional cinematic landscape with named regions, borderlands, and unexpected bridges.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Storytelling, browsing, and making clusters memorable.</dd></div>
+              <div><dt>Interaction</dt><dd>Pan across regions, reveal residents, and trace a route between two pickers.</dd></div>
+              <div><dt>Strength</dt><dd>Transforms abstract machine geometry into human language.</dd></div>
+              <div><dt>Risk</dt><dd>Region names require editorial judgment and periodic review.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Map layer: communities</span><span>Contour = similarity density</span></div>
+            <div class="atlas">
+              <span class="atlas-label"><b>Dream Logic</b>Lynch · Denis · Weerasethakul</span>
+              <span class="atlas-label"><b>Clockwork</b>Kubrick · Nolan · Fincher</span>
+              <span class="atlas-label"><b>Human Weather</b>Varda · Ozu · Leigh</span>
+              <span class="atlas-label"><b>Beautiful Ruin</b>Cassavetes · Safdies · Clarke</span>
+              <span class="atlas-label"><b>The Borderlands</b>Gerwig · Jenkins · Coppola</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept" id="matrix">
+          <div class="concept-copy">
+            <span class="concept-number">04 / Most rigorous</span>
+            <h3>Affinity matrix</h3>
+            <p>A sortable heatmap shows every pairwise score without the distortion of projection. Cluster order reveals communities as dense squares.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Power users, comparisons, and validating the similarity model.</dd></div>
+              <div><dt>Interaction</dt><dd>Search names, sort by cluster, and hover any cell for evidence.</dd></div>
+              <div><dt>Strength</dt><dd>Precise, compact, and honest about pairwise values.</dd></div>
+              <div><dt>Risk</dt><dd>Less emotionally inviting than a spatial map.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>8-picker sample</span><span>Yellow = closer</span></div>
+            <div class="matrix-wrap"><div class="matrix" id="matrix-grid"></div></div>
+          </div>
+        </article>
+
+        <article class="concept" id="tree">
+          <div class="concept-copy">
+            <span class="concept-number">05 / Clearest communities</span>
+            <h3>Picker family tree</h3>
+            <p>Hierarchical clustering creates branches of taste and shows where a community splits into more specific cinematic tendencies.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Understanding nested communities and taste lineages.</dd></div>
+              <div><dt>Interaction</dt><dd>Collapse branches, change linkage method, or compare two leaves.</dd></div>
+              <div><dt>Strength</dt><dd>Exposes structure the free-floating map can hide.</dd></div>
+              <div><dt>Risk</dt><dd>A tree implies hard ancestry when affinities are actually fluid.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Hierarchical clustering</span><span>Average linkage</span></div>
+            <div class="tree" id="tree-view"></div>
+          </div>
+        </article>
+
+        <article class="concept" id="metro">
+          <div class="concept-copy">
+            <span class="concept-number">06 / Most playful</span>
+            <h3>Cinema metro</h3>
+            <p>Each line represents a strong taste current. Pickers become stations; interchanges reveal people who bridge multiple cinematic worlds.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Explaining overlap across themes, eras, movements, and genres.</dd></div>
+              <div><dt>Interaction</dt><dd>Ride a line, filter to its films, or transfer at a bridge picker.</dd></div>
+              <div><dt>Strength</dt><dd>Memorable, legible, and naturally supports guided journeys.</dd></div>
+              <div><dt>Risk</dt><dd>Requires choosing a finite set of editorial “lines.”</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Network map</span><span>Line = taste current</span></div>
+            <div class="metro">
+              <div class="metro-line red"></div><div class="metro-line blue"></div><div class="metro-line yellow"></div><div class="metro-line cyan"></div>
+              <span class="station" style="left:16%;top:22%"><b>Gerwig</b></span>
+              <span class="station" style="left:35%;top:31%"><b>Jenkins</b></span>
+              <span class="station" style="left:53%;top:45%"><b>Nolan</b></span>
+              <span class="station" style="left:72%;top:32%"><b>Del Toro</b></span>
+              <span class="station" style="left:25%;top:62%"><b>Waters</b></span>
+              <span class="station" style="left:63%;top:67%"><b>Bong</b></span>
+              <span class="station" style="left:81%;top:73%"><b>Park</b></span>
+              <span class="station" style="left:44%;top:76%"><b>Edebiri</b></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept" id="radar">
+          <div class="concept-copy">
+            <span class="concept-number">07 / Best explanation</span>
+            <h3>Taste fingerprints</h3>
+            <p>Compare two pickers across stable dimensions such as formalism, warmth, genre intensity, global breadth, era, and experimentation.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Explaining both similarity and difference in one glance.</dd></div>
+              <div><dt>Interaction</dt><dd>Choose two pickers; toggle dimensions or see the films driving each spike.</dd></div>
+              <div><dt>Strength</dt><dd>Specific, shareable, and easy to pair with textual evidence.</dd></div>
+              <div><dt>Risk</dt><dd>Dimensions must be defined carefully to avoid vague psychographics.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Christopher Nolan vs. Barry Jenkins</span><span>Six taste dimensions</span></div>
+            <div class="canvas-wrap"><canvas id="radar-canvas" aria-label="Illustrative taste fingerprint comparison"></canvas></div>
+          </div>
+        </article>
+
+        <article class="concept" id="barcode">
+          <div class="concept-copy">
+            <span class="concept-number">08 / Most information-dense</span>
+            <h3>Taste DNA</h3>
+            <p>Each picker becomes a compact barcode across hundreds of latent film features. Similar sequences visually rhyme without requiring a map.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Fast scanning, search results, and dense comparative lists.</dd></div>
+              <div><dt>Interaction</dt><dd>Sort by similarity, brush a feature band, or expand into named evidence.</dd></div>
+              <div><dt>Strength</dt><dd>Scales elegantly to all 396 visits in one vertical view.</dd></div>
+              <div><dt>Risk</dt><dd>Needs a legend or detail view to become interpretable.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Latent features 01—36</span><span>Sorted near Christopher Nolan</span></div>
+            <div class="barcode-view" id="barcode-view"></div>
+          </div>
+        </article>
+
+        <article class="concept" id="chords">
+          <div class="concept-copy">
+            <span class="concept-number">09 / Best for bridges</span>
+            <h3>Affinity chords</h3>
+            <p>A circular network highlights the strongest cross-community relationships and the pickers who connect otherwise distant taste clusters.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Finding surprising bridges rather than nearest neighbors.</dd></div>
+              <div><dt>Interaction</dt><dd>Hover a picker to isolate their chords and reveal why each link exists.</dd></div>
+              <div><dt>Strength</dt><dd>Dramatic, compact, and strong for exhibition-style presentation.</dd></div>
+              <div><dt>Risk</dt><dd>Quickly becomes tangled without aggressive filtering.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Top cross-cluster affinities</span><span>24 strongest links</span></div>
+            <div class="canvas-wrap"><canvas id="chord-canvas" aria-label="Illustrative affinity chord diagram"></canvas></div>
+          </div>
+        </article>
+
+        <article class="concept" id="river">
+          <div class="concept-copy">
+            <span class="concept-number">10 / Best temporal story</span>
+            <h3>Taste river</h3>
+            <p>Flow taste currents through the Closet series timeline to show when styles surge, merge, disappear, and return.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Adding time to the semantic story and spotting historical shifts.</dd></div>
+              <div><dt>Interaction</dt><dd>Scrub by interview date, follow one current, or pause at a picker.</dd></div>
+              <div><dt>Strength</dt><dd>Makes the archive feel alive rather than like a static dataset.</dd></div>
+              <div><dt>Risk</dt><dd>Answers a different question than direct picker-to-picker similarity.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>2011—2026</span><span>Stream width = share of picks</span></div>
+            <div class="river">
+              <div class="river-axis"><span>2011</span><span>2016</span><span>2021</span><span>2026</span></div>
+              <div class="stream one"></div><div class="stream two"></div><div class="stream three"></div><div class="stream four"></div>
+              <span class="river-tag" style="left:12%;top:22%">American outsiders</span>
+              <span class="river-tag" style="left:49%;top:42%">Global modernism</span>
+              <span class="river-tag" style="right:11%;top:61%">Genre rediscovery</span>
+              <span class="river-tag" style="left:29%;top:75%">Tender realism</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept" id="matches">
+          <div class="concept-copy">
+            <span class="concept-number">11 / Most useful MVP</span>
+            <h3>Explainable match cards</h3>
+            <p>Skip the abstract map entirely: rank each picker’s closest neighbors and explain the score with shared films, directors, and productive differences.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>A practical first release and the dream-collection matcher.</dd></div>
+              <div><dt>Interaction</dt><dd>Choose a picker, expand evidence, and save or share a comparison.</dd></div>
+              <div><dt>Strength</dt><dd>Accessible, searchable, mobile-ready, and highly explainable.</dd></div>
+              <div><dt>Risk</dt><dd>Does not communicate the shape of the whole community.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Closest to Christopher Nolan</span><span>Hybrid score</span></div>
+            <div class="match-list">
+              <div class="match-card"><b>01</b><div><h4>Guillermo del Toro</h4><p>Genre classicism with a strong international spine.</p></div><div><p>Shared: Powell & Pressburger, Kurosawa, Welles<br />Contrast: horror ↔ procedural precision</p></div><span class="score">88%</span></div>
+              <div class="match-card"><b>02</b><div><h4>Park Chan-wook</h4><p>Formalist suspense and morally unstable worlds.</p></div><div><p>Shared: Clouzot, Lang, Melville<br />Contrast: romantic excess ↔ structural puzzles</p></div><span class="score">84%</span></div>
+              <div class="match-card"><b>03</b><div><h4>Bong Joon Ho</h4><p>Genre mechanics used for social architecture.</p></div><div><p>Shared: Altman, Hitchcock, Kubrick<br />Contrast: satire ↔ metaphysics</p></div><span class="score">81%</span></div>
+              <div class="match-card"><b>04</b><div><h4>Ethan Hawke</h4><p>American character studies with cinephile breadth.</p></div><div><p>Shared: Cassavetes, Lumet, Malick<br />Contrast: performance ↔ spectacle</p></div><span class="score">77%</span></div>
+              <div class="match-card"><b>05</b><div><h4>Questlove</h4><p>Archive-minded, rhythmic, and historically curious.</p></div><div><p>Shared: Roeg, Welles, documentary form<br />Contrast: musicality ↔ mechanics</p></div><span class="score">74%</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept" id="counterfactual">
+          <div class="concept-copy">
+            <span class="concept-number">12 / Most experimental</span>
+            <h3>What-if taste lab</h3>
+            <p>Let people bend a picker’s profile—more horror, less nostalgia, older films, wider geography—and watch their closest neighbors change.</p>
+            <dl>
+              <div><dt>Best for</dt><dd>Understanding what the model believes and encouraging playful discovery.</dd></div>
+              <div><dt>Interaction</dt><dd>Move semantic sliders and watch matches reorder in real time.</dd></div>
+              <div><dt>Strength</dt><dd>Turns passive results into an intuitive model-exploration tool.</dd></div>
+              <div><dt>Risk</dt><dd>Should follow, not precede, a trustworthy baseline similarity system.</dd></div>
+            </dl>
+          </div>
+          <div class="prototype">
+            <div class="prototype-head"><span>Counterfactual profile</span><span>Changes are temporary</span></div>
+            <div class="counterfactual">
+              <span class="kicker">If Christopher Nolan’s picks were…</span>
+              <h4>More intimate, more international, and a little less plot-driven.</h4>
+              <div class="counterfactual-controls">
+                <label>Intimacy<input class="counter-slider" type="range" min="0" max="100" value="72" /></label>
+                <label>Global breadth<input class="counter-slider" type="range" min="0" max="100" value="81" /></label>
+                <label>Formal experimentation<input class="counter-slider" type="range" min="0" max="100" value="57" /></label>
+                <label>Genre intensity<input class="counter-slider" type="range" min="0" max="100" value="43" /></label>
+              </div>
+              <div class="counter-results">
+                <div><b>Barry Jenkins</b><span>+12 places</span></div>
+                <div><b>Greta Gerwig</b><span>+9 places</span></div>
+                <div><b>Wim Wenders</b><span>+7 places</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="decision">
+        <span class="kicker">A second way to compare</span>
+        <h2>Four product packages</h2>
+        <div class="decision-grid">
+          <article class="decision-card"><b>A / Fastest MVP</b><h3>Matches + evidence</h3><p>Ship explainable match cards first. It answers the core question cleanly and gives us a way to validate the scoring model before drawing a map.</p></article>
+          <article class="decision-card"><b>B / Recommended</b><h3>Constellation + orbit</h3><p>Use the constellation as the main overview. Clicking a picker opens their neighbor orbit and a factual evidence drawer.</p></article>
+          <article class="decision-card"><b>C / Editorial</b><h3>Atlas + metro</h3><p>Name the major communities and turn them into guided cinematic journeys. Strongest identity, most ongoing editorial work.</p></article>
+          <article class="decision-card"><b>D / Research mode</b><h3>Matrix + fingerprints</h3><p>Offer a precise heatmap and pairwise feature comparison for people who want to interrogate the model instead of simply browsing.</p></article>
+        </div>
+      </section>
+
+      <aside class="final-pick">
+        <span>My vote</span>
+        <strong>Start with explainable match cards, then graduate to the constellation once the scores feel right.</strong>
+      </aside>
+    </main>
+
+    <footer>
+      <span>The Closet Index / Semantic map design lab</span>
+      <a href="/">Return to film table ↗</a>
+    </footer>
+
+    <script>
+      const names = [
+        "Nolan", "Gerwig", "Jenkins", "Bong", "Waters", "Wenders",
+        "Del Toro", "Edebiri", "Hawke", "Park", "Questlove", "Coppola"
+      ];
+      const colors = ["#ef3b2d", "#2454ff", "#259b62", "#9e5ac7"];
+
+      document.querySelectorAll("[data-weight]").forEach((input) => {
+        input.addEventListener("input", () => {
+          input.nextElementSibling.value = `${input.value}%`;
+          const total = [...document.querySelectorAll("[data-weight]")]
+            .reduce((sum, item) => sum + Number(item.value), 0);
+          const totalNode = document.querySelector("#weight-total");
+          totalNode.textContent = `${total}%`;
+          totalNode.style.color = total === 100 ? "#ef3b2d" : "#2454ff";
+        });
+      });
+
+      document.querySelectorAll(".concept-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".concept-tab").forEach((item) => item.classList.remove("active"));
+          document.querySelectorAll(".concept").forEach((item) => item.classList.remove("active"));
+          tab.classList.add("active");
+          document.querySelector(`#${tab.dataset.concept}`).classList.add("active");
+          drawAll();
+        });
+      });
+
+      function prepareCanvas(id) {
+        const canvas = document.querySelector(id);
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        const scale = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, rect.width * scale);
+        canvas.height = Math.max(1, rect.height * scale);
+        const context = canvas.getContext("2d");
+        context.setTransform(scale, 0, 0, scale, 0, 0);
+        context.clearRect(0, 0, rect.width, rect.height);
+        return { canvas, context, width: rect.width, height: rect.height };
+      }
+
+      function dot(context, x, y, radius, color, label, selected = false) {
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fillStyle = color;
+        context.fill();
+        if (selected) {
+          context.lineWidth = 3;
+          context.strokeStyle = "#090909";
+          context.stroke();
+        }
+        context.fillStyle = "#171714";
+        context.font = `${selected ? "bold " : ""}9px Courier New`;
+        context.fillText(label, x + radius + 5, y + 3);
+      }
+
+      function drawConstellation() {
+        const setup = prepareCanvas("#constellation-canvas");
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const points = [
+          [.19,.28,0,"Gerwig"], [.27,.34,0,"Jenkins"], [.34,.21,0,"Coppola"],
+          [.57,.24,1,"Nolan"], [.67,.29,1,"Park"], [.74,.19,1,"Del Toro"],
+          [.75,.65,2,"Bong"], [.63,.73,2,"Questlove"], [.82,.78,2,"Edebiri"],
+          [.27,.70,3,"Waters"], [.39,.78,3,"Wenders"], [.48,.62,3,"Hawke"]
+        ];
+        context.strokeStyle = "rgba(0,0,0,.16)";
+        context.lineWidth = 1;
+        points.forEach((point, index) => {
+          points.slice(index + 1).forEach((other) => {
+            const distance = Math.hypot(point[0] - other[0], point[1] - other[1]);
+            if (distance < .24) {
+              context.beginPath();
+              context.moveTo(point[0] * width, point[1] * height);
+              context.lineTo(other[0] * width, other[1] * height);
+              context.stroke();
+            }
+          });
+        });
+        points.forEach((point, index) => dot(
+          context, point[0] * width, point[1] * height,
+          index === 3 ? 10 : 6, colors[point[2]], point[3], index === 3
+        ));
+      }
+
+      function drawOrbit() {
+        const setup = prepareCanvas("#orbit-canvas");
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        [90, 165, 235].forEach((radius) => {
+          context.beginPath();
+          context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+          context.strokeStyle = "rgba(0,0,0,.18)";
+          context.setLineDash([4, 5]);
+          context.stroke();
+        });
+        context.setLineDash([]);
+        dot(context, centerX, centerY, 13, "#ef3b2d", "CHRISTOPHER NOLAN", true);
+        const orbitNames = ["Del Toro 88", "Park 84", "Bong 81", "Hawke 77", "Questlove 74", "Jenkins 69", "Gerwig 65", "Waters 52"];
+        orbitNames.forEach((name, index) => {
+          const radius = index < 3 ? 90 : index < 6 ? 165 : 235;
+          const angle = -Math.PI / 2 + index * (Math.PI * 2 / orbitNames.length);
+          dot(context, centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, 7, colors[index % colors.length], name);
+        });
+      }
+
+      function drawRadar() {
+        const setup = prepareCanvas("#radar-canvas");
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const centerX = width / 2;
+        const centerY = height / 2 + 8;
+        const radius = Math.min(width, height) * .33;
+        const labels = ["FORMALISM", "WARMTH", "GLOBAL", "EXPERIMENT", "GENRE", "CLASSICISM"];
+        for (let ring = 1; ring <= 5; ring += 1) {
+          context.beginPath();
+          labels.forEach((_, index) => {
+            const angle = -Math.PI / 2 + index * Math.PI * 2 / labels.length;
+            const x = centerX + Math.cos(angle) * radius * ring / 5;
+            const y = centerY + Math.sin(angle) * radius * ring / 5;
+            index ? context.lineTo(x, y) : context.moveTo(x, y);
+          });
+          context.closePath();
+          context.strokeStyle = "rgba(0,0,0,.18)";
+          context.stroke();
+        }
+        labels.forEach((label, index) => {
+          const angle = -Math.PI / 2 + index * Math.PI * 2 / labels.length;
+          context.beginPath();
+          context.moveTo(centerX, centerY);
+          context.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
+          context.strokeStyle = "rgba(0,0,0,.12)";
+          context.stroke();
+          context.fillStyle = "#171714";
+          context.font = "9px Courier New";
+          context.textAlign = Math.cos(angle) > .2 ? "left" : Math.cos(angle) < -.2 ? "right" : "center";
+          context.fillText(label, centerX + Math.cos(angle) * (radius + 22), centerY + Math.sin(angle) * (radius + 22));
+        });
+        [[.95,.32,.57,.72,.88,.91],[.56,.94,.83,.66,.42,.68]].forEach((values, series) => {
+          context.beginPath();
+          values.forEach((value, index) => {
+            const angle = -Math.PI / 2 + index * Math.PI * 2 / values.length;
+            const x = centerX + Math.cos(angle) * radius * value;
+            const y = centerY + Math.sin(angle) * radius * value;
+            index ? context.lineTo(x, y) : context.moveTo(x, y);
+          });
+          context.closePath();
+          context.fillStyle = series ? "rgba(36,84,255,.18)" : "rgba(239,59,45,.2)";
+          context.strokeStyle = series ? "#2454ff" : "#ef3b2d";
+          context.lineWidth = 2;
+          context.fill();
+          context.stroke();
+        });
+        context.textAlign = "left";
+        context.fillStyle = "#ef3b2d"; context.fillRect(22, 22, 13, 13);
+        context.fillStyle = "#171714"; context.font = "9px Courier New"; context.fillText("CHRISTOPHER NOLAN", 42, 32);
+        context.fillStyle = "#2454ff"; context.fillRect(180, 22, 13, 13);
+        context.fillStyle = "#171714"; context.fillText("BARRY JENKINS", 200, 32);
+      }
+
+      function drawChords() {
+        const setup = prepareCanvas("#chord-canvas");
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.min(width, height) * .37;
+        const points = names.map((name, index) => {
+          const angle = -Math.PI / 2 + index * Math.PI * 2 / names.length;
+          return { name, angle, x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius };
+        });
+        points.forEach((point, index) => {
+          [2, 4].forEach((jump) => {
+            const target = points[(index + jump) % points.length];
+            context.beginPath();
+            context.moveTo(point.x, point.y);
+            context.quadraticCurveTo(centerX, centerY, target.x, target.y);
+            context.strokeStyle = `${colors[index % colors.length]}55`;
+            context.lineWidth = jump === 2 ? 2 : 1;
+            context.stroke();
+          });
+        });
+        points.forEach((point, index) => dot(context, point.x, point.y, 6, colors[index % colors.length], point.name));
+      }
+
+      function buildMatrix() {
+        const matrix = document.querySelector("#matrix-grid");
+        if (!matrix || matrix.children.length) return;
+        const sample = ["Nolan", "Del Toro", "Park", "Bong", "Gerwig", "Jenkins", "Waters", "Wenders"];
+        matrix.append(document.createElement("div"));
+        sample.forEach((name) => {
+          const label = document.createElement("div");
+          label.className = "column-label";
+          label.textContent = name;
+          matrix.append(label);
+        });
+        sample.forEach((row, rowIndex) => {
+          const label = document.createElement("div");
+          label.className = "row-label";
+          label.textContent = row;
+          matrix.append(label);
+          sample.forEach((_, columnIndex) => {
+            const cell = document.createElement("div");
+            const score = rowIndex === columnIndex ? 100 : Math.max(24, 91 - Math.abs(rowIndex - columnIndex) * 9 - ((rowIndex * 7 + columnIndex * 3) % 15));
+            cell.textContent = score;
+            cell.style.background = `color-mix(in srgb, #f4d719 ${score}%, #2454ff)`;
+            cell.style.color = score > 68 ? "#171714" : "#fff";
+            cell.title = `${row} similarity: ${score}%`;
+            matrix.append(cell);
+          });
+        });
+      }
+
+      function lineElement(x1, y1, x2, y2) {
+        const line = document.createElement("span");
+        line.className = "tree-line";
+        line.style.left = `${x1}%`;
+        line.style.top = `${y1}%`;
+        const deltaX = x2 - x1;
+        const deltaY = y2 - y1;
+        line.style.width = `${Math.hypot(deltaX, deltaY)}%`;
+        line.style.transform = `rotate(${Math.atan2(deltaY, deltaX)}rad)`;
+        return line;
+      }
+
+      function buildTree() {
+        const tree = document.querySelector("#tree-view");
+        if (!tree || tree.children.length) return;
+        const nodes = [
+          [8,48,"All pickers","root"], [28,27,"Form + systems",""], [28,69,"Emotion + texture",""],
+          [53,16,"Genre architects",""], [53,38,"Modernist classicists",""], [53,60,"Tender realists",""], [53,81,"Beautiful troublemakers",""],
+          [78,10,"Nolan · Park · Bong",""], [78,27,"Del Toro · Questlove",""], [78,43,"Wenders · Hawke",""],
+          [78,57,"Jenkins · Gerwig",""], [78,72,"Coppola · Edebiri",""], [78,87,"Waters · Safdies",""]
+        ];
+        const links = [[8,48,28,27],[8,48,28,69],[28,27,53,16],[28,27,53,38],[28,69,53,60],[28,69,53,81],[53,16,78,10],[53,16,78,27],[53,38,78,43],[53,60,78,57],[53,60,78,72],[53,81,78,87]];
+        links.forEach((link) => tree.append(lineElement(...link)));
+        nodes.forEach(([left, top, label, className]) => {
+          const node = document.createElement("span");
+          node.className = `tree-node ${className}`;
+          node.style.left = `${left}%`;
+          node.style.top = `${top}%`;
+          node.textContent = label;
+          tree.append(node);
+        });
+      }
+
+      function buildBarcodes() {
+        const container = document.querySelector("#barcode-view");
+        if (!container || container.children.length) return;
+        names.slice(0, 9).forEach((name, rowIndex) => {
+          const row = document.createElement("div");
+          row.className = "barcode-row";
+          const label = document.createElement("b");
+          label.textContent = name;
+          const barcode = document.createElement("div");
+          barcode.className = "barcode";
+          for (let index = 0; index < 36; index += 1) {
+            const segment = document.createElement("i");
+            if ((index * 7 + rowIndex * 5) % 11 < 6) segment.className = "on";
+            barcode.append(segment);
+          }
+          const score = document.createElement("span");
+          score.textContent = `${96 - rowIndex * 5}%`;
+          row.append(label, barcode, score);
+          container.append(row);
+        });
+      }
+
+      function drawAll() {
+        drawConstellation();
+        drawOrbit();
+        drawRadar();
+        drawChords();
+        buildMatrix();
+        buildTree();
+        buildBarcodes();
+      }
+
+      drawAll();
+      window.addEventListener("resize", drawAll);
+    </script>
+  </body>
+</html>

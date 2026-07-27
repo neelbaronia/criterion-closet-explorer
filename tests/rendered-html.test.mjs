@@ -42,6 +42,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Newest Closet interviews/);
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
+  assert.match(html, /\/semantic-map-designs\.html/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
@@ -161,4 +162,17 @@ test("ships a standalone five-direction design study", async () => {
   assert.match(html, /The Poster Wall/);
   assert.match(html, /The Ledger/);
   assert.equal((html.match(/class="direction-tab/g) ?? []).length, 5);
+});
+
+test("ships a standalone semantic-map design lab", async () => {
+  const html = await readFile(
+    new URL("../public/semantic-map-designs.html", import.meta.url),
+    "utf8",
+  );
+  assert.match(html, /A hybrid taste vector/);
+  assert.match(html, /Semantic constellation/);
+  assert.match(html, /Explainable match cards/);
+  assert.match(html, /Prototype scores are illustrative/);
+  assert.equal((html.match(/class="concept-tab(?: active)?"/g) ?? []).length, 12);
+  assert.equal((html.match(/class="concept(?: active)?"/g) ?? []).length, 12);
 });
