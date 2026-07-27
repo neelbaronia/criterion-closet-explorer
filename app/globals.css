@@ -494,8 +494,34 @@ tbody tr:hover .person-avatar img {
   margin-left: -18px;
 }
 
-.picker-video-item > span:first-of-type {
-  vertical-align: middle;
+.picker-video-list {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.picker-video-item {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.picker-metadata {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.picker-metadata time {
+  color: var(--muted);
+  font-size: 7px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.picker-separator {
+  color: var(--muted);
 }
 
 .video-icon-link {
@@ -506,7 +532,6 @@ tbody tr:hover .person-avatar img {
   display: inline-flex;
   height: 16px;
   justify-content: center;
-  margin-left: 6px;
   text-decoration: none;
   vertical-align: middle;
   width: 23px;

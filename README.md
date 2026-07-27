@@ -48,12 +48,10 @@ The starter records live in [`data/films.json`](./data/films.json):
 
 The UI is ready for a complete archive: add verified records to this file and
 they automatically become searchable, filterable, and sortable.
-Closet-video chronology lives in
-[`data/closet-release-order.json`](./data/closet-release-order.json), newest
-first. Films selected by more than one visitor are placed with the newest
-relevant Closet video.
-Official YouTube links live in
-[`data/closet-videos.json`](./data/closet-videos.json).
+Closet-video URLs and official upload dates live in
+[`data/closet-videos.json`](./data/closet-videos.json). Those dates drive the
+default newest-first order. Films selected by more than one visitor are placed
+with the newest relevant Closet video.
 Current tracked streaming availability lives in
 [`data/streaming-availability.json`](./data/streaming-availability.json) and is
 date-stamped so it can be refreshed as catalogs change.

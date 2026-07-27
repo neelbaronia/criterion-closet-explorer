@@ -2,13 +2,16 @@
 /* eslint-disable @next/next/no-img-element -- Posters are remote archive data. */
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import closetReleaseOrderData from "../data/closet-release-order.json";
 import closetVideosData from "../data/closet-videos.json";
 import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
 import streamingAvailabilityData from "../data/streaming-availability.json";
 
 type Film = (typeof filmsData)[number];
+type ClosetVideo = {
+  url: string;
+  publishedOn: string;
+};
 type Provider = "criterion" | "netflix" | "prime" | "max";
 type Availability = {
   providers: Provider[];
@@ -19,18 +22,16 @@ type SortDirection = "asc" | "desc";
 
 const films = filmsData as Film[];
 const peopleImages = peopleData as Record<string, string>;
-const closetVideos = closetVideosData as Record<string, string>;
+const closetVideos = closetVideosData as Record<string, ClosetVideo>;
 const streamingAvailability = streamingAvailabilityData as {
   region: string;
   checkedOn: string;
   titles: Record<string, Availability>;
 };
-const closetReleaseOrder = closetReleaseOrderData as string[];
 const closetReleaseScores = new Map(
-  closetReleaseOrder.map((name, index) => [
-    name,
-    closetReleaseOrder.length - index,
-  ]),
+  Object.entries(closetVideos)
+    .sort(([, a], [, b]) => a.publishedOn.localeCompare(b.publishedOn))
+    .map(([name], index) => [name, index + 1]),
 );
 const sourceUrl = "https://www.criterion.com/closet-picks";
 
@@ -59,6 +60,17 @@ const providerDetails: Record<
   prime: { label: "Prime", url: primeVideoUrl },
   max: { label: "Max", url: maxUrl },
 };
+
+const videoDateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+  year: "numeric",
+});
+
+function formatVideoDate(value: string) {
+  return videoDateFormatter.format(new Date(`${value}T12:00:00Z`));
+}
 
 function initials(name: string) {
   return name
@@ -413,11 +425,20 @@ export default function Home() {
                         <span className="picker-video-list">
                           {film.pickers.map((name, pickerIndex) => (
                             <span className="picker-video-item" key={name}>
-                              {pickerIndex > 0 && " + "}
-                              <span>{name}</span>
+                              {pickerIndex > 0 && (
+                                <span className="picker-separator">+</span>
+                              )}
+                              <span className="picker-metadata">
+                                <span>{name}</span>
+                                <time dateTime={closetVideos[name].publishedOn}>
+                                  {formatVideoDate(
+                                    closetVideos[name].publishedOn,
+                                  )}
+                                </time>
+                              </span>
                               <a
                                 className="video-icon-link"
-                                href={closetVideos[name]}
+                                href={closetVideos[name].url}
                                 target="_blank"
                                 rel="noreferrer"
                                 aria-label={`Watch ${name}'s Closet Picks on YouTube`}

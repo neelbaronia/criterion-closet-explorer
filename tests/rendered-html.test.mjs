@@ -51,6 +51,8 @@ test("server-renders the Closet Index product shell", async () => {
     html,
     /https:\/\/www\.youtube\.com\/watch\?v=t9fgFt-Ibik/,
   );
+  assert.match(html, /Jul 24, 2026/);
+  assert.match(html, /dateTime="2026-07-24"/);
   assert.match(
     html,
     /Watch Christopher Nolan&#x27;s Closet Picks on YouTube/,
@@ -58,6 +60,11 @@ test("server-renders the Closet Index product shell", async () => {
   assert.ok(
     html.indexOf("Boyhood") < html.indexOf("El Norte"),
     "Christopher Nolan's picks should render before John Leguizamo's picks",
+  );
+  assert.ok(
+    html.indexOf("Y tu mamá también") <
+      html.indexOf("The Worst Person in the World"),
+    "Pablo Larraín's picks should render before Andrew Stanton's picks",
   );
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);

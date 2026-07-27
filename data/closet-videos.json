@@ -1,14 +1,50 @@
 {
-  "Christopher Nolan": "https://www.youtube.com/watch?v=t9fgFt-Ibik",
-  "John Leguizamo": "https://www.youtube.com/watch?v=VyE1nBqRNIQ",
-  "Guillermo del Toro": "https://www.youtube.com/watch?v=CcscEY2KoS8",
-  "Andrew Stanton": "https://www.youtube.com/watch?v=lit_b1g7M6s",
-  "Pablo Larraín": "https://www.youtube.com/watch?v=AdnnuEqbio8",
-  "Jeremy Pope": "https://www.youtube.com/watch?v=oRDkAdjp_e8",
-  "Jude Law": "https://www.youtube.com/watch?v=rVdefw0skK0",
-  "Ryusuke Hamaguchi": "https://www.youtube.com/watch?v=4xQfOvRfWno",
-  "Roger Corman": "https://www.youtube.com/watch?v=-paCwBPzHX0",
-  "Agnès Varda": "https://www.youtube.com/watch?v=s7Jx0Pjq_kQ",
-  "Gaspar Noé": "https://www.youtube.com/watch?v=U_2R7T4-78E",
-  "Alec Baldwin": "https://www.youtube.com/watch?v=aRQ4DRUIJBc"
+  "Christopher Nolan": {
+    "url": "https://www.youtube.com/watch?v=t9fgFt-Ibik",
+    "publishedOn": "2026-07-24"
+  },
+  "John Leguizamo": {
+    "url": "https://www.youtube.com/watch?v=VyE1nBqRNIQ",
+    "publishedOn": "2026-07-14"
+  },
+  "Guillermo del Toro": {
+    "url": "https://www.youtube.com/watch?v=CcscEY2KoS8",
+    "publishedOn": "2026-01-24"
+  },
+  "Pablo Larraín": {
+    "url": "https://www.youtube.com/watch?v=AdnnuEqbio8",
+    "publishedOn": "2025-01-14"
+  },
+  "Andrew Stanton": {
+    "url": "https://www.youtube.com/watch?v=lit_b1g7M6s",
+    "publishedOn": "2024-12-20"
+  },
+  "Jeremy Pope": {
+    "url": "https://www.youtube.com/watch?v=oRDkAdjp_e8",
+    "publishedOn": "2024-11-12"
+  },
+  "Jude Law": {
+    "url": "https://www.youtube.com/watch?v=rVdefw0skK0",
+    "publishedOn": "2024-11-01"
+  },
+  "Ryusuke Hamaguchi": {
+    "url": "https://www.youtube.com/watch?v=4xQfOvRfWno",
+    "publishedOn": "2024-05-11"
+  },
+  "Roger Corman": {
+    "url": "https://www.youtube.com/watch?v=-paCwBPzHX0",
+    "publishedOn": "2023-10-20"
+  },
+  "Agnès Varda": {
+    "url": "https://www.youtube.com/watch?v=s7Jx0Pjq_kQ",
+    "publishedOn": "2017-10-04"
+  },
+  "Gaspar Noé": {
+    "url": "https://www.youtube.com/watch?v=U_2R7T4-78E",
+    "publishedOn": "2015-11-05"
+  },
+  "Alec Baldwin": {
+    "url": "https://www.youtube.com/watch?v=aRQ4DRUIJBc",
+    "publishedOn": "2013-05-09"
+  }
 }
