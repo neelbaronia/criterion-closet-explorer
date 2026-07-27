@@ -11,7 +11,8 @@ The repository includes:
 - poster artwork and live searches across JustWatch, Criterion Channel,
   Netflix, Prime Video, and Max
 - director and Closet-picker profile photos
-- sorting by title, year, director, or Closet picker
+- default reverse-chronological Closet-video order, plus sorting by title, film
+  year, director, or Closet picker
 - filters for Closet picker, director, and decade
 - [five complete visual directions](./public/design-variations.html) in one
   standalone HTML comparison file
@@ -45,6 +46,10 @@ The starter records live in [`data/films.json`](./data/films.json):
 
 The UI is ready for a complete archive: add verified records to this file and
 they automatically become searchable, filterable, and sortable.
+Closet-video chronology lives in
+[`data/closet-release-order.json`](./data/closet-release-order.json), newest
+first. Films selected by more than one visitor are placed with the newest
+relevant Closet video.
 
 Selection data is sourced from the
 [official Criterion Closet Picks archive](https://www.criterion.com/closet-picks).

@@ -2,15 +2,23 @@
 /* eslint-disable @next/next/no-img-element -- Posters are remote archive data. */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import closetReleaseOrderData from "../data/closet-release-order.json";
 import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
 
 type Film = (typeof filmsData)[number];
-type SortField = "title" | "year" | "director" | "picker";
+type SortField = "closet" | "title" | "year" | "director" | "picker";
 type SortDirection = "asc" | "desc";
 
 const films = filmsData as Film[];
 const peopleImages = peopleData as Record<string, string>;
+const closetReleaseOrder = closetReleaseOrderData as string[];
+const closetReleaseScores = new Map(
+  closetReleaseOrder.map((name, index) => [
+    name,
+    closetReleaseOrder.length - index,
+  ]),
+);
 const sourceUrl = "https://www.criterion.com/closet-picks";
 
 function watchUrl(title: string) {
@@ -43,6 +51,13 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+function closetReleaseScore(film: Film) {
+  return Math.max(
+    0,
+    ...film.pickers.map((name) => closetReleaseScores.get(name) ?? 0),
+  );
+}
+
 function PersonAvatar({ name }: { name: string }) {
   return (
     <span className="person-avatar" aria-hidden="true">
@@ -66,9 +81,9 @@ export default function Home() {
   const [picker, setPicker] = useState("All closet pickers");
   const [director, setDirector] = useState("All directors");
   const [decade, setDecade] = useState("All decades");
-  const [sortField, setSortField] = useState<SortField>("title");
+  const [sortField, setSortField] = useState<SortField>("closet");
   const [sortDirection, setSortDirection] =
-    useState<SortDirection>("asc");
+    useState<SortDirection>("desc");
   const searchRef = useRef<HTMLInputElement>(null);
 
   const pickers = useMemo(
@@ -118,6 +133,9 @@ export default function Home() {
 
     return results.sort((a, b) => {
       let comparison = 0;
+      if (sortField === "closet") {
+        comparison = closetReleaseScore(a) - closetReleaseScore(b);
+      }
       if (sortField === "title") comparison = a.title.localeCompare(b.title);
       if (sortField === "year") comparison = a.year - b.year;
       if (sortField === "director") {
@@ -163,6 +181,15 @@ export default function Home() {
     setSortDirection(field === "year" ? "desc" : "asc");
   }
 
+  function changeSort(value: string) {
+    const [field, direction] = value.split(":") as [
+      SortField,
+      SortDirection,
+    ];
+    setSortField(field);
+    setSortDirection(direction);
+  }
+
   function ariaSort(
     field: SortField,
   ): "none" | "ascending" | "descending" {
@@ -202,7 +229,10 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="filter-panel" aria-label="Filter the film table">
+        <div
+          className="filter-panel"
+          aria-label="Search, sort, and filter the film table"
+        >
           <label className="search-field">
             <span>Search</span>
             <div>
@@ -256,6 +286,24 @@ export default function Home() {
                   {value}s
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label>
+            <span>Order</span>
+            <select
+              value={`${sortField}:${sortDirection}`}
+              onChange={(event) => changeSort(event.target.value)}
+            >
+              <option value="closet:desc">Newest Closet videos</option>
+              <option value="title:asc">Title A–Z</option>
+              <option value="title:desc">Title Z–A</option>
+              <option value="year:desc">Film year: newest</option>
+              <option value="year:asc">Film year: oldest</option>
+              <option value="director:asc">Director A–Z</option>
+              <option value="director:desc">Director Z–A</option>
+              <option value="picker:asc">Picker A–Z</option>
+              <option value="picker:desc">Picker Z–A</option>
             </select>
           </label>
         </div>

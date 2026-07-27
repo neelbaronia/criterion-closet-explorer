@@ -41,10 +41,15 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Prime/);
   assert.match(html, /Max/);
   assert.match(html, /All closet pickers/);
+  assert.match(html, /Newest Closet videos/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
   assert.match(html, /Wikimedia Commons/);
+  assert.ok(
+    html.indexOf("Boyhood") < html.indexOf("El Norte"),
+    "Christopher Nolan's picks should render before John Leguizamo's picks",
+  );
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
