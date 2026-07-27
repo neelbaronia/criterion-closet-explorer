@@ -42,7 +42,7 @@
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/local-hero"
     },
-    "worst-person": {
+    "the-worst-person-in-the-world": {
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/the-worst-person-in-the-world"
     },
@@ -54,7 +54,7 @@
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/brazil"
     },
-    "night-hunter": {
+    "the-night-of-the-hunter": {
       "providers": ["prime"],
       "source": "https://www.justwatch.com/us/movie/the-night-of-the-hunter"
     },
@@ -66,23 +66,23 @@
       "providers": ["criterion"],
       "source": "https://www.justwatch.com/us/movie/purple-noon"
     },
-    "wages-of-fear": {
+    "the-wages-of-fear": {
       "providers": ["criterion", "max"],
       "source": "https://www.justwatch.com/us/movie/the-wages-of-fear"
     },
-    "devil-blue-dress": {
+    "devil-in-a-blue-dress": {
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/devil-in-a-blue-dress"
     },
-    "paris-burning": {
+    "paris-is-burning": {
       "providers": ["criterion", "max"],
       "source": "https://www.justwatch.com/us/movie/paris-is-burning"
     },
-    "one-night-miami": {
+    "one-night-in-miami": {
       "providers": ["prime"],
       "source": "https://www.justwatch.com/us/movie/one-night-in-miami"
     },
-    "gunfighter": {
+    "the-gunfighter": {
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/the-gunfighter"
     },
@@ -110,15 +110,15 @@
       "providers": ["criterion", "max"],
       "source": "https://www.justwatch.com/us/movie/tiny-furniture"
     },
-    "angel-table": {
+    "an-angel-at-my-table": {
       "providers": ["criterion", "max"],
       "source": "https://www.justwatch.com/us/movie/an-angel-at-my-table"
     },
-    "maria-braun": {
+    "the-marriage-of-maria-braun": {
       "providers": ["criterion", "max"],
       "source": "https://www.justwatch.com/us/movie/the-marriage-of-maria-braun"
     },
-    "band-outsiders": {
+    "band-of-outsiders": {
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/band-of-outsiders"
     },
@@ -126,15 +126,15 @@
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/crumb"
     },
-    "magician": {
+    "the-magician": {
       "providers": ["criterion"],
       "source": "https://www.justwatch.com/us/movie/the-magician"
     },
-    "400-blows": {
+    "the-400-blows": {
       "providers": ["criterion", "max"],
       "source": "https://www.justwatch.com/us/movie/the-400-blows"
     },
-    "thin-red-line": {
+    "the-thin-red-line": {
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/the-thin-red-line"
     },
@@ -154,11 +154,11 @@
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/my-darling-clementine"
     },
-    "mishima": {
+    "mishima-a-life-in-four-chapters": {
       "providers": ["criterion"],
       "source": "https://www.justwatch.com/us/movie/mishima-a-life-in-four-chapters"
     },
-    "salo": {
+    "salo-or-the-120-days-of-sodom": {
       "providers": [],
       "source": "https://www.justwatch.com/us/movie/salo-or-the-120-days-of-sodom"
     }

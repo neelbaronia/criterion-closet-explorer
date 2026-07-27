@@ -36,13 +36,10 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Criterion Closet picks/);
   assert.match(html, /Where to watch/);
   assert.match(html, /Criterion/);
-  assert.match(html, /Netflix/);
-  assert.match(html, /Prime/);
-  assert.match(html, /Max/);
-  assert.match(html, /No tracked streams/);
+  assert.match(html, /Availability not checked/);
   assert.doesNotMatch(html, /All services/);
   assert.match(html, /All closet pickers/);
-  assert.match(html, /Newest Closet videos/);
+  assert.match(html, /Newest Closet interviews/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
@@ -51,21 +48,18 @@ test("server-renders the Closet Index product shell", async () => {
     html,
     /https:\/\/www\.youtube\.com\/watch\?v=t9fgFt-Ibik/,
   );
-  assert.match(html, /Jul 24, 2026/);
-  assert.match(html, /dateTime="2026-07-24"/);
+  assert.match(html, /Jun 19, 2026/);
+  assert.match(html, /dateTime="2026-06-19"/);
   assert.match(
     html,
-    /Watch Christopher Nolan&#x27;s Closet Picks on YouTube/,
+    /Watch Christopher Nolan&#x27;s Closet Picks interview/,
   );
   assert.ok(
-    html.indexOf("Boyhood") < html.indexOf("El Norte"),
+    html.indexOf("Christopher Nolan") < html.indexOf("John Leguizamo"),
     "Christopher Nolan's picks should render before John Leguizamo's picks",
   );
-  assert.ok(
-    html.indexOf("Y tu mamá también") <
-      html.indexOf("The Worst Person in the World"),
-    "Pablo Larraín's picks should render before Andrew Stanton's picks",
-  );
+  assert.match(html, /5738/);
+  assert.match(html, /total movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
@@ -119,7 +113,39 @@ test("returns ranked dream-list matches without requiring an API key", async () 
   const payload = await response.json();
   assert.equal(payload.method, "metadata-fallback");
   assert.equal(payload.matches.length, 3);
-  assert.equal(payload.matches[0].name, "Ryusuke Hamaguchi");
+  assert.ok(payload.matches.every((match) => match.score > 0));
+  assert.ok(payload.matches.every((match) => match.pickCount > 0));
+});
+
+test("ships the complete generated Closet archive snapshot", async () => {
+  const films = JSON.parse(
+    await readFile(new URL("../data/films.json", import.meta.url), "utf8"),
+  );
+  const stats = JSON.parse(
+    await readFile(
+      new URL("../data/archive-stats.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const videos = JSON.parse(
+    await readFile(
+      new URL("../data/closet-videos.json", import.meta.url),
+      "utf8",
+    ),
+  );
+
+  assert.equal(stats.visits, 396);
+  assert.equal(stats.collections, 396);
+  assert.deepEqual(stats.archiveOnlyVisits, []);
+  assert.deepEqual(stats.missingFilms, []);
+  assert.deepEqual(stats.unmatchedCollections, []);
+  assert.equal(stats.filmPicks, films.length);
+  assert.equal(stats.filmPicks, 5_738);
+  assert.equal(stats.uniqueFilms, 1_262);
+  assert.equal(Object.keys(videos).length, 396);
+  assert.equal(films[0].picker, "Christopher Nolan");
+  assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-24");
+  assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-19");
 });
 
 test("ships a standalone five-direction design study", async () => {

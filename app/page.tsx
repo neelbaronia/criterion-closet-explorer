@@ -7,10 +7,28 @@ import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
 import streamingAvailabilityData from "../data/streaming-availability.json";
 
-type Film = (typeof filmsData)[number];
+type Film = {
+  collectionId: string;
+  criterionUrl: string;
+  director: string;
+  filmId: string;
+  id: string;
+  pickedAs: string;
+  picker: string;
+  poster: string;
+  slug: string;
+  title: string;
+  year: number | null;
+};
 type ClosetVideo = {
-  url: string;
+  collectionId: string;
+  criterionUrl: string;
+  picker: string;
+  pickerImage: string;
   publishedOn: string;
+  recordedOn: string;
+  title: string;
+  url: string;
 };
 type Provider = "criterion" | "netflix" | "prime" | "max";
 type Availability = {
@@ -19,8 +37,9 @@ type Availability = {
 };
 type SortField = "closet" | "title" | "year" | "director" | "picker";
 type SortDirection = "asc" | "desc";
+const pageSize = 100;
 
-const films = filmsData as Film[];
+const films = filmsData as unknown as Film[];
 const peopleImages = peopleData as Record<string, string>;
 const closetVideos = closetVideosData as Record<string, ClosetVideo>;
 const streamingAvailability = streamingAvailabilityData as {
@@ -30,9 +49,16 @@ const streamingAvailability = streamingAvailabilityData as {
 };
 const closetReleaseScores = new Map(
   Object.entries(closetVideos)
-    .sort(([, a], [, b]) => a.publishedOn.localeCompare(b.publishedOn))
-    .map(([name], index) => [name, index + 1]),
+    .sort(([, a], [, b]) =>
+      (a.publishedOn || a.recordedOn).localeCompare(
+        b.publishedOn || b.recordedOn,
+      ),
+    )
+    .map(([collectionId], index) => [collectionId, index + 1]),
 );
+const verifiedAvailabilityCount = Object.keys(
+  streamingAvailability.titles,
+).length;
 const sourceUrl = "https://www.criterion.com/closet-picks";
 
 function channelUrl(title: string) {
@@ -83,23 +109,27 @@ function initials(name: string) {
 }
 
 function closetReleaseScore(film: Film) {
-  return Math.max(
-    0,
-    ...film.pickers.map((name) => closetReleaseScores.get(name) ?? 0),
-  );
+  return closetReleaseScores.get(film.collectionId) ?? 0;
 }
 
-function PersonAvatar({ name }: { name: string }) {
+function PersonAvatar({ image, name }: { image?: string; name: string }) {
+  const source = image || peopleImages[name];
   return (
-    <span className="person-avatar" aria-hidden="true">
+    <span
+      className={`person-avatar${source ? "" : " person-avatar--initials"}`}
+      aria-hidden="true"
+    >
       <span>{initials(name)}</span>
-      {peopleImages[name] && (
+      {source && (
         <img
-          src={peopleImages[name]}
+          src={source}
           alt=""
           loading="lazy"
           onError={(event) => {
             event.currentTarget.style.display = "none";
+            event.currentTarget.parentElement?.classList.add(
+              "person-avatar--initials",
+            );
           }}
         />
       )}
@@ -115,11 +145,12 @@ export default function Home() {
   const [sortField, setSortField] = useState<SortField>("closet");
   const [sortDirection, setSortDirection] =
     useState<SortDirection>("desc");
+  const [visibleCount, setVisibleCount] = useState(pageSize);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const pickers = useMemo(
     () =>
-      [...new Set(films.flatMap((film) => film.pickers))].sort((a, b) =>
+      [...new Set(films.map((film) => film.picker))].sort((a, b) =>
         a.localeCompare(b),
       ),
     [],
@@ -135,7 +166,15 @@ export default function Home() {
 
   const decades = useMemo(
     () =>
-      [...new Set(films.map((film) => Math.floor(film.year / 10) * 10))].sort(
+      [
+        ...new Set(
+          films
+            .filter(
+              (film): film is Film & { year: number } => film.year !== null,
+            )
+            .map((film) => Math.floor(film.year / 10) * 10),
+        ),
+      ].sort(
         (a, b) => b - a,
       ),
     [],
@@ -147,18 +186,19 @@ export default function Home() {
       const searchable = [
         film.title,
         film.director,
-        film.year.toString(),
-        ...film.pickers,
+        film.year?.toString() ?? "",
+        film.picker,
       ]
         .join(" ")
         .toLocaleLowerCase();
 
       return (
         (!normalizedQuery || searchable.includes(normalizedQuery)) &&
-        (picker === "All closet pickers" || film.pickers.includes(picker)) &&
+        (picker === "All closet pickers" || film.picker === picker) &&
         (director === "All directors" || film.director === director) &&
         (decade === "All decades" ||
-          Math.floor(film.year / 10) * 10 === Number(decade))
+          (film.year !== null &&
+            Math.floor(film.year / 10) * 10 === Number(decade)))
       );
     });
 
@@ -168,12 +208,14 @@ export default function Home() {
         comparison = closetReleaseScore(a) - closetReleaseScore(b);
       }
       if (sortField === "title") comparison = a.title.localeCompare(b.title);
-      if (sortField === "year") comparison = a.year - b.year;
+      if (sortField === "year") {
+        comparison = (a.year ?? -Infinity) - (b.year ?? -Infinity);
+      }
       if (sortField === "director") {
         comparison = a.director.localeCompare(b.director);
       }
       if (sortField === "picker") {
-        comparison = a.pickers.join(", ").localeCompare(b.pickers.join(", "));
+        comparison = a.picker.localeCompare(b.picker);
       }
       return sortDirection === "asc" ? comparison : -comparison;
     });
@@ -184,6 +226,7 @@ export default function Home() {
     picker !== "All closet pickers" ||
     director !== "All directors" ||
     decade !== "All decades";
+  const visibleFilms = filteredFilms.slice(0, visibleCount);
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
@@ -201,9 +244,11 @@ export default function Home() {
     setPicker("All closet pickers");
     setDirector("All directors");
     setDecade("All decades");
+    setVisibleCount(pageSize);
   }
 
   function toggleSort(field: SortField) {
+    setVisibleCount(pageSize);
     if (sortField === field) {
       setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
       return;
@@ -219,6 +264,7 @@ export default function Home() {
     ];
     setSortField(field);
     setSortDirection(direction);
+    setVisibleCount(pageSize);
   }
 
   function ariaSort(
@@ -249,16 +295,9 @@ export default function Home() {
       </header>
 
       <section className="database-shell" aria-labelledby="database-title">
-        <div className="database-heading">
-          <div>
-            <p className="eyebrow">The working index</p>
-            <h1 id="database-title">Criterion Closet picks</h1>
-          </div>
-          <div className="database-count">
-            <strong>{String(films.length).padStart(3, "0")}</strong>
-            <span>films indexed</span>
-          </div>
-        </div>
+        <h1 className="visually-hidden" id="database-title">
+          Criterion Closet picks
+        </h1>
 
         <div
           className="filter-panel"
@@ -271,7 +310,10 @@ export default function Home() {
               <input
                 ref={searchRef}
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setVisibleCount(pageSize);
+                }}
                 placeholder="Title, director, picker, or year"
                 type="search"
               />
@@ -283,7 +325,10 @@ export default function Home() {
             <span>Closet picker</span>
             <select
               value={picker}
-              onChange={(event) => setPicker(event.target.value)}
+              onChange={(event) => {
+                setPicker(event.target.value);
+                setVisibleCount(pageSize);
+              }}
             >
               <option>All closet pickers</option>
               {pickers.map((name) => (
@@ -296,7 +341,10 @@ export default function Home() {
             <span>Director</span>
             <select
               value={director}
-              onChange={(event) => setDirector(event.target.value)}
+              onChange={(event) => {
+                setDirector(event.target.value);
+                setVisibleCount(pageSize);
+              }}
             >
               <option>All directors</option>
               {directors.map((name) => (
@@ -309,7 +357,10 @@ export default function Home() {
             <span>Decade</span>
             <select
               value={decade}
-              onChange={(event) => setDecade(event.target.value)}
+              onChange={(event) => {
+                setDecade(event.target.value);
+                setVisibleCount(pageSize);
+              }}
             >
               <option>All decades</option>
               {decades.map((value) => (
@@ -326,7 +377,7 @@ export default function Home() {
               value={`${sortField}:${sortDirection}`}
               onChange={(event) => changeSort(event.target.value)}
             >
-              <option value="closet:desc">Newest Closet videos</option>
+              <option value="closet:desc">Newest Closet interviews</option>
               <option value="title:asc">Title A–Z</option>
               <option value="title:desc">Title Z–A</option>
               <option value="year:desc">Film year: newest</option>
@@ -341,11 +392,12 @@ export default function Home() {
 
         <div className="table-status" aria-live="polite">
           <p>
-            Showing <strong>{filteredFilms.length}</strong> of {films.length}{" "}
-            films
+            Showing <strong>{visibleFilms.length}</strong> of{" "}
+            {filteredFilms.length} matching / {films.length} total movie picks
           </p>
           <p className="availability-note">
-            U.S. subscription availability checked July 26, 2026.
+            Streaming checked for {verifiedAvailabilityCount} titles / U.S. /{" "}
+            {streamingAvailability.checkedOn}.
           </p>
           {filtersActive && (
             <button type="button" onClick={clearFilters}>
@@ -392,83 +444,82 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {filteredFilms.map((film, index) => {
-                  const availability = streamingAvailability.titles[film.id];
+                {visibleFilms.map((film, index) => {
+                  const availability = streamingAvailability.titles[film.slug];
+                  const video = closetVideos[film.collectionId];
                   return (
                     <tr key={film.id}>
-                    <td className="poster-cell">
-                      <div className="poster-frame">
-                        <img
-                          src={film.poster}
-                          alt={`${film.title} poster`}
-                          loading={index < 8 ? "eager" : "lazy"}
-                        />
-                      </div>
-                    </td>
-                    <td className="title-cell">
-                      <strong>{film.title}</strong>
-                    </td>
-                    <td className="year-cell">{film.year}</td>
-                    <td className="director-cell">
-                      <div className="person-entry">
-                        <PersonAvatar name={film.director} />
-                        <span>{film.director}</span>
-                      </div>
-                    </td>
-                    <td className="picker-cell">
-                      <div className="person-entry">
-                        <div className="avatar-stack">
-                          {film.pickers.map((name) => (
-                            <PersonAvatar key={name} name={name} />
-                          ))}
+                      <td className="poster-cell">
+                        <div className="poster-frame">
+                          <img
+                            src={film.poster}
+                            alt={`${film.title} poster`}
+                            loading={index < 8 ? "eager" : "lazy"}
+                          />
                         </div>
-                        <span className="picker-video-list">
-                          {film.pickers.map((name, pickerIndex) => (
-                            <span className="picker-video-item" key={name}>
-                              {pickerIndex > 0 && (
-                                <span className="picker-separator">+</span>
-                              )}
+                      </td>
+                      <td className="title-cell">
+                        <strong>{film.title}</strong>
+                      </td>
+                      <td className="year-cell">{film.year ?? "—"}</td>
+                      <td className="director-cell">
+                        <div className="person-entry">
+                          <PersonAvatar name={film.director} />
+                          <span>{film.director}</span>
+                        </div>
+                      </td>
+                      <td className="picker-cell">
+                        <div className="person-entry">
+                          <PersonAvatar
+                            image={video?.pickerImage}
+                            name={film.picker}
+                          />
+                          <span className="picker-video-list">
+                            <span className="picker-video-item">
                               <span className="picker-metadata">
-                                <span>{name}</span>
-                                <time dateTime={closetVideos[name].publishedOn}>
-                                  {formatVideoDate(
-                                    closetVideos[name].publishedOn,
-                                  )}
-                                </time>
+                                <span>{film.picker}</span>
+                                {video?.recordedOn && (
+                                  <time dateTime={video.recordedOn}>
+                                    {formatVideoDate(video.recordedOn)}
+                                  </time>
+                                )}
                               </span>
+                              {video && (
+                                <a
+                                  className="video-icon-link"
+                                  href={video.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  aria-label={`Watch ${film.picker}'s Closet Picks interview`}
+                                >
+                                  <span aria-hidden="true">▶</span>
+                                </a>
+                              )}
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="watch-links">
+                          {availability?.providers.length ? (
+                            availability.providers.map((provider) => (
                               <a
-                                className="video-icon-link"
-                                href={closetVideos[name].url}
+                                href={providerDetails[provider].url(film.title)}
+                                key={provider}
                                 target="_blank"
                                 rel="noreferrer"
-                                aria-label={`Watch ${name}'s Closet Picks on YouTube`}
+                                aria-label={`Watch ${film.title} on ${providerDetails[provider].label}`}
                               >
-                                <span aria-hidden="true">▶</span>
+                                {providerDetails[provider].label} ↗
                               </a>
+                            ))
+                          ) : (
+                            <span className="no-streams">
+                              Availability not checked
                             </span>
-                          ))}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="watch-links">
-                        {availability?.providers.length ? (
-                          availability.providers.map((provider) => (
-                            <a
-                              href={providerDetails[provider].url(film.title)}
-                              key={provider}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-label={`Watch ${film.title} on ${providerDetails[provider].label}`}
-                            >
-                              {providerDetails[provider].label} ↗
-                            </a>
-                          ))
-                        ) : (
-                          <span className="no-streams">No tracked streams</span>
-                        )}
-                      </div>
-                    </td>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -484,14 +535,33 @@ export default function Home() {
                 </button>
               </div>
             )}
+
+            {visibleFilms.length < filteredFilms.length && (
+              <div className="load-more">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setVisibleCount((current) => current + pageSize)
+                  }
+                >
+                  Load next{" "}
+                  {Math.min(pageSize, filteredFilms.length - visibleFilms.length)}{" "}
+                  picks
+                </button>
+                <span>
+                  {visibleFilms.length} / {filteredFilms.length}
+                </span>
+              </div>
+            )}
           </div>
           <div className="sprocket-rail" aria-hidden="true" />
         </div>
 
         <footer>
           <p>
-            Film selections sourced from Criterion. Posters via TMDB; profile
-            photos via Wikimedia Commons and TMDB.
+            Film selections, cover art, picker photos, and interview dates
+            sourced from Criterion. Director photos via Wikimedia Commons and
+            TMDB where available.
           </p>
           <p>
             Independent project; not affiliated with The Criterion Collection.

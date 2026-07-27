@@ -7,15 +7,17 @@ to live streaming-availability searches.
 The repository includes:
 
 - a responsive, searchable film table
-- 40 sourced selections from 12 Closet visitors as a starter dataset
+- 5,738 movie-pick rows covering 1,262 unique films from 396 published
+  Closet pick lists
+- box-set picks expanded into the individual films Criterion lists in each set
 - poster artwork and verified U.S. subscription availability across Criterion
-  Channel, Netflix, Prime Video, and Max
-- director and Closet-picker profile photos
-- direct links from every Closet picker to their official Criterion YouTube
-  video
-- default reverse-chronological Closet-video order, plus sorting by title, film
-  year, director, or Closet picker
+  Channel, Netflix, Prime Video, and Max for the currently checked titles
+- director photos where available and official Criterion images for every picker
+- a video icon and interview date for every published pick-list page
+- default reverse-chronological video-release order, plus sorting by title, film
+  year, director, or picker
 - filters for Closet picker, director, and decade
+- progressive 100-row rendering so the full archive remains fast to browse
 - [five complete visual directions](./public/design-variations.html) in one
   standalone HTML comparison file
 
@@ -31,37 +33,52 @@ npm run dev
 Then open `http://localhost:3000`. The design study is at
 `http://localhost:3000/design-variations.html`.
 
-## Data
+## Data and archive sync
 
-The starter records live in [`data/films.json`](./data/films.json):
+The generated pick records live in [`data/films.json`](./data/films.json):
 
 ```json
 {
-  "id": "stalker",
-  "title": "Stalker",
-  "year": 1979,
-  "director": "Andrei Tarkovsky",
-  "pickers": ["Jude Law"],
-  "poster": "https://media.themoviedb.org/t/p/w500/..."
+  "id": "724-984-1",
+  "filmId": "724",
+  "title": "The Killers",
+  "year": 1946,
+  "director": "Robert Siodmak",
+  "picker": "Christopher Nolan",
+  "collectionId": "984",
+  "poster": "https://s3.amazonaws.com/criterion-production/films/..."
 }
 ```
 
-The UI is ready for a complete archive: add verified records to this file and
-they automatically become searchable, filterable, and sortable.
-Closet-video URLs and official upload dates live in
-[`data/closet-videos.json`](./data/closet-videos.json). Those dates drive the
-default newest-first order. Films selected by more than one visitor are placed
-with the newest relevant Closet video.
+Refresh the snapshot from Criterion’s current archive with:
+
+```bash
+npm run data:sync
+```
+
+The sync reads Criterion’s official visit archive, all 396 published collection
+pages, the complete film browse list, and selected box-set contents. It writes
+the film picks, interview metadata, and audit counts to `data/`. The generated
+audit currently has no unmatched visits, collection pages, or film records.
+
+Direct interview links, official recorded dates, video-release dates, and picker
+images live in
+[`data/closet-videos.json`](./data/closet-videos.json). Video-release dates
+drive the default newest-first order, while each row displays Criterion’s
+interview-recording date.
 Current tracked streaming availability lives in
 [`data/streaming-availability.json`](./data/streaming-availability.json) and is
 date-stamped so it can be refreshed as catalogs change.
 
 Selection data is sourced from the
-[official Criterion Closet Picks archive](https://www.criterion.com/closet-picks).
-Poster imagery is delivered by TMDB. Profile photos are delivered by Wikimedia
-Commons, with a TMDB fallback. Streaming links intentionally open current
-JustWatch and Criterion Channel searches because availability changes by date
-and region.
+[official Criterion Closet Picks archive](https://www.criterion.com/closet-picks)
+and [visit-date index](https://www.criterion.com/closet-picks/search). Cover art
+and picker images are delivered by Criterion. Director photos use Wikimedia
+Commons, with a TMDB fallback where already available. Direct video URLs and
+release dates are matched by Criterion collection ID using the
+[Closet Picks machine-readable export](https://closetpicks.westenb.org/llm-export/).
+Streaming links open provider searches because availability changes by date and
+region.
 
 ## Design directions
 

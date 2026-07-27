@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import filmsData from "../../../data/films.json";
 
-type CatalogFilm = (typeof filmsData)[number];
+type CatalogFilm = {
+  director: string;
+  filmId: string;
+  id: string;
+  picker: string;
+  slug: string;
+  title: string;
+  year: number | null;
+};
 
 type DreamFilm = {
   id?: string;
@@ -75,17 +83,18 @@ const filmTags: Record<string, string[]> = {
 };
 
 function buildProfiles(): Profile[] {
-  const byPicker = new Map<string, CatalogFilm[]>();
+  const byPicker = new Map<string, Map<string, CatalogFilm>>();
 
-  for (const film of filmsData) {
-    for (const picker of film.pickers) {
-      byPicker.set(picker, [...(byPicker.get(picker) ?? []), film]);
-    }
+  for (const film of filmsData as unknown as CatalogFilm[]) {
+    const pickerFilms =
+      byPicker.get(film.picker) ?? new Map<string, CatalogFilm>();
+    pickerFilms.set(film.filmId, film);
+    byPicker.set(film.picker, pickerFilms);
   }
 
-  return [...byPicker.entries()].map(([name, films]) => ({
+  return [...byPicker.entries()].map(([name, filmMap]) => ({
     name,
-    films,
+    films: [...filmMap.values()],
     signature: signatures[name] ?? "wide-ranging international and auteur cinema",
   }));
 }
@@ -137,7 +146,7 @@ function overlapSignals(dream: DreamFilm[], profile: Profile) {
     dream.flatMap((film) => (film.id ? (filmTags[film.id] ?? []) : [])),
   );
   const profileTags = new Set(
-    profile.films.flatMap((film) => filmTags[film.id] ?? []),
+    profile.films.flatMap((film) => filmTags[film.slug] ?? []),
   );
   const sharedTags = intersection(dreamTags, profileTags).slice(0, 4);
 
@@ -181,13 +190,15 @@ function metadataMatches(dream: DreamFilm[], profiles: Profile[]) {
   );
 
   const scored = profiles.map((profile) => {
-    const profileIds = new Set(profile.films.map((film) => film.id));
+    const profileIds = new Set(profile.films.map((film) => film.slug));
     const profileDirectors = new Set(profile.films.map((film) => film.director));
     const profileDecades = new Set(
-      profile.films.map((film) => Math.floor(film.year / 10) * 10),
+      profile.films
+        .map((film) => film.year && Math.floor(film.year / 10) * 10)
+        .filter(Boolean),
     );
     const profileTags = new Set(
-      profile.films.flatMap((film) => filmTags[film.id] ?? []),
+      profile.films.flatMap((film) => filmTags[film.slug] ?? []),
     );
     const exact = intersection(dreamIds, profileIds).length;
     const directors = intersection(dreamDirectors, profileDirectors).length;

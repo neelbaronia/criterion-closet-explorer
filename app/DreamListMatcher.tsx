@@ -4,7 +4,15 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import filmsData from "../data/films.json";
 
-type CatalogFilm = (typeof filmsData)[number];
+type CatalogFilm = {
+  director: string;
+  filmId: string;
+  id: string;
+  poster: string;
+  slug: string;
+  title: string;
+  year: number | null;
+};
 
 type DreamFilm = {
   id: string;
@@ -30,14 +38,18 @@ type MatchResponse = {
   error?: string;
 };
 
-const catalog = filmsData as CatalogFilm[];
+const catalog = [
+  ...new Map(
+    (filmsData as unknown as CatalogFilm[]).map((film) => [film.slug, film]),
+  ).values(),
+];
 const sampleIds = ["stalker", "paris-burning", "local-hero", "late-spring"];
 
 function toDreamFilm(film: CatalogFilm): DreamFilm {
   return {
-    id: film.id,
+    id: film.slug,
     title: film.title,
-    year: film.year,
+    year: film.year ?? undefined,
     director: film.director,
     poster: film.poster,
   };
@@ -59,7 +71,7 @@ export function DreamListMatcher() {
     return catalog
       .filter(
         (film) =>
-          !chosenIds.has(film.id) &&
+          !chosenIds.has(film.slug) &&
           `${film.title} ${film.director} ${film.year}`
             .toLowerCase()
             .includes(query),
@@ -126,7 +138,7 @@ export function DreamListMatcher() {
   function loadSample() {
     setDream(
       sampleIds
-        .map((id) => catalog.find((film) => film.id === id))
+        .map((id) => catalog.find((film) => film.slug === id))
         .filter((film): film is CatalogFilm => Boolean(film))
         .map(toDreamFilm),
     );
