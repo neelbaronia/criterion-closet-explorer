@@ -8,8 +8,8 @@ The repository includes:
 
 - a responsive, searchable film table
 - 40 sourced selections from 12 Closet visitors as a starter dataset
-- poster artwork and live searches across JustWatch, Criterion Channel,
-  Netflix, Prime Video, and Max
+- poster artwork and verified U.S. subscription availability across Criterion
+  Channel, Netflix, Prime Video, and Max
 - director and Closet-picker profile photos
 - direct links from every Closet picker to their official Criterion YouTube
   video
@@ -54,6 +54,9 @@ first. Films selected by more than one visitor are placed with the newest
 relevant Closet video.
 Official YouTube links live in
 [`data/closet-videos.json`](./data/closet-videos.json).
+Current tracked streaming availability lives in
+[`data/streaming-availability.json`](./data/streaming-availability.json) and is
+date-stamped so it can be refreshed as catalogs change.
 
 Selection data is sourced from the
 [official Criterion Closet Picks archive](https://www.criterion.com/closet-picks).

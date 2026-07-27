@@ -35,11 +35,12 @@ test("server-renders the Closet Index product shell", async () => {
   );
   assert.match(html, /Criterion Closet picks/);
   assert.match(html, /Where to watch/);
-  assert.match(html, /All services/);
   assert.match(html, /Criterion/);
   assert.match(html, /Netflix/);
   assert.match(html, /Prime/);
   assert.match(html, /Max/);
+  assert.match(html, /No tracked streams/);
+  assert.doesNotMatch(html, /All services/);
   assert.match(html, /All closet pickers/);
   assert.match(html, /Newest Closet videos/);
   assert.match(html, /sprocket-rail/);

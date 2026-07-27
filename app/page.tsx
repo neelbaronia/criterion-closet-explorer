@@ -6,14 +6,25 @@ import closetReleaseOrderData from "../data/closet-release-order.json";
 import closetVideosData from "../data/closet-videos.json";
 import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
+import streamingAvailabilityData from "../data/streaming-availability.json";
 
 type Film = (typeof filmsData)[number];
+type Provider = "criterion" | "netflix" | "prime" | "max";
+type Availability = {
+  providers: Provider[];
+  source: string;
+};
 type SortField = "closet" | "title" | "year" | "director" | "picker";
 type SortDirection = "asc" | "desc";
 
 const films = filmsData as Film[];
 const peopleImages = peopleData as Record<string, string>;
 const closetVideos = closetVideosData as Record<string, string>;
+const streamingAvailability = streamingAvailabilityData as {
+  region: string;
+  checkedOn: string;
+  titles: Record<string, Availability>;
+};
 const closetReleaseOrder = closetReleaseOrderData as string[];
 const closetReleaseScores = new Map(
   closetReleaseOrder.map((name, index) => [
@@ -22,10 +33,6 @@ const closetReleaseScores = new Map(
   ]),
 );
 const sourceUrl = "https://www.criterion.com/closet-picks";
-
-function watchUrl(title: string) {
-  return `https://www.justwatch.com/us/search?q=${encodeURIComponent(title)}`;
-}
 
 function channelUrl(title: string) {
   return `https://www.criterionchannel.com/search?q=${encodeURIComponent(title)}`;
@@ -42,6 +49,16 @@ function primeVideoUrl(title: string) {
 function maxUrl(title: string) {
   return `https://www.justwatch.com/us/provider/hbo-max/movies?q=${encodeURIComponent(title)}`;
 }
+
+const providerDetails: Record<
+  Provider,
+  { label: string; url: (title: string) => string }
+> = {
+  criterion: { label: "Criterion", url: channelUrl },
+  netflix: { label: "Netflix", url: netflixUrl },
+  prime: { label: "Prime", url: primeVideoUrl },
+  max: { label: "Max", url: maxUrl },
+};
 
 function initials(name: string) {
   return name
@@ -316,7 +333,7 @@ export default function Home() {
             films
           </p>
           <p className="availability-note">
-            Provider searches may require sign-in. Catalogs vary by region.
+            U.S. subscription availability checked July 26, 2026.
           </p>
           {filtersActive && (
             <button type="button" onClick={clearFilters}>
@@ -363,8 +380,10 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {filteredFilms.map((film, index) => (
-                  <tr key={film.id}>
+                {filteredFilms.map((film, index) => {
+                  const availability = streamingAvailability.titles[film.id];
+                  return (
+                    <tr key={film.id}>
                     <td className="poster-cell">
                       <div className="poster-frame">
                         <img
@@ -388,28 +407,22 @@ export default function Home() {
                       <div className="person-entry">
                         <div className="avatar-stack">
                           {film.pickers.map((name) => (
-                            <a
-                              className="avatar-link"
-                              href={closetVideos[name]}
-                              key={name}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-label={`Watch ${name}'s Closet Picks on YouTube`}
-                            >
-                              <PersonAvatar name={name} />
-                            </a>
+                            <PersonAvatar key={name} name={name} />
                           ))}
                         </div>
-                        <span className="picker-links">
+                        <span className="picker-video-list">
                           {film.pickers.map((name, pickerIndex) => (
-                            <span key={name}>
+                            <span className="picker-video-item" key={name}>
                               {pickerIndex > 0 && " + "}
+                              <span>{name}</span>
                               <a
+                                className="video-icon-link"
                                 href={closetVideos[name]}
                                 target="_blank"
                                 rel="noreferrer"
+                                aria-label={`Watch ${name}'s Closet Picks on YouTube`}
                               >
-                                {name} ↗
+                                <span aria-hidden="true">▶</span>
                               </a>
                             </span>
                           ))}
@@ -418,48 +431,26 @@ export default function Home() {
                     </td>
                     <td>
                       <div className="watch-links">
-                        <a
-                          href={watchUrl(film.title)}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          All services ↗
-                        </a>
-                        <a
-                          href={channelUrl(film.title)}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Criterion ↗
-                        </a>
-                        <a
-                          href={netflixUrl(film.title)}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Search Netflix for ${film.title}`}
-                        >
-                          Netflix ↗
-                        </a>
-                        <a
-                          href={primeVideoUrl(film.title)}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Search Prime Video for ${film.title}`}
-                        >
-                          Prime ↗
-                        </a>
-                        <a
-                          href={maxUrl(film.title)}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Check Max availability for ${film.title}`}
-                        >
-                          Max ↗
-                        </a>
+                        {availability?.providers.length ? (
+                          availability.providers.map((provider) => (
+                            <a
+                              href={providerDetails[provider].url(film.title)}
+                              key={provider}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Watch ${film.title} on ${providerDetails[provider].label}`}
+                            >
+                              {providerDetails[provider].label} ↗
+                            </a>
+                          ))
+                        ) : (
+                          <span className="no-streams">No tracked streams</span>
+                        )}
                       </div>
                     </td>
-                  </tr>
-                ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
 

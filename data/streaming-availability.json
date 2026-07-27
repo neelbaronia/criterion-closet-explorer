@@ -1,0 +1,166 @@
+{
+  "region": "US",
+  "checkedOn": "2026-07-26",
+  "titles": {
+    "boyhood": {
+      "providers": ["netflix", "criterion"],
+      "source": "https://www.justwatch.com/us/movie/boyhood-2014"
+    },
+    "lost-highway": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/lost-highway"
+    },
+    "malcolm-x": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/malcolm-x"
+    },
+    "el-norte": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/el-norte"
+    },
+    "do-the-right-thing": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/do-the-right-thing"
+    },
+    "a-man-escaped": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/a-man-escaped"
+    },
+    "y-tu-mama-tambien": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/and-your-mother-too"
+    },
+    "all-about-my-mother": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/all-about-my-mother"
+    },
+    "certified-copy": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/certified-copy"
+    },
+    "local-hero": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/local-hero"
+    },
+    "worst-person": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/the-worst-person-in-the-world"
+    },
+    "paper-moon": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/paper-moon"
+    },
+    "brazil": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/brazil"
+    },
+    "night-hunter": {
+      "providers": ["prime"],
+      "source": "https://www.justwatch.com/us/movie/the-night-of-the-hunter"
+    },
+    "stalker": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/stalker-1979"
+    },
+    "purple-noon": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/purple-noon"
+    },
+    "wages-of-fear": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/the-wages-of-fear"
+    },
+    "devil-blue-dress": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/devil-in-a-blue-dress"
+    },
+    "paris-burning": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/paris-is-burning"
+    },
+    "one-night-miami": {
+      "providers": ["prime"],
+      "source": "https://www.justwatch.com/us/movie/one-night-in-miami"
+    },
+    "gunfighter": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/the-gunfighter"
+    },
+    "war-and-peace": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/war-and-peace-1966"
+    },
+    "raging-bull": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/raging-bull"
+    },
+    "targets": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/targets"
+    },
+    "amarcord": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/amarcord"
+    },
+    "la-promesse": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/la-promesse"
+    },
+    "tiny-furniture": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/tiny-furniture"
+    },
+    "angel-table": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/an-angel-at-my-table"
+    },
+    "maria-braun": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/the-marriage-of-maria-braun"
+    },
+    "band-outsiders": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/band-of-outsiders"
+    },
+    "crumb": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/crumb"
+    },
+    "magician": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/the-magician"
+    },
+    "400-blows": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/the-400-blows"
+    },
+    "thin-red-line": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/the-thin-red-line"
+    },
+    "la-haine": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/la-haine"
+    },
+    "cure": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/cure"
+    },
+    "late-spring": {
+      "providers": ["criterion", "max"],
+      "source": "https://www.justwatch.com/us/movie/late-spring"
+    },
+    "my-darling-clementine": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/my-darling-clementine"
+    },
+    "mishima": {
+      "providers": ["criterion"],
+      "source": "https://www.justwatch.com/us/movie/mishima-a-life-in-four-chapters"
+    },
+    "salo": {
+      "providers": [],
+      "source": "https://www.justwatch.com/us/movie/salo-or-the-120-days-of-sodom"
+    }
+  }
+}

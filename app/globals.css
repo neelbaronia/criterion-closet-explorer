@@ -490,32 +490,39 @@ tbody tr:hover .person-avatar img {
   flex: 0 0 auto;
 }
 
-.avatar-link {
-  display: inline-flex;
-  position: relative;
-  text-decoration: none;
-}
-
-.avatar-link:hover,
-.avatar-link:focus-visible {
-  outline: 3px solid var(--yellow);
-  outline-offset: -3px;
-  z-index: 2;
-}
-
-.avatar-stack .avatar-link + .avatar-link {
+.avatar-stack .person-avatar + .person-avatar {
   margin-left: -18px;
 }
 
-.picker-links a {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+.picker-video-item > span:first-of-type {
+  vertical-align: middle;
 }
 
-.picker-links a:hover,
-.picker-links a:focus-visible {
-  color: var(--red);
+.video-icon-link {
+  align-items: center;
+  background: var(--red);
+  border-radius: 3px;
+  color: var(--white);
+  display: inline-flex;
+  height: 16px;
+  justify-content: center;
+  margin-left: 6px;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 23px;
+}
+
+.video-icon-link span {
+  font-size: 7px;
+  line-height: 1;
+  margin-left: 1px;
+}
+
+.video-icon-link:hover,
+.video-icon-link:focus-visible {
+  background: var(--black);
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
 }
 
 .watch-links {
@@ -539,6 +546,14 @@ tbody tr:hover .person-avatar img {
 .watch-links a:focus-visible {
   background: var(--red);
   color: var(--white);
+}
+
+.no-streams {
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .empty-state {
