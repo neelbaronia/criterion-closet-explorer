@@ -450,6 +450,11 @@ tbody tr:hover .poster-frame img {
   width: 100%;
 }
 
+.picker-cell .person-avatar:not(.person-avatar--initials) {
+  flex-basis: 171px;
+  width: 171px;
+}
+
 tbody tr:hover .person-avatar img {
   filter: grayscale(0);
 }
