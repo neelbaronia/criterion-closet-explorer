@@ -436,10 +436,17 @@ tbody tr:hover .poster-frame img {
   text-transform: uppercase;
 }
 
+.director-cell,
+.picker-cell {
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
 .person-entry {
   align-items: center;
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  height: 96px;
 }
 
 .person-entry > span:last-child {
@@ -449,19 +456,18 @@ tbody tr:hover .poster-frame img {
 .person-avatar {
   align-items: center;
   background: var(--black);
-  border: 2px solid var(--paper);
+  border: 0;
   color: var(--yellow);
   display: inline-flex;
-  flex: 0 0 44px;
+  flex: 0 0 72px;
   font-family: var(--font-mono), monospace;
   font-size: 7px;
   font-weight: 600;
-  height: 44px;
+  height: 96px;
   justify-content: center;
-  outline: 1px solid var(--black);
   overflow: hidden;
   position: relative;
-  width: 44px;
+  width: 72px;
 }
 
 .person-avatar img {
@@ -469,6 +475,7 @@ tbody tr:hover .poster-frame img {
   height: 100%;
   inset: 0;
   object-fit: cover;
+  object-position: center 25%;
   position: absolute;
   transition: filter 160ms ease;
   width: 100%;
@@ -484,7 +491,7 @@ tbody tr:hover .person-avatar img {
 }
 
 .avatar-stack .person-avatar + .person-avatar {
-  margin-left: -10px;
+  margin-left: -18px;
 }
 
 .watch-links {

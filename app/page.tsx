@@ -376,7 +376,7 @@ export default function Home() {
                       <strong>{film.title}</strong>
                     </td>
                     <td className="year-cell">{film.year}</td>
-                    <td>
+                    <td className="director-cell">
                       <div className="person-entry">
                         <PersonAvatar name={film.director} />
                         <span>{film.director}</span>
