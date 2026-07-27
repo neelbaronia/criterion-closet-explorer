@@ -11,6 +11,8 @@ The repository includes:
 - poster artwork and live searches across JustWatch, Criterion Channel,
   Netflix, Prime Video, and Max
 - director and Closet-picker profile photos
+- direct links from every Closet picker to their official Criterion YouTube
+  video
 - default reverse-chronological Closet-video order, plus sorting by title, film
   year, director, or Closet picker
 - filters for Closet picker, director, and decade
@@ -50,6 +52,8 @@ Closet-video chronology lives in
 [`data/closet-release-order.json`](./data/closet-release-order.json), newest
 first. Films selected by more than one visitor are placed with the newest
 relevant Closet video.
+Official YouTube links live in
+[`data/closet-videos.json`](./data/closet-videos.json).
 
 Selection data is sourced from the
 [official Criterion Closet Picks archive](https://www.criterion.com/closet-picks).

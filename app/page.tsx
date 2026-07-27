@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import closetReleaseOrderData from "../data/closet-release-order.json";
+import closetVideosData from "../data/closet-videos.json";
 import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
 
@@ -12,6 +13,7 @@ type SortDirection = "asc" | "desc";
 
 const films = filmsData as Film[];
 const peopleImages = peopleData as Record<string, string>;
+const closetVideos = closetVideosData as Record<string, string>;
 const closetReleaseOrder = closetReleaseOrderData as string[];
 const closetReleaseScores = new Map(
   closetReleaseOrder.map((name, index) => [
@@ -386,10 +388,32 @@ export default function Home() {
                       <div className="person-entry">
                         <div className="avatar-stack">
                           {film.pickers.map((name) => (
-                            <PersonAvatar key={name} name={name} />
+                            <a
+                              className="avatar-link"
+                              href={closetVideos[name]}
+                              key={name}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Watch ${name}'s Closet Picks on YouTube`}
+                            >
+                              <PersonAvatar name={name} />
+                            </a>
                           ))}
                         </div>
-                        <span>{film.pickers.join(" + ")}</span>
+                        <span className="picker-links">
+                          {film.pickers.map((name, pickerIndex) => (
+                            <span key={name}>
+                              {pickerIndex > 0 && " + "}
+                              <a
+                                href={closetVideos[name]}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {name} ↗
+                              </a>
+                            </span>
+                          ))}
+                        </span>
                       </div>
                     </td>
                     <td>

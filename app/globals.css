@@ -490,8 +490,32 @@ tbody tr:hover .person-avatar img {
   flex: 0 0 auto;
 }
 
-.avatar-stack .person-avatar + .person-avatar {
+.avatar-link {
+  display: inline-flex;
+  position: relative;
+  text-decoration: none;
+}
+
+.avatar-link:hover,
+.avatar-link:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: -3px;
+  z-index: 2;
+}
+
+.avatar-stack .avatar-link + .avatar-link {
   margin-left: -18px;
+}
+
+.picker-links a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.picker-links a:hover,
+.picker-links a:focus-visible {
+  color: var(--red);
 }
 
 .watch-links {

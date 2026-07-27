@@ -46,6 +46,14 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
   assert.match(html, /Wikimedia Commons/);
+  assert.match(
+    html,
+    /https:\/\/www\.youtube\.com\/watch\?v=t9fgFt-Ibik/,
+  );
+  assert.match(
+    html,
+    /Watch Christopher Nolan&#x27;s Closet Picks on YouTube/,
+  );
   assert.ok(
     html.indexOf("Boyhood") < html.indexOf("El Norte"),
     "Christopher Nolan's picks should render before John Leguizamo's picks",
