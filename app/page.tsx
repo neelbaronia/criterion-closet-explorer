@@ -35,7 +35,14 @@ type Availability = {
   providers: Provider[];
   source: string;
 };
-type SortField = "closet" | "title" | "year" | "director" | "picker";
+type SortField =
+  | "closet"
+  | "title"
+  | "year"
+  | "director"
+  | "picker"
+  | "moviePicks"
+  | "directorPicks";
 type SortDirection = "asc" | "desc";
 const pageSize = 100;
 
@@ -55,6 +62,31 @@ const closetReleaseScores = new Map(
       ),
     )
     .map(([collectionId], index) => [collectionId, index + 1]),
+);
+const moviePickCollections = new Map<string, Set<string>>();
+const directorPickCollections = new Map<string, Set<string>>();
+for (const film of films) {
+  const movieCollections =
+    moviePickCollections.get(film.filmId) ?? new Set<string>();
+  movieCollections.add(film.collectionId);
+  moviePickCollections.set(film.filmId, movieCollections);
+
+  const directorCollections =
+    directorPickCollections.get(film.director) ?? new Set<string>();
+  directorCollections.add(film.collectionId);
+  directorPickCollections.set(film.director, directorCollections);
+}
+const moviePickCounts = new Map(
+  [...moviePickCollections].map(([filmId, collections]) => [
+    filmId,
+    collections.size,
+  ]),
+);
+const directorPickCounts = new Map(
+  [...directorPickCollections].map(([director, collections]) => [
+    director,
+    collections.size,
+  ]),
 );
 const verifiedAvailabilityCount = Object.keys(
   streamingAvailability.titles,
@@ -110,6 +142,14 @@ function initials(name: string) {
 
 function closetReleaseScore(film: Film) {
   return closetReleaseScores.get(film.collectionId) ?? 0;
+}
+
+function moviePickCount(film: Film) {
+  return moviePickCounts.get(film.filmId) ?? 0;
+}
+
+function directorPickCount(film: Film) {
+  return directorPickCounts.get(film.director) ?? 0;
 }
 
 function PersonAvatar({ image, name }: { image?: string; name: string }) {
@@ -204,6 +244,27 @@ export default function Home() {
 
     return results.sort((a, b) => {
       let comparison = 0;
+      if (sortField === "moviePicks") {
+        comparison = moviePickCount(a) - moviePickCount(b);
+        if (comparison !== 0) {
+          return sortDirection === "asc" ? comparison : -comparison;
+        }
+        return (
+          a.title.localeCompare(b.title) ||
+          closetReleaseScore(b) - closetReleaseScore(a)
+        );
+      }
+      if (sortField === "directorPicks") {
+        comparison = directorPickCount(a) - directorPickCount(b);
+        if (comparison !== 0) {
+          return sortDirection === "asc" ? comparison : -comparison;
+        }
+        return (
+          a.director.localeCompare(b.director) ||
+          a.title.localeCompare(b.title) ||
+          closetReleaseScore(b) - closetReleaseScore(a)
+        );
+      }
       if (sortField === "closet") {
         comparison = closetReleaseScore(a) - closetReleaseScore(b);
       }
@@ -378,6 +439,12 @@ export default function Home() {
               onChange={(event) => changeSort(event.target.value)}
             >
               <option value="closet:desc">Newest Closet interviews</option>
+              <option value="moviePicks:desc">
+                Movie Hall of Fame: most picks
+              </option>
+              <option value="directorPicks:desc">
+                Director Hall of Fame: most picks
+              </option>
               <option value="title:asc">Title A–Z</option>
               <option value="title:desc">Title Z–A</option>
               <option value="year:desc">Film year: newest</option>
@@ -459,13 +526,27 @@ export default function Home() {
                         </div>
                       </td>
                       <td className="title-cell">
-                        <strong>{film.title}</strong>
+                        <span className="ranked-metadata">
+                          <strong>{film.title}</strong>
+                          {sortField === "moviePicks" && (
+                            <span className="hall-of-fame-count">
+                              {moviePickCount(film)} Closet picks
+                            </span>
+                          )}
+                        </span>
                       </td>
                       <td className="year-cell">{film.year ?? "—"}</td>
                       <td className="director-cell">
                         <div className="person-entry">
                           <PersonAvatar name={film.director} />
-                          <span>{film.director}</span>
+                          <span className="ranked-metadata">
+                            <span>{film.director}</span>
+                            {sortField === "directorPicks" && (
+                              <span className="hall-of-fame-count">
+                                {directorPickCount(film)} Closet picks
+                              </span>
+                            )}
+                          </span>
                         </div>
                       </td>
                       <td className="picker-cell">
