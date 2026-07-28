@@ -60,7 +60,10 @@ test("server-renders the Closet Index product shell", async () => {
     /Watch Christopher Nolan&#x27;s Closet Picks interview/,
   );
   assert.match(html, /Matt Damon/);
-  assert.match(html, /https:\/\/vimeo\.com\/1213276700/);
+  assert.match(
+    html,
+    /https:\/\/www\.youtube\.com\/watch\?v=ZCxYGx6ueNM/,
+  );
   assert.match(html, /dateTime="2026-07-16"/);
   assert.match(html, /5749/);
   assert.match(html, /movie picks/);
@@ -81,7 +84,7 @@ test("consolidates Hall of Fame rows and links every picker video", async () => 
   assert.match(source, /kind: "director"/);
   assert.match(source, /collectPickerVideos\(records, closetVideos\)/);
   assert.match(source, /<PickerVideoLinks entries=\{row\.pickerVideos\}/);
-  assert.match(source, /href=\{entry\.video\.url\}/);
+  assert.match(source, /href=\{videoUrl\}/);
   assert.match(styles, /\.aggregate-picker-list/);
   assert.match(styles, /\.poster-collage/);
 
@@ -256,6 +259,21 @@ test("ships the complete generated Closet archive snapshot", async () => {
   assert.equal(films[0].picker, "Matt Damon");
   assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-27");
   assert.equal(videos[films[0].collectionId].recordedOn, "2026-07-16");
+});
+
+test("never exposes Vimeo as a picker-video destination", async () => {
+  const videos = JSON.parse(
+    await readFile(new URL("../data/closet-videos.json", import.meta.url)),
+  );
+
+  assert.equal(
+    videos["985"].url,
+    "https://www.youtube.com/watch?v=ZCxYGx6ueNM",
+  );
+  assert.equal(
+    Object.values(videos).some((video) => video.url.includes("vimeo.com")),
+    false,
+  );
 });
 
 test("ships a quantified and explainable picker Taste Map", async () => {

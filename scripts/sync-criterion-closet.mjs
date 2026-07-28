@@ -70,6 +70,14 @@ function pickerFromTitle(title) {
     .trim();
 }
 
+function youtubeUrl(value) {
+  return /^https:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)/.test(
+    value ?? "",
+  )
+    ? value
+    : "";
+}
+
 function isoDate(month, day, year) {
   return `${year}-${monthNumbers[month]}-${String(day).padStart(2, "0")}`;
 }
@@ -231,11 +239,7 @@ function parseGuestVisits(payload) {
       collectionUrls.push(visit.criterion_page_url);
       visitsByCollection.set(collectionId, {
         publishedOn: visit.episode_date ?? "",
-        url:
-          visit.youtube_video_url ??
-          (visit.vimeo_video_id
-            ? `https://vimeo.com/${visit.vimeo_video_id}`
-            : ""),
+        url: youtubeUrl(visit.youtube_video_url),
       });
     }
   }
@@ -587,7 +591,10 @@ async function main() {
       closetVideos[collectionId] = {
         ...previous,
         publishedOn: published?.publishedOn || previous.publishedOn,
-        url: published?.url || previous.url,
+        url:
+          youtubeUrl(published?.url) ||
+          youtubeUrl(previous.url) ||
+          previous.criterionUrl,
       };
     }
   }
@@ -635,7 +642,10 @@ async function main() {
         "",
       recordedOn: visit?.recordedOn ?? "",
       title: collection.title,
-      url: published?.url || collection.videoUrl || collection.sourceUrl,
+      url:
+        youtubeUrl(published?.url) ||
+        youtubeUrl(collection.videoUrl) ||
+        collection.sourceUrl,
     };
 
     let position = 0;

@@ -109,6 +109,15 @@ function formatVideoDate(value: string) {
   return videoDateFormatter.format(new Date(`${value}T12:00:00Z`));
 }
 
+function youtubeVideoUrl(video?: ClosetVideo) {
+  return video &&
+    /^https:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)/.test(
+      video.url,
+    )
+    ? video.url
+    : undefined;
+}
+
 function initials(name: string) {
   return name
     .split(/\s+/)
@@ -191,11 +200,12 @@ function collectPickerVideos(
 function PickerVideoLinks({ entries }: { entries: PickerVideoEntry[] }) {
   return (
     <span className="aggregate-picker-list">
-      {entries.map((entry) =>
-        entry.video ? (
+      {entries.map((entry) => {
+        const videoUrl = youtubeVideoUrl(entry.video);
+        return videoUrl ? (
           <a
             className="aggregate-picker-link"
-            href={entry.video.url}
+            href={videoUrl}
             key={entry.collectionId}
             target="_blank"
             rel="noreferrer"
@@ -211,8 +221,8 @@ function PickerVideoLinks({ entries }: { entries: PickerVideoEntry[] }) {
           >
             {entry.picker}
           </span>
-        ),
-      )}
+        );
+      })}
     </span>
   );
 }
@@ -742,6 +752,7 @@ export default function Home() {
                   const film = row.primary;
                   const availability = streamingAvailability.titles[film.slug];
                   const video = closetVideos[film.collectionId];
+                  const videoUrl = youtubeVideoUrl(video);
 
                   if (row.kind === "director") {
                     const years = row.uniqueFilms
@@ -883,10 +894,10 @@ export default function Home() {
                                     </time>
                                   )}
                                 </span>
-                                {video && (
+                                {videoUrl && (
                                   <a
                                     className="video-icon-link"
-                                    href={video.url}
+                                    href={videoUrl}
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label={`Watch ${film.picker}'s Closet Picks interview`}
