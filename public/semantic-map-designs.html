@@ -6,7 +6,7 @@
     <title>The Closet Index — Semantic Map Design Lab</title>
     <meta
       name="description"
-      content="Twelve visual directions and a scoring model for mapping similarity between Criterion Closet pickers."
+      content="Interactive design prototypes for mapping embedded Criterion films, picker overlays, semantic neighborhoods, and picker similarity."
     />
     <style>
       :root {
@@ -938,6 +938,448 @@
         line-height: 1;
       }
 
+      .latent-lab {
+        background: var(--black);
+        color: var(--white);
+        padding: 74px 26px 96px;
+      }
+
+      .latent-head {
+        align-items: end;
+        display: grid;
+        gap: 45px;
+        grid-template-columns: 1fr 0.72fr;
+        margin-bottom: 42px;
+      }
+
+      .latent-head h2 {
+        font-size: clamp(58px, 9vw, 126px);
+        letter-spacing: -0.075em;
+        line-height: 0.78;
+        margin: 16px 0 0;
+        text-transform: uppercase;
+      }
+
+      .latent-head h2 span {
+        color: var(--yellow);
+        display: block;
+      }
+
+      .latent-head p {
+        color: #b6b6b6;
+        line-height: 1.58;
+        margin: 0;
+        max-width: 570px;
+      }
+
+      .latent-pipeline {
+        border-bottom: 1px solid #3b3b3b;
+        border-top: 1px solid #3b3b3b;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin-bottom: 18px;
+      }
+
+      .latent-pipeline div {
+        border-right: 1px solid #3b3b3b;
+        min-height: 142px;
+        padding: 17px;
+      }
+
+      .latent-pipeline div:last-child {
+        border-right: 0;
+      }
+
+      .latent-pipeline b {
+        color: var(--red);
+        display: block;
+        font-family: var(--mono);
+        font-size: 9px;
+        margin-bottom: 25px;
+      }
+
+      .latent-pipeline strong {
+        display: block;
+        font-size: 17px;
+        margin-bottom: 7px;
+        text-transform: uppercase;
+      }
+
+      .latent-pipeline span {
+        color: #929292;
+        font-family: var(--mono);
+        font-size: 7px;
+        line-height: 1.45;
+        text-transform: uppercase;
+      }
+
+      .latent-source-note {
+        align-items: center;
+        background: #171717;
+        display: grid;
+        font-family: var(--mono);
+        font-size: 8px;
+        gap: 18px;
+        grid-template-columns: auto 1fr auto;
+        line-height: 1.45;
+        margin-bottom: 42px;
+        padding: 14px 16px;
+        text-transform: uppercase;
+      }
+
+      .latent-source-note > b {
+        color: var(--yellow);
+      }
+
+      .latent-source-note > span {
+        color: #aaa;
+      }
+
+      .latent-source-links {
+        display: flex;
+        gap: 7px;
+      }
+
+      .latent-source-links a {
+        border: 1px solid #555;
+        padding: 7px 8px;
+        text-decoration: none;
+      }
+
+      .latent-source-links a:hover {
+        background: var(--yellow);
+        color: var(--black);
+      }
+
+      .latent-tabs {
+        border: 1px solid #3b3b3b;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .latent-tab {
+        background: transparent;
+        border: 0;
+        border-right: 1px solid #3b3b3b;
+        color: #888;
+        font-family: var(--mono);
+        font-size: 8px;
+        min-height: 75px;
+        padding: 11px;
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .latent-tab:last-child {
+        border-right: 0;
+      }
+
+      .latent-tab b {
+        color: var(--yellow);
+        display: block;
+        font-size: 10px;
+        margin-bottom: 7px;
+      }
+
+      .latent-tab:hover,
+      .latent-tab.active {
+        background: var(--paper);
+        color: var(--ink);
+      }
+
+      .latent-example {
+        background: var(--paper);
+        color: var(--ink);
+        display: none;
+        min-height: 680px;
+      }
+
+      .latent-example.active {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.4fr) 1.6fr;
+      }
+
+      .latent-copy {
+        border-right: 1px solid var(--ink);
+        padding: 30px 26px;
+      }
+
+      .latent-copy > span {
+        color: var(--red);
+        font-family: var(--mono);
+        font-size: 8px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .latent-copy h3 {
+        font-size: clamp(39px, 5vw, 72px);
+        letter-spacing: -0.06em;
+        line-height: 0.86;
+        margin: 22px 0;
+        text-transform: uppercase;
+      }
+
+      .latent-copy > p {
+        line-height: 1.52;
+      }
+
+      .latent-copy dl {
+        border-top: 1px solid var(--line);
+        margin: 30px 0 0;
+      }
+
+      .latent-copy dl div {
+        border-bottom: 1px solid var(--line);
+        padding: 13px 0;
+      }
+
+      .latent-copy dt {
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 7px;
+        letter-spacing: 0.08em;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      .latent-copy dd {
+        font-size: 11px;
+        line-height: 1.42;
+        margin: 0;
+      }
+
+      .latent-prototype {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .latent-prototype-head {
+        align-items: center;
+        border-bottom: 1px solid var(--ink);
+        display: flex;
+        font-family: var(--mono);
+        font-size: 8px;
+        justify-content: space-between;
+        min-height: 51px;
+        padding: 0 15px;
+        text-transform: uppercase;
+      }
+
+      .latent-prototype-head select {
+        background: var(--white);
+        border: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        padding: 7px 24px 7px 8px;
+        text-transform: uppercase;
+      }
+
+      .latent-canvas-wrap {
+        background: #e8e5dc;
+        height: 629px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .latent-canvas-wrap canvas {
+        height: 100%;
+        width: 100%;
+      }
+
+      .latent-readout {
+        background: var(--black);
+        bottom: 12px;
+        color: var(--white);
+        font-family: var(--mono);
+        font-size: 8px;
+        left: 12px;
+        line-height: 1.5;
+        max-width: calc(100% - 24px);
+        padding: 9px 11px;
+        position: absolute;
+        text-transform: uppercase;
+        z-index: 8;
+      }
+
+      .latent-canvas-key {
+        display: flex;
+        flex-wrap: wrap;
+        font-family: var(--mono);
+        font-size: 7px;
+        gap: 12px;
+        left: 14px;
+        position: absolute;
+        text-transform: uppercase;
+        top: 14px;
+        z-index: 6;
+      }
+
+      .latent-canvas-key span::before {
+        background: #aaa;
+        border-radius: 50%;
+        content: "";
+        display: inline-block;
+        height: 7px;
+        margin-right: 5px;
+        width: 7px;
+      }
+
+      .latent-canvas-key .red::before { background: var(--red); }
+      .latent-canvas-key .blue::before { background: var(--blue); }
+      .latent-canvas-key .yellow::before { background: var(--yellow); }
+      .latent-canvas-key .green::before { background: #18a776; }
+
+      .overlay-controls {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--ink);
+        display: flex;
+        gap: 5px;
+        padding: 5px;
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        z-index: 8;
+      }
+
+      .overlay-toggle {
+        background: var(--white);
+        border: 1px solid #aaa;
+        font-family: var(--mono);
+        font-size: 7px;
+        padding: 7px;
+        text-transform: uppercase;
+      }
+
+      .overlay-toggle.active {
+        background: var(--black);
+        color: var(--white);
+      }
+
+      .small-multiples {
+        background: #d9d6cc;
+        display: grid;
+        gap: 6px;
+        grid-template-columns: 1fr 1fr;
+        padding: 6px;
+      }
+
+      .small-map {
+        background: var(--paper);
+        border: 1px solid var(--ink);
+        min-height: 285px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .small-map h4 {
+        background: var(--white);
+        border-bottom: 1px solid var(--ink);
+        font-family: var(--mono);
+        font-size: 8px;
+        left: 0;
+        margin: 0;
+        padding: 8px 9px;
+        position: absolute;
+        right: 0;
+        text-transform: uppercase;
+        top: 0;
+        z-index: 2;
+      }
+
+      .small-map canvas {
+        height: 100%;
+        min-height: 285px;
+        width: 100%;
+      }
+
+      .neighbor-lens {
+        background: #dedad0;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 0.8fr 1.2fr;
+        padding: 8px;
+      }
+
+      .neighbor-anchor {
+        align-items: center;
+        background: var(--yellow);
+        border: 1px solid var(--ink);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 530px;
+        padding: 28px;
+        text-align: center;
+      }
+
+      .neighbor-anchor img {
+        border: 2px solid var(--ink);
+        display: block;
+        height: 260px;
+        object-fit: cover;
+        width: 176px;
+      }
+
+      .neighbor-anchor small {
+        font-family: var(--mono);
+        font-size: 7px;
+        margin-top: 18px;
+        text-transform: uppercase;
+      }
+
+      .neighbor-anchor h4 {
+        font-size: 34px;
+        letter-spacing: -0.045em;
+        line-height: 0.95;
+        margin: 8px 0 0;
+        text-transform: uppercase;
+      }
+
+      .neighbor-grid {
+        display: grid;
+        gap: 6px;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .neighbor-card {
+        align-items: center;
+        background: var(--white);
+        border: 1px solid var(--ink);
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 67px 1fr;
+        min-height: 126px;
+        padding: 8px;
+      }
+
+      .neighbor-card img {
+        display: block;
+        height: 100px;
+        object-fit: cover;
+        width: 67px;
+      }
+
+      .neighbor-card b {
+        display: block;
+        font-size: 13px;
+        line-height: 1.1;
+        text-transform: uppercase;
+      }
+
+      .neighbor-card span,
+      .neighbor-card small {
+        display: block;
+        font-family: var(--mono);
+        font-size: 7px;
+        margin-top: 6px;
+        text-transform: uppercase;
+      }
+
+      .neighbor-card span {
+        color: var(--red);
+      }
+
       .shortlist {
         background: var(--paper);
         border-bottom: 1px solid var(--ink);
@@ -1490,6 +1932,8 @@
         .intro,
         .method,
         .gallery-head,
+        .latent-head,
+        .latent-example.active,
         .shortlist-head,
         .short-example.active,
         .concept.active,
@@ -1502,10 +1946,39 @@
         }
 
         .method-intro,
+        .latent-copy,
         .short-copy,
         .concept-copy {
           border-bottom: 1px solid var(--ink);
           border-right: 0;
+        }
+
+        .latent-tabs {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .latent-tab {
+          border-bottom: 1px solid #3b3b3b;
+        }
+
+        .latent-tab:nth-child(3n) {
+          border-right: 0;
+        }
+
+        .latent-pipeline {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .latent-pipeline div:nth-child(2) {
+          border-right: 0;
+        }
+
+        .latent-pipeline div:nth-child(-n + 2) {
+          border-bottom: 1px solid #3b3b3b;
+        }
+
+        .latent-source-note {
+          grid-template-columns: 1fr;
         }
 
         .short-tabs {
@@ -1556,6 +2029,7 @@
         }
 
         .intro,
+        .latent-lab,
         .shortlist,
         .gallery,
         .decision {
@@ -1578,6 +2052,67 @@
 
         .concept-tabs {
           grid-template-columns: repeat(2, 1fr);
+        }
+
+        .latent-tabs {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .latent-tab:nth-child(3n) {
+          border-right: 1px solid #3b3b3b;
+        }
+
+        .latent-tab:nth-child(2n) {
+          border-right: 0;
+        }
+
+        .latent-pipeline,
+        .neighbor-lens {
+          grid-template-columns: 1fr;
+        }
+
+        .latent-pipeline div {
+          border-bottom: 1px solid #3b3b3b;
+          border-right: 0;
+          min-height: 112px;
+        }
+
+        .latent-source-links {
+          flex-wrap: wrap;
+        }
+
+        .latent-canvas-wrap {
+          height: 530px;
+        }
+
+        .small-multiples {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+
+        .small-map {
+          min-height: 245px;
+        }
+
+        .small-map canvas {
+          min-height: 245px;
+        }
+
+        .neighbor-lens {
+          height: auto;
+        }
+
+        .neighbor-anchor {
+          min-height: 390px;
+        }
+
+        .neighbor-anchor img {
+          height: 220px;
+          width: 148px;
+        }
+
+        .neighbor-grid {
+          grid-template-columns: 1fr;
         }
 
         .short-tabs {
@@ -1666,7 +2201,7 @@
   <body>
     <header class="topbar">
       <a href="/">[ C—INDEX ]</a>
-      <span>Picker visualization study · six clearer alternatives</span>
+      <span>Film latent-space study · picker overlays + semantic neighborhoods</span>
       <a href="/taste-map">Open live Taste Map ↗</a>
     </header>
 
@@ -1675,9 +2210,10 @@
         <div class="intro-copy">
           <span class="kicker">Design lab / Picker similarity</span>
           <p>
-            How do 396 Criterion Closet visits become a map of cinematic taste?
-            This study now leads with six clearer production alternatives, then
-            keeps the original twelve-direction lab below for reference.
+            How do 1,262 unique films and 390 pickers become a navigable map of
+            cinematic taste? This study now leads with five film-embedding
+            prototypes, followed by six picker views and the original broader
+            design lab.
           </p>
           <span class="notice">Prototype scores are illustrative—not live embeddings</span>
         </div>
@@ -1685,10 +2221,199 @@
       </section>
 
       <aside class="recommendation">
-        <b>New shortlist</b>
-        <strong>Neighborhoods → fingerprint → pairwise comparison</strong>
-        <span>Readable overview / cinematic detail / clear evidence</span>
+        <b>New direction</b>
+        <strong>Film latent space → picker spotlight → neighborhood lens</strong>
+        <span>Descriptions embedded / exact vector similarity / 2D projection</span>
       </aside>
+
+      <section class="latent-lab" id="latent-lab">
+        <div class="latent-head">
+          <div>
+            <span class="kicker">New design lab / description embeddings</span>
+            <h2>Every film has <span>coordinates.</span></h2>
+          </div>
+          <p>
+            Embed one synopsis per film, keep similarity calculations in the
+            original vector space, and use UMAP only to create a navigable
+            two-dimensional view. Picker colors become a temporary lens over
+            the same stable movie map—not a permanent property of each film.
+          </p>
+        </div>
+
+        <div class="latent-pipeline" aria-label="Proposed latent-space pipeline">
+          <div><b>01 / Resolve</b><strong>Match titles</strong><span>Criterion title + year + director → one canonical external movie ID.</span></div>
+          <div><b>02 / Describe</b><strong>Collect text</strong><span>Overview or plot plus genre, country, decade, director, and format metadata.</span></div>
+          <div><b>03 / Embed</b><strong>Create vectors</strong><span>One normalized semantic vector per unique film; cache it and regenerate only when text changes.</span></div>
+          <div><b>04 / Project</b><strong>Draw the map</strong><span>Cosine distance remains canonical. UMAP produces display coordinates and local neighborhoods.</span></div>
+        </div>
+
+        <aside class="latent-source-note">
+          <b>Practical source proposal</b>
+          <span>TMDB overview first; licensed IMDb plot text if available; Criterion and Wikipedia as fallbacks. These prototypes use illustrative coordinates—not real embeddings yet.</span>
+          <div class="latent-source-links">
+            <a href="https://developer.themoviedb.org/docs/search-and-query-for-details" target="_blank" rel="noreferrer">TMDB overview ↗</a>
+            <a href="https://developer.imdb.com/documentation/api-documentation/sample-queries/title-name" target="_blank" rel="noreferrer">IMDb plots ↗</a>
+            <a href="https://platform.openai.com/docs/guides/embeddings" target="_blank" rel="noreferrer">Embeddings ↗</a>
+          </div>
+        </aside>
+
+        <div class="latent-tabs" role="tablist" aria-label="Film latent-space visualization examples">
+          <button class="latent-tab active" data-latent="latent-spotlight" role="tab"><b>01</b>Picker spotlight</button>
+          <button class="latent-tab" data-latent="latent-overlap" role="tab"><b>02</b>Multi-picker overlay</button>
+          <button class="latent-tab" data-latent="latent-islands" role="tab"><b>03</b>Semantic islands</button>
+          <button class="latent-tab" data-latent="latent-multiples" role="tab"><b>04</b>Small multiples</button>
+          <button class="latent-tab" data-latent="latent-neighbors" role="tab"><b>05</b>Film neighborhood</button>
+        </div>
+
+        <article class="latent-example active" id="latent-spotlight">
+          <div class="latent-copy">
+            <span>01 / Closest to your idea</span>
+            <h3>Picker spotlight</h3>
+            <p>
+              Keep all 1,262 films faintly visible, then illuminate one person’s
+              selections. A translucent boundary shows the territory their
+              picks occupy without hiding the surrounding semantic landscape.
+            </p>
+            <dl>
+              <div><dt>Best for</dt><dd>Seeing Christopher Nolan’s breadth, concentration, and outliers in one glance.</dd></div>
+              <div><dt>Color rule</dt><dd>Gray means context; red means the selected picker. Shared films stay one dot.</dd></div>
+              <div><dt>Important</dt><dd>Distance on screen is approximate; exact cosine similarity appears on hover or selection.</dd></div>
+            </dl>
+          </div>
+          <div class="latent-prototype">
+            <div class="latent-prototype-head">
+              <span>1,262 unique films / one picker selected</span>
+              <select id="latent-picker-select" aria-label="Choose picker for latent spotlight">
+                <option>Christopher Nolan</option><option>Barry Jenkins</option><option>Mary Harron</option><option>John Waters</option>
+              </select>
+            </div>
+            <div class="latent-canvas-wrap">
+              <canvas id="latent-spotlight-canvas" aria-label="Illustrative film embedding map with one picker highlighted"></canvas>
+              <div class="latent-canvas-key"><span>All Closet films</span><span class="red">Selected picker</span></div>
+              <div class="latent-readout" id="latent-spotlight-readout">CHRISTOPHER NOLAN · 31 UNIQUE FILMS · 6 SEMANTIC REGIONS · Widest reach: formal systems ↔ human realism</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="latent-example" id="latent-overlap">
+          <div class="latent-copy">
+            <span>02 / Best for comparison</span>
+            <h3>Multi-picker overlay</h3>
+            <p>
+              Place two or three pickers on the same stable map. Each person
+              receives a color; films selected by multiple active people get a
+              dark ring rather than being duplicated.
+            </p>
+            <dl>
+              <div><dt>Best for</dt><dd>Finding common territory, isolated preferences, and unexpected semantic adjacency.</dd></div>
+              <div><dt>Interaction</dt><dd>Toggle people on and off; click a shared film to see exactly who chose it.</dd></div>
+              <div><dt>Tradeoff</dt><dd>Three active pickers is the practical maximum before color becomes difficult to read.</dd></div>
+            </dl>
+          </div>
+          <div class="latent-prototype">
+            <div class="latent-prototype-head"><span>Shared coordinate system / up to three pickers</span><span>Ring = shared exact pick</span></div>
+            <div class="latent-canvas-wrap">
+              <canvas id="latent-overlap-canvas" aria-label="Illustrative film embedding map comparing multiple pickers"></canvas>
+              <div class="overlay-controls" aria-label="Toggle picker overlays">
+                <button class="overlay-toggle active" data-overlay-picker="Christopher Nolan" type="button">Nolan</button>
+                <button class="overlay-toggle active" data-overlay-picker="Barry Jenkins" type="button">Jenkins</button>
+                <button class="overlay-toggle" data-overlay-picker="John Waters" type="button">Waters</button>
+              </div>
+              <div class="latent-canvas-key"><span class="red">Nolan</span><span class="blue">Jenkins</span><span class="yellow">Waters</span><span>Unselected context</span></div>
+              <div class="latent-readout" id="latent-overlap-readout">NOLAN × JENKINS · 8 exact shared films · strongest shared region: dialogue-driven human realism</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="latent-example" id="latent-islands">
+          <div class="latent-copy">
+            <span>03 / Best global overview</span>
+            <h3>Semantic islands</h3>
+            <p>
+              Add density fields and plain-language region labels to the same
+              film projection. The selected picker remains a colored overlay,
+              but the dominant visual story becomes what the films are about.
+            </p>
+            <dl>
+              <div><dt>Best for</dt><dd>Explaining what each part of the latent space represents before introducing people.</dd></div>
+              <div><dt>Interaction</dt><dd>Choose a picker, click an island, or reveal the films nearest its semantic center.</dd></div>
+              <div><dt>Tradeoff</dt><dd>Labels are editorial summaries of soft regions, never ground-truth genres.</dd></div>
+            </dl>
+          </div>
+          <div class="latent-prototype">
+            <div class="latent-prototype-head">
+              <span>Density contours / six interpreted regions</span>
+              <select id="latent-island-select" aria-label="Choose picker for semantic islands">
+                <option>Christopher Nolan</option><option>Barry Jenkins</option><option>Mary Harron</option><option>John Waters</option>
+              </select>
+            </div>
+            <div class="latent-canvas-wrap">
+              <canvas id="latent-islands-canvas" aria-label="Illustrative semantic film islands with picker overlay"></canvas>
+              <div class="latent-canvas-key"><span>All films</span><span class="red">Selected picker</span></div>
+              <div class="latent-readout" id="latent-islands-readout">CHRISTOPHER NOLAN · strongest density: formal systems · notable outlier: intimate human realism</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="latent-example" id="latent-multiples">
+          <div class="latent-copy">
+            <span>04 / Cleanest four-person scan</span>
+            <h3>Small multiples</h3>
+            <p>
+              Repeat the identical movie coordinates in four panels. Each panel
+              highlights only one picker, making distribution patterns
+              comparable without any overlapping colors.
+            </p>
+            <dl>
+              <div><dt>Best for</dt><dd>Comparing several people’s coverage patterns at once.</dd></div>
+              <div><dt>Interaction</dt><dd>Search or pin any four pickers; coordinates never shift between panels.</dd></div>
+              <div><dt>Strength</dt><dd>Less dramatic than one large map, but unusually honest and easy to scan.</dd></div>
+            </dl>
+          </div>
+          <div class="latent-prototype">
+            <div class="latent-prototype-head"><span>Synchronized coordinates / one highlight layer per panel</span><span>Same latent space × 4</span></div>
+            <div class="latent-canvas-wrap small-multiples">
+              <div class="small-map"><h4>Christopher Nolan · 31 films</h4><canvas class="latent-small-canvas" data-small-picker="Christopher Nolan" aria-label="Christopher Nolan film distribution"></canvas></div>
+              <div class="small-map"><h4>Barry Jenkins · sample distribution</h4><canvas class="latent-small-canvas" data-small-picker="Barry Jenkins" aria-label="Barry Jenkins film distribution"></canvas></div>
+              <div class="small-map"><h4>Mary Harron · sample distribution</h4><canvas class="latent-small-canvas" data-small-picker="Mary Harron" aria-label="Mary Harron film distribution"></canvas></div>
+              <div class="small-map"><h4>John Waters · sample distribution</h4><canvas class="latent-small-canvas" data-small-picker="John Waters" aria-label="John Waters film distribution"></canvas></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="latent-example" id="latent-neighbors">
+          <div class="latent-copy">
+            <span>05 / Best film discovery view</span>
+            <h3>Film neighborhood</h3>
+            <p>
+              Stop showing the whole universe once a film is selected. Place
+              the anchor poster beside its nearest semantic neighbors, exact
+              vector scores, and the pickers who led you into that region.
+            </p>
+            <dl>
+              <div><dt>Best for</dt><dd>Turning the embedding into useful “if you like this, explore these” navigation.</dd></div>
+              <div><dt>Interaction</dt><dd>Select a film, then recenter on any neighboring poster.</dd></div>
+              <div><dt>Strength</dt><dd>Most concrete and cinematic; it exposes the value of the latent space without requiring users to read a scatterplot.</dd></div>
+            </dl>
+          </div>
+          <div class="latent-prototype">
+            <div class="latent-prototype-head">
+              <span>Local vector neighborhood / exact cosine ranking</span>
+              <select id="neighbor-film-select" aria-label="Choose anchor film">
+                <option>Stalker</option><option>Mulholland Dr.</option><option>Pather Panchali</option>
+              </select>
+            </div>
+            <div class="latent-canvas-wrap neighbor-lens">
+              <div class="neighbor-anchor">
+                <img id="neighbor-anchor-image" src="https://s3.amazonaws.com/criterion-production/films/a2edcc26e1eab799429c48ff7067cee7/E0TPdmb6xXiqaiuPmArJq90hdAs3xV_small.jpg" alt="Stalker cover" />
+                <small>Anchor film / Andrei Tarkovsky · 1979</small>
+                <h4 id="neighbor-anchor-title">Stalker</h4>
+              </div>
+              <div class="neighbor-grid" id="neighbor-grid"></div>
+            </div>
+          </div>
+        </article>
+      </section>
 
       <section class="shortlist" id="shortlist">
         <div class="shortlist-head">
@@ -2318,6 +3043,411 @@
       ];
       const colors = ["#ef3b2d", "#2454ff", "#259b62", "#9e5ac7"];
 
+      const latentCenters = [
+        { x: 0.18, y: 0.25, label: "DREAM LOGIC" },
+        { x: 0.47, y: 0.18, label: "FORMAL SYSTEMS" },
+        { x: 0.78, y: 0.28, label: "HUMAN REALISM" },
+        { x: 0.26, y: 0.7, label: "HISTORICAL MEMORY" },
+        { x: 0.58, y: 0.67, label: "GENRE WORLDS" },
+        { x: 0.82, y: 0.78, label: "POETIC OBSERVATION" },
+      ];
+
+      function latentRandom(seed) {
+        const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+        return value - Math.floor(value);
+      }
+
+      const latentPoints = Array.from({ length: 1262 }, (_, index) => {
+        const cluster = index % latentCenters.length;
+        const center = latentCenters[cluster];
+        const angle = latentRandom(index + 1) * Math.PI * 2;
+        const radius = Math.sqrt(latentRandom(index + 97));
+        const horizontal = 0.105 + latentRandom(cluster + 9) * 0.035;
+        const vertical = 0.09 + latentRandom(cluster + 19) * 0.035;
+        return {
+          cluster,
+          index,
+          x: Math.max(0.035, Math.min(0.965, center.x + Math.cos(angle) * radius * horizontal)),
+          y: Math.max(0.055, Math.min(0.945, center.y + Math.sin(angle) * radius * vertical)),
+        };
+      });
+
+      function createPickerFilmSet(count, step, offset, shared = []) {
+        const set = new Set(shared);
+        let cursor = offset;
+        while (set.size < count) {
+          set.add(cursor % latentPoints.length);
+          cursor += step;
+        }
+        return set;
+      }
+
+      const nolanJenkinsShared = [0, 73, 146, 219, 292, 365, 438, 511];
+      const latentPickerFilms = {
+        "Christopher Nolan": createPickerFilmSet(31, 37, 0, nolanJenkinsShared),
+        "Barry Jenkins": createPickerFilmSet(38, 43, 11, nolanJenkinsShared),
+        "Mary Harron": createPickerFilmSet(34, 53, 7, [0, 292]),
+        "John Waters": createPickerFilmSet(36, 61, 19, [146, 438]),
+      };
+      const latentPickerColors = {
+        "Christopher Nolan": "#ef3b2d",
+        "Barry Jenkins": "#2454ff",
+        "Mary Harron": "#18a776",
+        "John Waters": "#f4d719",
+      };
+
+      function prepareLatentCanvas(canvas) {
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return null;
+        const scale = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, Math.floor(rect.width * scale));
+        canvas.height = Math.max(1, Math.floor(rect.height * scale));
+        const context = canvas.getContext("2d");
+        context.setTransform(scale, 0, 0, scale, 0, 0);
+        context.clearRect(0, 0, rect.width, rect.height);
+        return { context, width: rect.width, height: rect.height };
+      }
+
+      function pointPosition(point, width, height) {
+        return { x: point.x * width, y: point.y * height };
+      }
+
+      function drawLatentGrid(context, width, height) {
+        context.fillStyle = "#e8e5dc";
+        context.fillRect(0, 0, width, height);
+        context.strokeStyle = "rgba(0,0,0,.05)";
+        context.lineWidth = 1;
+        for (let x = 0; x < width; x += 36) {
+          context.beginPath();
+          context.moveTo(x, 0);
+          context.lineTo(x, height);
+          context.stroke();
+        }
+        for (let y = 0; y < height; y += 36) {
+          context.beginPath();
+          context.moveTo(0, y);
+          context.lineTo(width, y);
+          context.stroke();
+        }
+      }
+
+      function drawLatentContext(context, width, height, radius = 1.3) {
+        context.fillStyle = "rgba(9,9,9,.2)";
+        latentPoints.forEach((point) => {
+          const position = pointPosition(point, width, height);
+          context.beginPath();
+          context.arc(position.x, position.y, radius, 0, Math.PI * 2);
+          context.fill();
+        });
+      }
+
+      function convexHull(points) {
+        if (points.length <= 3) return points;
+        const sorted = [...points].sort(
+          (left, right) => left.x - right.x || left.y - right.y,
+        );
+        const cross = (origin, left, right) =>
+          (left.x - origin.x) * (right.y - origin.y) -
+          (left.y - origin.y) * (right.x - origin.x);
+        const lower = [];
+        for (const point of sorted) {
+          while (
+            lower.length >= 2 &&
+            cross(lower.at(-2), lower.at(-1), point) <= 0
+          ) {
+            lower.pop();
+          }
+          lower.push(point);
+        }
+        const upper = [];
+        for (const point of [...sorted].reverse()) {
+          while (
+            upper.length >= 2 &&
+            cross(upper.at(-2), upper.at(-1), point) <= 0
+          ) {
+            upper.pop();
+          }
+          upper.push(point);
+        }
+        lower.pop();
+        upper.pop();
+        return lower.concat(upper);
+      }
+
+      function drawPickerHull(context, positions, color) {
+        const hull = convexHull(positions);
+        if (hull.length < 3) return;
+        context.beginPath();
+        hull.forEach((point, index) =>
+          index
+            ? context.lineTo(point.x, point.y)
+            : context.moveTo(point.x, point.y),
+        );
+        context.closePath();
+        context.fillStyle = `${color}18`;
+        context.strokeStyle = `${color}99`;
+        context.lineWidth = 1.5;
+        context.fill();
+        context.stroke();
+      }
+
+      function drawSelectedPicker(
+        context,
+        width,
+        height,
+        picker,
+        color = "#ef3b2d",
+        withHull = false,
+      ) {
+        const selected = [...latentPickerFilms[picker]].map(
+          (index) => latentPoints[index],
+        );
+        const positions = selected.map((point) =>
+          pointPosition(point, width, height),
+        );
+        if (withHull) drawPickerHull(context, positions, color);
+        context.fillStyle = color;
+        positions.forEach((position, index) => {
+          context.beginPath();
+          context.arc(position.x, position.y, index < 3 ? 4.8 : 3.6, 0, Math.PI * 2);
+          context.fill();
+          context.strokeStyle = "#090909";
+          context.lineWidth = 0.7;
+          context.stroke();
+        });
+      }
+
+      function pickerRegionCount(picker) {
+        return new Set(
+          [...latentPickerFilms[picker]].map(
+            (index) => latentPoints[index].cluster,
+          ),
+        ).size;
+      }
+
+      function drawLatentSpotlight() {
+        const canvas = document.querySelector("#latent-spotlight-canvas");
+        const setup = prepareLatentCanvas(canvas);
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const picker = document.querySelector("#latent-picker-select").value;
+        drawLatentGrid(context, width, height);
+        drawLatentContext(context, width, height);
+        drawSelectedPicker(context, width, height, picker, "#ef3b2d", true);
+        document.querySelector("#latent-spotlight-readout").textContent =
+          `${picker.toUpperCase()} · ${latentPickerFilms[picker].size} UNIQUE FILMS · ${pickerRegionCount(picker)} SEMANTIC REGIONS · red is a temporary picker lens, not a film category`;
+      }
+
+      function activeOverlayPickers() {
+        return [...document.querySelectorAll(".overlay-toggle.active")].map(
+          (button) => button.dataset.overlayPicker,
+        );
+      }
+
+      function drawLatentOverlap() {
+        const canvas = document.querySelector("#latent-overlap-canvas");
+        const setup = prepareLatentCanvas(canvas);
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const active = activeOverlayPickers();
+        drawLatentGrid(context, width, height);
+        drawLatentContext(context, width, height, 1.1);
+        latentPoints.forEach((point) => {
+          const owners = active.filter((picker) =>
+            latentPickerFilms[picker].has(point.index),
+          );
+          if (!owners.length) return;
+          const position = pointPosition(point, width, height);
+          context.beginPath();
+          context.arc(position.x, position.y, owners.length > 1 ? 5 : 3.7, 0, Math.PI * 2);
+          context.fillStyle = latentPickerColors[owners[0]];
+          context.fill();
+          context.strokeStyle = owners.length > 1 ? "#090909" : "rgba(0,0,0,.45)";
+          context.lineWidth = owners.length > 1 ? 2.6 : 0.7;
+          context.stroke();
+          if (owners.length > 1) {
+            context.beginPath();
+            context.arc(position.x, position.y, 1.5, 0, Math.PI * 2);
+            context.fillStyle = "#fff";
+            context.fill();
+          }
+        });
+        let shared = 0;
+        if (active.length > 1) {
+          for (let index = 0; index < latentPoints.length; index += 1) {
+            if (active.every((picker) => latentPickerFilms[picker].has(index))) {
+              shared += 1;
+            }
+          }
+        }
+        document.querySelector("#latent-overlap-readout").textContent =
+          active.length
+            ? `${active.map((picker) => picker.toUpperCase()).join(" × ")} · ${shared} FILMS SHARED BY EVERY ACTIVE PICKER · DARK RING = EXACT SHARED PICK`
+            : "Select at least one picker to draw an overlay.";
+      }
+
+      function drawLatentIslands() {
+        const canvas = document.querySelector("#latent-islands-canvas");
+        const setup = prepareLatentCanvas(canvas);
+        if (!setup) return;
+        const { context, width, height } = setup;
+        const picker = document.querySelector("#latent-island-select").value;
+        context.fillStyle = "#e8e5dc";
+        context.fillRect(0, 0, width, height);
+        const islandColors = [
+          "#ef3b2d",
+          "#2454ff",
+          "#f4d719",
+          "#18a776",
+          "#9857c7",
+          "#80e7e0",
+        ];
+        latentCenters.forEach((center, index) => {
+          const x = center.x * width;
+          const y = center.y * height;
+          const radius = Math.min(width, height) * 0.18;
+          const gradient = context.createRadialGradient(x, y, 4, x, y, radius);
+          gradient.addColorStop(0, `${islandColors[index]}70`);
+          gradient.addColorStop(0.48, `${islandColors[index]}2f`);
+          gradient.addColorStop(1, `${islandColors[index]}00`);
+          context.fillStyle = gradient;
+          context.beginPath();
+          context.arc(x, y, radius, 0, Math.PI * 2);
+          context.fill();
+          context.fillStyle = "rgba(9,9,9,.56)";
+          context.font = "700 10px Courier New";
+          context.textAlign = "center";
+          context.fillText(center.label, x, y - radius * 0.58);
+        });
+        drawLatentContext(context, width, height, 1.1);
+        drawSelectedPicker(context, width, height, picker, "#ef3b2d", false);
+        const counts = latentCenters.map((_, cluster) =>
+          [...latentPickerFilms[picker]].filter(
+            (index) => latentPoints[index].cluster === cluster,
+          ).length,
+        );
+        const strongest = counts.indexOf(Math.max(...counts));
+        document.querySelector("#latent-islands-readout").textContent =
+          `${picker.toUpperCase()} · STRONGEST DENSITY: ${latentCenters[strongest].label} · REGION NAMES INTERPRET SOFT DENSITY, NOT HARD GENRES`;
+      }
+
+      function drawLatentSmallMultiples() {
+        document.querySelectorAll(".latent-small-canvas").forEach((canvas) => {
+          const setup = prepareLatentCanvas(canvas);
+          if (!setup) return;
+          const { context, width, height } = setup;
+          const picker = canvas.dataset.smallPicker;
+          drawLatentGrid(context, width, height);
+          drawLatentContext(context, width, height, 0.85);
+          drawSelectedPicker(
+            context,
+            width,
+            height,
+            picker,
+            latentPickerColors[picker],
+            false,
+          );
+        });
+      }
+
+      const neighborData = {
+        "Stalker": {
+          anchor: "https://s3.amazonaws.com/criterion-production/films/a2edcc26e1eab799429c48ff7067cee7/E0TPdmb6xXiqaiuPmArJq90hdAs3xV_small.jpg",
+          meta: "Andrei Tarkovsky · 1979",
+          neighbors: [
+            ["Solaris", "https://s3.amazonaws.com/criterion-production/films/647527e5987ba1f01e714df49e95acdb/caQS8NJz8DXvLNcdgnxxZJn7pZtC6l_small.jpg", 93, "metaphysical journey"],
+            ["Mirror", "https://s3.amazonaws.com/criterion-production/films/729ba8bd7f066bab750d2fe963d37a77/AkLHyvTrDxSGVlvGaZdkHkuH9fSd0x_small.jpg", 89, "memory + poetic form"],
+            ["La Jetée", "https://s3.amazonaws.com/criterion-production/films/f9bc69af02563341dba8e0a6db6bbfd3/3iLUICpBi7lKd4Pqn6fSlnywM2twOb_small.jpg", 86, "time + philosophical sci-fi"],
+            ["Sans Soleil", "https://s3.amazonaws.com/criterion-production/films/f27a539b178b573b2418ee124fd57ab6/874EPPBMGZCjznsow8oBCpaphHkTPK_small.jpg", 83, "essay film + memory"],
+          ],
+        },
+        "Mulholland Dr.": {
+          anchor: "https://s3.amazonaws.com/criterion-production/films/dfdd32ea78dc954d8cef1b54e34acbf0/sCfUtouYZPKwTEfBNRMEntUVk572AT_small.jpg",
+          meta: "David Lynch · 2001",
+          neighbors: [
+            ["Lost Highway", "https://s3.amazonaws.com/criterion-production/films/a406cf1876f68e821e1242b31b72c5de/STItnM0YCOhRjkbk50fCGHlj4gjjci_small.jpg", 94, "identity + dream logic"],
+            ["Persona", "https://s3.amazonaws.com/criterion-production/films/d5c135c95f58e74e2ee28cb92659bafd/DoD5SlisIFjKyi0zucupnwj2B3ADGy_small.jpg", 88, "fractured identity"],
+            ["3 Women", "https://s3.amazonaws.com/criterion-production/films/75466150cfc0b49b10f051e0c239f3fc/1rrp8R9m37AAxe9ctq9TFKwyYOQ8jW_small.jpg", 86, "surreal doubling"],
+            ["Eraserhead", "https://s3.amazonaws.com/criterion-production/films/c834dedcc911ec34cb90bdefd315542e/nqPw4QXPXZp3mgcIFcvR9BL0mW2obB_small.jpg", 84, "nightmare + alienation"],
+          ],
+        },
+        "Pather Panchali": {
+          anchor: "https://s3.amazonaws.com/criterion-production/films/23ccfeaeb65bdd4286a7e7c6d25358cc/93jvZ2Ir3y2yMF3GPgNuDpnia3lDZh_small.jpg",
+          meta: "Satyajit Ray · 1955",
+          neighbors: [
+            ["Aparajito", "https://s3.amazonaws.com/criterion-production/films/4ff67e257c5508dc05db478f1dbde96c/8GCE6Cx9bXU7RWmOxe8sAzgLISwMeX_small.jpg", 96, "family + continuation"],
+            ["Apur Sansar", "https://s3.amazonaws.com/criterion-production/films/d0a5a4515e021437cc61ea3e1d222187/15ItH9PsTaxYE8ifVgWN06wTyfoLIj_small.jpg", 94, "coming of age + family"],
+            ["Tokyo Story", "https://s3.amazonaws.com/criterion-production/films/1b44282b21475545ef56e2aea1b0b19f/LZF1cBQOkP5xsioO5gvLA3sqEk7g0y_small.jpg", 87, "generational realism"],
+            ["Late Spring", "https://s3.amazonaws.com/criterion-production/films/b36c368d289d0dead068cd8a35524d59/75M2sRH7tFJjp4gxf1QNvLDp3qA8CS_small.jpg", 84, "intimacy + social change"],
+          ],
+        },
+      };
+
+      function buildNeighborLens() {
+        const title = document.querySelector("#neighbor-film-select").value;
+        const entry = neighborData[title];
+        const image = document.querySelector("#neighbor-anchor-image");
+        image.src = entry.anchor;
+        image.alt = `${title} cover`;
+        document.querySelector("#neighbor-anchor-title").textContent = title;
+        document.querySelector(".neighbor-anchor small").textContent =
+          `Anchor film / ${entry.meta}`;
+        const grid = document.querySelector("#neighbor-grid");
+        grid.replaceChildren();
+        entry.neighbors.forEach(([neighborTitle, poster, score, reason]) => {
+          const card = document.createElement("article");
+          card.className = "neighbor-card";
+          card.innerHTML = `
+            <img src="${poster}" alt="${neighborTitle} cover" />
+            <div>
+              <b>${neighborTitle}</b>
+              <span>${score}% cosine similarity</span>
+              <small>${reason}</small>
+            </div>
+          `;
+          grid.append(card);
+        });
+      }
+
+      function drawLatentAll() {
+        drawLatentSpotlight();
+        drawLatentOverlap();
+        drawLatentIslands();
+        drawLatentSmallMultiples();
+      }
+
+      document.querySelectorAll(".latent-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".latent-tab").forEach((item) => {
+            item.classList.remove("active");
+            item.setAttribute("aria-selected", "false");
+          });
+          document.querySelectorAll(".latent-example").forEach((item) =>
+            item.classList.remove("active")
+          );
+          tab.classList.add("active");
+          tab.setAttribute("aria-selected", "true");
+          document.querySelector(`#${tab.dataset.latent}`).classList.add("active");
+          drawLatentAll();
+        });
+      });
+
+      document
+        .querySelector("#latent-picker-select")
+        .addEventListener("change", drawLatentSpotlight);
+      document
+        .querySelector("#latent-island-select")
+        .addEventListener("change", drawLatentIslands);
+      document
+        .querySelector("#neighbor-film-select")
+        .addEventListener("change", buildNeighborLens);
+      document.querySelectorAll(".overlay-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+          button.classList.toggle("active");
+          drawLatentOverlap();
+        });
+      });
+
       document.querySelectorAll(".short-tab").forEach((tab) => {
         tab.addEventListener("click", () => {
           document.querySelectorAll(".short-tab").forEach((item) => {
@@ -2752,8 +3882,13 @@
 
       buildShortMatrix();
       buildPairwise();
+      buildNeighborLens();
+      drawLatentAll();
       drawAll();
-      window.addEventListener("resize", drawAll);
+      window.addEventListener("resize", () => {
+        drawLatentAll();
+        drawAll();
+      });
     </script>
   </body>
 </html>

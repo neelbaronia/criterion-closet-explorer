@@ -219,6 +219,18 @@ test("ships a standalone semantic-map design lab", async () => {
     "utf8",
   );
   assert.match(html, /A hybrid taste vector/);
+  assert.match(html, /Picker spotlight/);
+  assert.match(html, /Multi-picker overlay/);
+  assert.match(html, /Semantic islands/);
+  assert.match(html, /Small multiples/);
+  assert.match(html, /Film neighborhood/);
+  assert.match(html, /TMDB overview/);
+  assert.match(html, /illustrative coordinates/i);
+  assert.equal((html.match(/class="latent-tab(?: active)?"/g) ?? []).length, 5);
+  assert.equal(
+    (html.match(/class="latent-example(?: active)?"/g) ?? []).length,
+    5,
+  );
   assert.match(html, /Semantic constellation/);
   assert.match(html, /Explainable match cards/);
   assert.match(html, /Prototype scores are illustrative/);
