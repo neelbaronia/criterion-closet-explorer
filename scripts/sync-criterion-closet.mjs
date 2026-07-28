@@ -7,6 +7,7 @@ const CACHE_DIR = path.join(ROOT, ".cache", "criterion");
 const DATA_DIR = path.join(ROOT, "data");
 const READER_URL = "https://r.jina.ai/";
 const refresh = process.argv.includes("--refresh");
+const refreshIndexes = refresh || process.argv.includes("--indexes");
 
 const monthNumbers = {
   Jan: "01",
@@ -124,9 +125,9 @@ async function cachedBoxsetFetch(id, url) {
   return text;
 }
 
-async function cachedJson(kind, id, url) {
+async function cachedJson(kind, id, url, force = refresh) {
   const filename = cachePath(kind, id, "json");
-  if (!refresh) {
+  if (!force) {
     try {
       return JSON.parse(await readFile(filename, "utf8"));
     } catch {
@@ -141,11 +142,17 @@ async function cachedJson(kind, id, url) {
   return payload;
 }
 
-async function cachedFetch(kind, id, url, format = "markdown") {
+async function cachedFetch(
+  kind,
+  id,
+  url,
+  format = "markdown",
+  force = refresh,
+) {
   const extension = format === "html" ? "html" : "md";
   const filename = cachePath(kind, id, extension);
 
-  if (!refresh) {
+  if (!force) {
     try {
       return await readFile(filename, "utf8");
     } catch {
@@ -415,22 +422,28 @@ async function main() {
         "index",
         "closet-picks",
         "https://www.criterion.com/closet-picks",
+        "markdown",
+        refreshIndexes,
       ),
       cachedFetch(
         "search",
         "closet-picks",
         "https://www.criterion.com/closet-picks/search",
+        "markdown",
+        refreshIndexes,
       ),
       cachedFetch(
         "browse",
         "all-films",
         "https://www.criterion.com/shop/browse/list",
         "html",
+        refreshIndexes,
       ),
       cachedJson(
         "community",
         "guests",
         "https://closetpicks.westenb.org/exports/guests.json",
+        refreshIndexes,
       ),
     ]);
 
@@ -493,6 +506,31 @@ async function main() {
   const filmPicks = [];
   const missingFilms = new Set();
   let expandedBoxsetFilms = 0;
+  const videoPublishedDates = new Map();
+  const collectionsNeedingVideoDates = matchedCollections.filter(
+    (collection) =>
+      !guestMetadata.visitsByCollection.get(collection.collectionId)
+        ?.publishedOn && collection.videoUrl?.includes("vimeo.com"),
+  );
+  await mapLimit(collectionsNeedingVideoDates, 4, async (collection) => {
+    const videoId = collection.videoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+    if (!videoId) return;
+    try {
+      const metadata = await cachedJson(
+        "vimeo",
+        videoId,
+        `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(collection.videoUrl)}`,
+      );
+      const publishedOn = metadata.upload_date?.slice(0, 10);
+      if (publishedOn) {
+        videoPublishedDates.set(collection.collectionId, publishedOn);
+      }
+    } catch (error) {
+      console.warn(
+        `Could not resolve the Vimeo release date for collection ${collection.collectionId}: ${error}`,
+      );
+    }
+  });
 
   for (const collection of matchedCollections) {
     const visit = collection.visit;
@@ -504,7 +542,11 @@ async function main() {
       criterionUrl: collection.sourceUrl,
       picker: collection.picker,
       pickerImage: visit?.image ?? "",
-      publishedOn: published?.publishedOn || visit?.recordedOn || "",
+      publishedOn:
+        published?.publishedOn ||
+        videoPublishedDates.get(collection.collectionId) ||
+        visit?.recordedOn ||
+        "",
       recordedOn: visit?.recordedOn ?? "",
       title: collection.title,
       url: published?.url || collection.videoUrl || collection.sourceUrl,

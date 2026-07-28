@@ -58,11 +58,10 @@ test("server-renders the Closet Index product shell", async () => {
     html,
     /Watch Christopher Nolan&#x27;s Closet Picks interview/,
   );
-  assert.ok(
-    html.indexOf("Christopher Nolan") < html.indexOf("John Leguizamo"),
-    "Christopher Nolan's picks should render before John Leguizamo's picks",
-  );
-  assert.match(html, /5738/);
+  assert.match(html, /Matt Damon/);
+  assert.match(html, /https:\/\/vimeo\.com\/1213276700/);
+  assert.match(html, /dateTime="2026-07-16"/);
+  assert.match(html, /5749/);
   assert.match(html, /total movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
@@ -169,18 +168,18 @@ test("ships the complete generated Closet archive snapshot", async () => {
     ),
   );
 
-  assert.equal(stats.visits, 396);
-  assert.equal(stats.collections, 396);
+  assert.equal(stats.visits, 397);
+  assert.equal(stats.collections, 397);
   assert.deepEqual(stats.archiveOnlyVisits, []);
   assert.deepEqual(stats.missingFilms, []);
   assert.deepEqual(stats.unmatchedCollections, []);
   assert.equal(stats.filmPicks, films.length);
-  assert.equal(stats.filmPicks, 5_738);
+  assert.equal(stats.filmPicks, 5_749);
   assert.equal(stats.uniqueFilms, 1_262);
-  assert.equal(Object.keys(videos).length, 396);
-  assert.equal(films[0].picker, "Christopher Nolan");
-  assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-24");
-  assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-19");
+  assert.equal(Object.keys(videos).length, 397);
+  assert.equal(films[0].picker, "Matt Damon");
+  assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-27");
+  assert.equal(videos[films[0].collectionId].recordedOn, "2026-07-16");
 });
 
 test("ships a quantified and explainable picker Taste Map", async () => {
@@ -188,12 +187,12 @@ test("ships a quantified and explainable picker Taste Map", async () => {
     await readFile(new URL("../data/taste-map.json", import.meta.url), "utf8"),
   );
 
-  assert.equal(tasteMap.meta.pickerCount, 390);
+  assert.equal(tasteMap.meta.pickerCount, 391);
   assert.equal(tasteMap.meta.uniqueFilms, 1_262);
   assert.equal(tasteMap.meta.dimensions.length, 36);
   assert.equal(tasteMap.meta.filmIslands.length, 8);
   assert.ok(tasteMap.meta.filmCoverage >= 90);
-  assert.equal(tasteMap.pickers.length, 390);
+  assert.equal(tasteMap.pickers.length, 391);
   assert.ok(tasteMap.edges.length > 500);
 
   for (const film of Object.values(tasteMap.films)) {
@@ -272,4 +271,16 @@ test("ships a standalone semantic-map design lab", async () => {
   );
   assert.equal((html.match(/class="concept-tab(?: active)?"/g) ?? []).length, 12);
   assert.equal((html.match(/class="concept(?: active)?"/g) ?? []).length, 12);
+});
+
+test("checks the live Closet archive on a six-hour schedule", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/refresh-closet.yml", import.meta.url),
+    "utf8",
+  );
+  assert.match(workflow, /cron: "17 \*\/6 \* \* \*"/);
+  assert.match(workflow, /npm run data:sync:indexes/);
+  assert.match(workflow, /npm run data:taste/);
+  assert.match(workflow, /npm test/);
+  assert.match(workflow, /git push origin HEAD:main/);
 });

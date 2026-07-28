@@ -7,7 +7,7 @@ to live streaming-availability searches.
 The repository includes:
 
 - a responsive, searchable film table
-- 5,738 movie-pick rows covering 1,262 unique films from 396 published
+- 5,749 movie-pick rows covering 1,262 unique films from 397 published
   Closet pick lists
 - box-set picks expanded into the individual films Criterion lists in each set
 - poster artwork and verified U.S. subscription availability across Criterion
@@ -64,7 +64,13 @@ Refresh the snapshot from Criterion’s current archive with:
 npm run data:sync
 ```
 
-The sync reads Criterion’s official visit archive, all 396 published collection
+GitHub Actions also refreshes the live Criterion indexes every six hours. It
+reuses cached collection metadata, rebuilds portraits and semantic profiles only
+when `films.json` or `closet-videos.json` changes, runs the full test suite, and
+commits verified data updates to `main`. The workflow can also be run manually
+from the Actions tab.
+
+The sync reads Criterion’s official visit archive, all 397 published collection
 pages, the complete film browse list, and selected box-set contents. It writes
 the film picks, interview metadata, and audit counts to `data/`. The generated
 audit currently has no unmatched visits, collection pages, or film records.
