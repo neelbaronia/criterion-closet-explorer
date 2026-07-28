@@ -75,7 +75,7 @@ type ProjectedFilm = {
 
 type ViewMode = "islands" | "spotlight";
 
-const data = tasteMapData as unknown as TasteData;
+const initialData = tasteMapData as unknown as TasteData;
 const islandColors = [
   "#ff4b37",
   "#6e82ff",
@@ -87,8 +87,8 @@ const islandColors = [
   "#ff9d52",
 ];
 const defaultPicker =
-  data.pickers.find((picker) => picker.name === "Christopher Nolan") ??
-  data.pickers[0];
+  initialData.pickers.find((picker) => picker.name === "Christopher Nolan") ??
+  initialData.pickers[0];
 const initialCamera: Camera = {
   pitch: -0.04,
   x: 0,
@@ -125,10 +125,11 @@ export default function SemanticIslandsPage() {
     y: 0,
   });
   const [renderTick, setRenderTick] = useState(0);
+  const [data, setData] = useState(initialData);
   const [cameraDisplay, setCameraDisplay] = useState(initialCamera);
   const [selectedPickerId, setSelectedPickerId] = useState(defaultPicker.id);
   const [selectedFilmId, setSelectedFilmId] = useState(
-    defaultPicker.filmIds[0] ?? Object.keys(data.films)[0],
+    defaultPicker.filmIds[0] ?? Object.keys(initialData.films)[0],
   );
   const [hoveredFilmId, setHoveredFilmId] = useState("");
   const [selectedIsland, setSelectedIsland] = useState("all");
@@ -137,7 +138,7 @@ export default function SemanticIslandsPage() {
 
   const pickerById = useMemo(
     () => new Map(data.pickers.map((picker) => [picker.id, picker])),
-    [],
+    [data.pickers],
   );
   const selectedPicker =
     pickerById.get(selectedPickerId) ?? data.pickers[0];
@@ -145,7 +146,7 @@ export default function SemanticIslandsPage() {
     () => new Set(selectedPicker.filmIds),
     [selectedPicker],
   );
-  const filmEntries = useMemo(() => Object.entries(data.films), []);
+  const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
   const pickerMembership = useMemo(() => {
     const membership = new Map<string, string[]>();
     for (const picker of data.pickers) {
@@ -156,7 +157,7 @@ export default function SemanticIslandsPage() {
       }
     }
     return membership;
-  }, []);
+  }, [data.pickers]);
   const selectedFilm = data.films[selectedFilmId];
   const hoveredFilm = hoveredFilmId ? data.films[hoveredFilmId] : undefined;
 
@@ -184,7 +185,34 @@ export default function SemanticIslandsPage() {
       if (film) counts[film.island] += 1;
     }
     return counts;
-  }, [selectedPicker]);
+  }, [data.films, data.meta.filmIslands.length, selectedPicker]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/taste-data", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`${response.status}`);
+        return response.json();
+      })
+      .then((payload) => {
+        if (
+          payload?.meta?.dimensions?.length ===
+            initialData.meta.dimensions.length &&
+          payload?.pickers?.length >= initialData.pickers.length
+        ) {
+          setData(payload);
+        }
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.warn(
+            "Using the bundled 3D semantic-map snapshot.",
+            error,
+          );
+        }
+      });
+    return () => controller.abort();
+  }, []);
 
   const updateView = () => {
     setCameraDisplay({ ...cameraRef.current });
@@ -531,6 +559,7 @@ export default function SemanticIslandsPage() {
     resizeObserver.observe(canvas);
     return () => resizeObserver.disconnect();
   }, [
+    data.meta.filmIslands,
     filmEntries,
     hoveredFilmId,
     renderTick,

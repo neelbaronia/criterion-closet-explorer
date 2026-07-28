@@ -64,7 +64,7 @@ type TasteData = {
   pickers: Picker[];
 };
 
-const data = tasteMapData as unknown as TasteData;
+const initialData = tasteMapData as unknown as TasteData;
 const clusterColors = [
   "#ef3b2d",
   "#2454ff",
@@ -76,8 +76,8 @@ const clusterColors = [
   "#785b3a",
 ];
 const defaultPickerId =
-  data.pickers.find((picker) => picker.name === "Christopher Nolan")?.id ??
-  data.pickers[0].id;
+  initialData.pickers.find((picker) => picker.name === "Christopher Nolan")
+    ?.id ?? initialData.pickers[0].id;
 
 function formattedDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -89,6 +89,7 @@ function formattedDate(value: string) {
 
 export default function TasteMapPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [data, setData] = useState(initialData);
   const [selectedId, setSelectedId] = useState(defaultPickerId);
   const [compareId, setCompareId] = useState(
     data.matches[defaultPickerId]?.[0]?.id ?? "",
@@ -101,7 +102,7 @@ export default function TasteMapPage() {
 
   const pickersById = useMemo(
     () => new Map(data.pickers.map((picker) => [picker.id, picker])),
-    [],
+    [data.pickers],
   );
   const selected = pickersById.get(selectedId) ?? data.pickers[0];
   const visiblePickers = useMemo(
@@ -109,7 +110,7 @@ export default function TasteMapPage() {
       cluster === "all"
         ? data.pickers
         : data.pickers.filter((picker) => picker.cluster === Number(cluster)),
-    [cluster],
+    [cluster, data.pickers],
   );
   const visibleIds = useMemo(
     () => new Set(visiblePickers.map((picker) => picker.id)),
@@ -129,7 +130,13 @@ export default function TasteMapPage() {
         ),
       }))
       .sort((left, right) => right.adjustedScore - left.adjustedScore);
-  }, [directorWeight, overlapWeight, selected.id, semanticWeight]);
+  }, [
+    data.matches,
+    directorWeight,
+    overlapWeight,
+    selected.id,
+    semanticWeight,
+  ]);
 
   const comparison =
     adjustedMatches.find((match) => match.id === compareId) ??
@@ -137,6 +144,30 @@ export default function TasteMapPage() {
   const comparedPicker = comparison
     ? pickersById.get(comparison.id)
     : undefined;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/taste-data", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`${response.status}`);
+        return response.json();
+      })
+      .then((payload) => {
+        if (
+          payload?.meta?.dimensions?.length ===
+            initialData.meta.dimensions.length &&
+          payload?.pickers?.length >= initialData.pickers.length
+        ) {
+          setData(payload);
+        }
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.warn("Using the bundled Taste Map snapshot.", error);
+        }
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -260,7 +291,14 @@ export default function TasteMapPage() {
     const resizeObserver = new ResizeObserver(draw);
     resizeObserver.observe(canvas);
     return () => resizeObserver.disconnect();
-  }, [cluster, hoveredId, selected.id, visiblePickers]);
+  }, [
+    cluster,
+    data.edges,
+    data.meta.clusters,
+    hoveredId,
+    selected.id,
+    visiblePickers,
+  ]);
 
   function pickerAt(event: MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;

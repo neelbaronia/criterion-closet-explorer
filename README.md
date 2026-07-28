@@ -70,6 +70,12 @@ when `films.json` or `closet-videos.json` changes, runs the full test suite, and
 commits verified data updates to `main`. The workflow can also be run manually
 from the Actions tab.
 
+The deployed explorer reads those verified JSON snapshots from `main` through
+`/api/archive` and `/api/taste-data`. Responses are cached for up to 15 minutes,
+so a successful scheduled update reaches the existing deployment without a new
+site build. Bundled data remains available as a fallback if GitHub is
+temporarily unreachable.
+
 The sync reads Criterion’s official visit archive, all 397 published collection
 pages, the complete film browse list, and selected box-set contents. It writes
 the film picks, interview metadata, and audit counts to `data/`. The generated

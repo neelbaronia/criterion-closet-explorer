@@ -284,3 +284,28 @@ test("checks the live Closet archive on a six-hour schedule", async () => {
   assert.match(workflow, /npm test/);
   assert.match(workflow, /git push origin HEAD:main/);
 });
+
+test("loads verified main-branch snapshots without a site redeploy", async () => {
+  const [home, tasteMap, semanticIslands, archiveRoute, tasteRoute] =
+    await Promise.all([
+      readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/taste-map/page.tsx", import.meta.url), "utf8"),
+      readFile(
+        new URL("../app/semantic-islands/page.tsx", import.meta.url),
+        "utf8",
+      ),
+      readFile(new URL("../app/api/archive/route.ts", import.meta.url), "utf8"),
+      readFile(
+        new URL("../app/api/taste-data/route.ts", import.meta.url),
+        "utf8",
+      ),
+    ]);
+
+  assert.match(home, /fetch\("\/api\/archive"/);
+  assert.match(tasteMap, /fetch\("\/api\/taste-data"/);
+  assert.match(semanticIslands, /fetch\("\/api\/taste-data"/);
+  assert.match(archiveRoute, /criterion-closet-explorer\/main\/data/);
+  assert.match(tasteRoute, /criterion-closet-explorer\/main\/data/);
+  assert.match(archiveRoute, /s-maxage=900/);
+  assert.match(tasteRoute, /s-maxage=900/);
+});

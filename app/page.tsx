@@ -46,48 +46,14 @@ type SortField =
 type SortDirection = "asc" | "desc";
 const pageSize = 100;
 
-const films = filmsData as unknown as Film[];
-const peopleImages = peopleData as Record<string, string>;
-const closetVideos = closetVideosData as Record<string, ClosetVideo>;
+const initialFilms = filmsData as unknown as Film[];
+const initialPeopleImages = peopleData as Record<string, string>;
+const initialClosetVideos = closetVideosData as Record<string, ClosetVideo>;
 const streamingAvailability = streamingAvailabilityData as {
   region: string;
   checkedOn: string;
   titles: Record<string, Availability>;
 };
-const closetReleaseScores = new Map(
-  Object.entries(closetVideos)
-    .sort(([, a], [, b]) =>
-      (a.publishedOn || a.recordedOn).localeCompare(
-        b.publishedOn || b.recordedOn,
-      ),
-    )
-    .map(([collectionId], index) => [collectionId, index + 1]),
-);
-const moviePickCollections = new Map<string, Set<string>>();
-const directorPickCollections = new Map<string, Set<string>>();
-for (const film of films) {
-  const movieCollections =
-    moviePickCollections.get(film.filmId) ?? new Set<string>();
-  movieCollections.add(film.collectionId);
-  moviePickCollections.set(film.filmId, movieCollections);
-
-  const directorCollections =
-    directorPickCollections.get(film.director) ?? new Set<string>();
-  directorCollections.add(film.collectionId);
-  directorPickCollections.set(film.director, directorCollections);
-}
-const moviePickCounts = new Map(
-  [...moviePickCollections].map(([filmId, collections]) => [
-    filmId,
-    collections.size,
-  ]),
-);
-const directorPickCounts = new Map(
-  [...directorPickCollections].map(([director, collections]) => [
-    director,
-    collections.size,
-  ]),
-);
 const verifiedAvailabilityCount = Object.keys(
   streamingAvailability.titles,
 ).length;
@@ -140,20 +106,28 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function closetReleaseScore(film: Film) {
-  return closetReleaseScores.get(film.collectionId) ?? 0;
+function closetReleaseScore(film: Film, scores: Map<string, number>) {
+  return scores.get(film.collectionId) ?? 0;
 }
 
-function moviePickCount(film: Film) {
-  return moviePickCounts.get(film.filmId) ?? 0;
+function moviePickCount(film: Film, counts: Map<string, number>) {
+  return counts.get(film.filmId) ?? 0;
 }
 
-function directorPickCount(film: Film) {
-  return directorPickCounts.get(film.director) ?? 0;
+function directorPickCount(film: Film, counts: Map<string, number>) {
+  return counts.get(film.director) ?? 0;
 }
 
-function PersonAvatar({ image, name }: { image?: string; name: string }) {
-  const source = image || peopleImages[name];
+function PersonAvatar({
+  fallbackImage,
+  image,
+  name,
+}: {
+  fallbackImage?: string;
+  image?: string;
+  name: string;
+}) {
+  const source = image || fallbackImage;
   return (
     <span
       className={`person-avatar${source ? "" : " person-avatar--initials"}`}
@@ -178,6 +152,11 @@ function PersonAvatar({ image, name }: { image?: string; name: string }) {
 }
 
 export default function Home() {
+  const [archive, setArchive] = useState({
+    closetVideos: initialClosetVideos,
+    films: initialFilms,
+    peopleImages: initialPeopleImages,
+  });
   const [query, setQuery] = useState("");
   const [picker, setPicker] = useState("All closet pickers");
   const [director, setDirector] = useState("All directors");
@@ -187,13 +166,57 @@ export default function Home() {
     useState<SortDirection>("desc");
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const searchRef = useRef<HTMLInputElement>(null);
+  const { closetVideos, films, peopleImages } = archive;
+
+  const closetReleaseScores = useMemo(
+    () =>
+      new Map(
+        Object.entries(closetVideos)
+          .sort(([, a], [, b]) =>
+            (a.publishedOn || a.recordedOn).localeCompare(
+              b.publishedOn || b.recordedOn,
+            ),
+          )
+          .map(([collectionId], index) => [collectionId, index + 1]),
+      ),
+    [closetVideos],
+  );
+
+  const { directorPickCounts, moviePickCounts } = useMemo(() => {
+    const movieCollections = new Map<string, Set<string>>();
+    const directorCollections = new Map<string, Set<string>>();
+    for (const film of films) {
+      const movieSet =
+        movieCollections.get(film.filmId) ?? new Set<string>();
+      movieSet.add(film.collectionId);
+      movieCollections.set(film.filmId, movieSet);
+      const directorSet =
+        directorCollections.get(film.director) ?? new Set<string>();
+      directorSet.add(film.collectionId);
+      directorCollections.set(film.director, directorSet);
+    }
+    return {
+      directorPickCounts: new Map(
+        [...directorCollections].map(([name, collections]) => [
+          name,
+          collections.size,
+        ]),
+      ),
+      moviePickCounts: new Map(
+        [...movieCollections].map(([filmId, collections]) => [
+          filmId,
+          collections.size,
+        ]),
+      ),
+    };
+  }, [films]);
 
   const pickers = useMemo(
     () =>
       [...new Set(films.map((film) => film.picker))].sort((a, b) =>
         a.localeCompare(b),
       ),
-    [],
+    [films],
   );
 
   const directors = useMemo(
@@ -201,7 +224,7 @@ export default function Home() {
       [...new Set(films.map((film) => film.director))].sort((a, b) =>
         a.localeCompare(b),
       ),
-    [],
+    [films],
   );
 
   const decades = useMemo(
@@ -217,7 +240,7 @@ export default function Home() {
       ].sort(
         (a, b) => b - a,
       ),
-    [],
+    [films],
   );
 
   const filteredFilms = useMemo(() => {
@@ -245,28 +268,36 @@ export default function Home() {
     return results.sort((a, b) => {
       let comparison = 0;
       if (sortField === "moviePicks") {
-        comparison = moviePickCount(a) - moviePickCount(b);
+        comparison =
+          moviePickCount(a, moviePickCounts) -
+          moviePickCount(b, moviePickCounts);
         if (comparison !== 0) {
           return sortDirection === "asc" ? comparison : -comparison;
         }
         return (
           a.title.localeCompare(b.title) ||
-          closetReleaseScore(b) - closetReleaseScore(a)
+          closetReleaseScore(b, closetReleaseScores) -
+          closetReleaseScore(a, closetReleaseScores)
         );
       }
       if (sortField === "directorPicks") {
-        comparison = directorPickCount(a) - directorPickCount(b);
+        comparison =
+          directorPickCount(a, directorPickCounts) -
+          directorPickCount(b, directorPickCounts);
         if (comparison !== 0) {
           return sortDirection === "asc" ? comparison : -comparison;
         }
         return (
           a.director.localeCompare(b.director) ||
           a.title.localeCompare(b.title) ||
-          closetReleaseScore(b) - closetReleaseScore(a)
+          closetReleaseScore(b, closetReleaseScores) -
+          closetReleaseScore(a, closetReleaseScores)
         );
       }
       if (sortField === "closet") {
-        comparison = closetReleaseScore(a) - closetReleaseScore(b);
+        comparison =
+          closetReleaseScore(a, closetReleaseScores) -
+          closetReleaseScore(b, closetReleaseScores);
       }
       if (sortField === "title") comparison = a.title.localeCompare(b.title);
       if (sortField === "year") {
@@ -280,7 +311,18 @@ export default function Home() {
       }
       return sortDirection === "asc" ? comparison : -comparison;
     });
-  }, [decade, director, picker, query, sortDirection, sortField]);
+  }, [
+    closetReleaseScores,
+    decade,
+    director,
+    directorPickCounts,
+    films,
+    moviePickCounts,
+    picker,
+    query,
+    sortDirection,
+    sortField,
+  ]);
 
   const filtersActive =
     Boolean(query) ||
@@ -298,6 +340,35 @@ export default function Home() {
     }
     window.addEventListener("keydown", focusSearch);
     return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/archive", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`${response.status}`);
+        return response.json();
+      })
+      .then((payload) => {
+        if (
+          Array.isArray(payload.films) &&
+          payload.films.length >= initialFilms.length &&
+          payload.videos &&
+          payload.people
+        ) {
+          setArchive({
+            closetVideos: payload.videos,
+            films: payload.films,
+            peopleImages: payload.people,
+          });
+        }
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.warn("Using the bundled Closet archive snapshot.", error);
+        }
+      });
+    return () => controller.abort();
   }, []);
 
   function clearFilters() {
@@ -534,7 +605,8 @@ export default function Home() {
                           <strong>{film.title}</strong>
                           {sortField === "moviePicks" && (
                             <span className="hall-of-fame-count">
-                              {moviePickCount(film)} Closet picks
+                              {moviePickCount(film, moviePickCounts)} Closet
+                              picks
                             </span>
                           )}
                         </span>
@@ -542,12 +614,19 @@ export default function Home() {
                       <td className="year-cell">{film.year ?? "—"}</td>
                       <td className="director-cell">
                         <div className="person-entry">
-                          <PersonAvatar name={film.director} />
+                          <PersonAvatar
+                            fallbackImage={peopleImages[film.director]}
+                            name={film.director}
+                          />
                           <span className="ranked-metadata">
                             <span>{film.director}</span>
                             {sortField === "directorPicks" && (
                               <span className="hall-of-fame-count">
-                                {directorPickCount(film)} Closet picks
+                                {directorPickCount(
+                                  film,
+                                  directorPickCounts,
+                                )}{" "}
+                                Closet picks
                               </span>
                             )}
                           </span>
@@ -556,6 +635,7 @@ export default function Home() {
                       <td className="picker-cell">
                         <div className="person-entry">
                           <PersonAvatar
+                            fallbackImage={peopleImages[film.picker]}
                             image={video?.pickerImage}
                             name={film.picker}
                           />
