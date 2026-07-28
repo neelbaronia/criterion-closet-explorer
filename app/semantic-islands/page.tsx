@@ -762,7 +762,7 @@ export default function SemanticIslandsPage() {
       <section className={styles.titleBar}>
         <div>
           <span>Live map / Criterion Genome PCA</span>
-          <h1>3D Semantic Islands</h1>
+          <h1>Semantic Mappings</h1>
         </div>
         <p>
           Fly through {data.meta.uniqueFilms.toLocaleString()} films. Nearby

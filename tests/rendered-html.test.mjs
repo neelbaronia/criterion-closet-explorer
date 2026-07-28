@@ -90,7 +90,7 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>3D Semantic Islands — The Closet Index<\/title>/i);
-  assert.match(html, /3D Semantic Islands/);
+  assert.match(html, /Semantic Mappings/);
   assert.match(html, /PC1/);
   assert.match(html, /PC2/);
   assert.match(html, /PC3/);
