@@ -1,6 +1,6 @@
 "use client";
+/* eslint-disable @next/next/no-html-link-for-pages -- View switches use full navigation so the large archive route cannot stall an RSC transition. */
 
-import Link from "next/link";
 import {
   KeyboardEvent,
   MouseEvent,
@@ -751,11 +751,11 @@ export default function SemanticIslandsPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link href="/">[ C—INDEX ]</Link>
+        <a href="/">[ C—INDEX ]</a>
         <span>Film latent space / three axes</span>
         <nav aria-label="Explorer views">
-          <Link href="/">Film table</Link>
-          <Link href="/taste-map">2D taste map</Link>
+          <a href="/">Film table</a>
+          <a href="/taste-map">2D taste map</a>
         </nav>
       </header>
 

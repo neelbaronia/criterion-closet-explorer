@@ -1,8 +1,8 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Picker portraits are remote Criterion archive data. */
+/* eslint-disable @next/next/no-html-link-for-pages -- View switches use full navigation so the large archive route cannot stall an RSC transition. */
 
 import { MouseEvent, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import tasteMapData from "../../data/taste-map.json";
 import styles from "./taste-map.module.css";
 
@@ -337,14 +337,14 @@ export default function TasteMapPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link href="/">[ C—INDEX ]</Link>
+        <a href="/">[ C—INDEX ]</a>
         <span>Criterion Genome / quantified taste map</span>
         <nav>
-          <Link href="/semantic-islands">3D islands</Link>
+          <a href="/semantic-islands">3D islands</a>
           <a href="/semantic-map-designs.html" target="_blank" rel="noreferrer">
             Design study
           </a>
-          <Link href="/">Film table ↗</Link>
+          <a href="/">Film table ↗</a>
         </nav>
       </header>
 

@@ -131,6 +131,8 @@ test("keeps 3D map navigation legible and off the React render loop", async () =
   assert.match(component, /keys\.has\("arrowdown"\)\) camera\.pitch -= look/);
   assert.match(component, /island\.count >= 40/);
   assert.match(component, /Every major cluster is labeled/);
+  assert.match(component, /<a href="\/">Film table<\/a>/);
+  assert.doesNotMatch(component, /import Link from "next\/link"/);
   assert.doesNotMatch(
     component,
     /setRenderTick|setCameraDisplay|shadowBlur|Picker spotlight|viewMode/,
