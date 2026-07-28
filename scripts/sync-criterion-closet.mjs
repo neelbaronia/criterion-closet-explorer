@@ -432,7 +432,14 @@ async function main() {
   await mkdir(DATA_DIR, { recursive: true });
 
   console.log("Fetching official archive indexes...");
-  const [indexMarkdown, searchMarkdown, browseHtml, trackedVideos] =
+  const [
+    indexMarkdown,
+    searchMarkdown,
+    browseHtml,
+    trackedVideos,
+    trackedFilmPicks,
+    trackedStats,
+  ] =
     await Promise.all([
       cachedFetch(
         "index",
@@ -456,6 +463,10 @@ async function main() {
         refreshIndexes,
       ),
       readFile(path.join(DATA_DIR, "closet-videos.json"), "utf8").then(
+        JSON.parse,
+      ),
+      readFile(path.join(DATA_DIR, "films.json"), "utf8").then(JSON.parse),
+      readFile(path.join(DATA_DIR, "archive-stats.json"), "utf8").then(
         JSON.parse,
       ),
     ]);
@@ -491,20 +502,37 @@ async function main() {
     const bId = Number(b.match(/collection\/(\d+)/)?.[1] ?? 0);
     return bId - aId;
   });
+  const incremental = refreshIndexes && !refresh;
+  const trackedCollectionIds = new Set(Object.keys(trackedVideos));
+  const collectionUrlsToFetch = incremental
+    ? collectionUrls.filter((url) => {
+        const collectionId = url.match(/collection\/(\d+)/)?.[1];
+        return collectionId && !trackedCollectionIds.has(collectionId);
+      })
+    : collectionUrls;
   const browseFilms = parseBrowseFilms(browseHtml);
 
   console.log(
-    `Found ${visits.length} visits, ${collectionUrls.length} collections, and ${browseFilms.size} Criterion film records.`,
+    `Found ${visits.length} visits, ${collectionUrls.length} collections (${collectionUrlsToFetch.length} to fetch), and ${browseFilms.size} Criterion film records.`,
   );
 
-  const collections = await mapLimit(collectionUrls, 8, async (url, index) => {
-    const id = url.match(/collection\/(\d+)/)?.[1];
-    const document = await cachedFetch("collection", id, url, "html");
-    if ((index + 1) % 20 === 0 || index + 1 === collectionUrls.length) {
-      console.log(`Fetched ${index + 1}/${collectionUrls.length} collections`);
-    }
-    return parseCollectionDocument(document, url);
-  });
+  const collections = await mapLimit(
+    collectionUrlsToFetch,
+    8,
+    async (url, index) => {
+      const id = url.match(/collection\/(\d+)/)?.[1];
+      const document = await cachedFetch("collection", id, url, "html");
+      if (
+        (index + 1) % 20 === 0 ||
+        index + 1 === collectionUrlsToFetch.length
+      ) {
+        console.log(
+          `Fetched ${index + 1}/${collectionUrlsToFetch.length} collections`,
+        );
+      }
+      return parseCollectionDocument(document, url);
+    },
+  );
 
   const matchedCollections = matchVisits(collections, visits);
   const boxsetUrls = [
@@ -529,10 +557,41 @@ async function main() {
     }),
   );
 
-  const closetVideos = {};
-  const filmPicks = [];
+  const liveCollectionIds = new Set(
+    collectionUrls
+      .map((url) => url.match(/collection\/(\d+)/)?.[1])
+      .filter(Boolean),
+  );
+  const closetVideos = incremental
+    ? Object.fromEntries(
+        Object.entries(trackedVideos).filter(([collectionId]) =>
+          liveCollectionIds.has(collectionId),
+        ),
+      )
+    : {};
+  const filmPicks = incremental
+    ? trackedFilmPicks.filter((film) =>
+        liveCollectionIds.has(film.collectionId),
+      )
+    : [];
   const missingFilms = new Set();
-  let expandedBoxsetFilms = 0;
+  let expandedBoxsetFilms = incremental
+    ? trackedStats.expandedBoxsetFilms
+    : 0;
+
+  if (incremental) {
+    for (const [collectionId, previous] of Object.entries(closetVideos)) {
+      const published = guestMetadata.visitsByCollection.get(
+        collectionId,
+      );
+      closetVideos[collectionId] = {
+        ...previous,
+        publishedOn: published?.publishedOn || previous.publishedOn,
+        url: published?.url || previous.url,
+      };
+    }
+  }
+
   const videoPublishedDates = new Map();
   const collectionsNeedingVideoDates = matchedCollections.filter(
     (collection) =>
@@ -621,23 +680,29 @@ async function main() {
     (collection) => !collection.visit,
   );
   const matchedVisitTitles = new Set(
-    matchedCollections
-      .map((collection) => collection.visit?.title)
+    Object.values(closetVideos)
+      .map((video) => video.title)
       .filter(Boolean),
   );
   const archiveOnlyVisits = visits.filter(
     (visit) => !matchedVisitTitles.has(visit.title),
   );
+  const archiveChanged =
+    JSON.stringify(filmPicks) !== JSON.stringify(trackedFilmPicks) ||
+    JSON.stringify(closetVideos) !== JSON.stringify(trackedVideos);
   const stats = {
     archiveOnlyVisits: archiveOnlyVisits.map((visit) => ({
       picker: visit.picker,
       recordedOn: visit.recordedOn,
       title: visit.title,
     })),
-    collections: collections.length,
+    collections: collectionUrls.length,
     expandedBoxsetFilms,
     filmPicks: filmPicks.length,
-    generatedOn: new Date().toISOString(),
+    generatedOn:
+      incremental && !archiveChanged
+        ? trackedStats.generatedOn
+        : new Date().toISOString(),
     missingFilms: [...missingFilms],
     unmatchedCollections: unmatchedCollections.map((collection) => ({
       collectionId: collection.collectionId,
@@ -664,7 +729,7 @@ async function main() {
   ]);
 
   console.log(
-    `Wrote ${filmPicks.length} movie picks covering ${stats.uniqueFilms} unique films across ${collections.length} Closet collections.`,
+    `Wrote ${filmPicks.length} movie picks covering ${stats.uniqueFilms} unique films across ${collectionUrls.length} Closet collections.`,
   );
   if (missingFilms.size) {
     console.warn(`Skipped ${missingFilms.size} film URLs missing from browse data.`);
