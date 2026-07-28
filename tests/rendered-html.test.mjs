@@ -127,7 +127,10 @@ test("keeps 3D map navigation legible and off the React render loop", async () =
     component,
     /Number\(keys\.has\("w"\)\) - Number\(keys\.has\("s"\)\)/,
   );
-  assert.match(component, /camera\.pitch -= look/);
+  assert.match(component, /keys\.has\("arrowup"\)\) camera\.pitch \+= look/);
+  assert.match(component, /keys\.has\("arrowdown"\)\) camera\.pitch -= look/);
+  assert.match(component, /island\.count >= 40/);
+  assert.match(component, /Every major cluster is labeled/);
   assert.doesNotMatch(
     component,
     /setRenderTick|setCameraDisplay|shadowBlur|Picker spotlight|viewMode/,

@@ -240,8 +240,8 @@ export default function SemanticIslandsPage() {
 
     if (keys.has("arrowleft")) camera.yaw -= look;
     if (keys.has("arrowright")) camera.yaw += look;
-    if (keys.has("arrowup")) camera.pitch -= look;
-    if (keys.has("arrowdown")) camera.pitch += look;
+    if (keys.has("arrowup")) camera.pitch += look;
+    if (keys.has("arrowdown")) camera.pitch -= look;
     camera.pitch = clamp(camera.pitch, -1.12, 1.12);
     const forward =
       Number(keys.has("w")) - Number(keys.has("s"));
@@ -616,37 +616,119 @@ export default function SemanticIslandsPage() {
         }
       }
 
-      data.meta.filmIslands.forEach((island, index) => {
-        if (selectedIsland !== "all" && Number(selectedIsland) !== index) {
-          return;
-        }
-        const center = project(
-          filmWorld({
-            director: "",
-            island: index,
-            title: "",
-            wikipediaUrl: "",
-            x: island.center[0],
-            y: island.center[1],
-            year: null,
-            z: island.center[2],
-          }),
-        );
-        if (!center) return;
-        const label = island.name.toUpperCase();
-        context.font = "600 11px monospace";
+      const majorClusterLabels = data.meta.filmIslands
+        .map((island, index) => ({
+          center: project(
+            filmWorld({
+              director: "",
+              island: index,
+              title: "",
+              wikipediaUrl: "",
+              x: island.center[0],
+              y: island.center[1],
+              year: null,
+              z: island.center[2],
+            }),
+          ),
+          index,
+          island,
+        }))
+        .filter(
+          ({ center, index, island }) =>
+            center !== undefined &&
+            center.x > -100 &&
+            center.x < bounds.width + 100 &&
+            center.y > -100 &&
+            center.y < bounds.height + 100 &&
+            (island.count >= 40 || selectedIsland === String(index)) &&
+            (selectedIsland === "all" || selectedIsland === String(index)),
+        )
+        .sort((left, right) => right.island.count - left.island.count);
+      const placedLabels: {
+        bottom: number;
+        left: number;
+        right: number;
+        top: number;
+      }[] = [];
+      const labelOffsets = [
+        [0, -42],
+        [0, 18],
+        [-80, -42],
+        [80, -42],
+        [-80, 18],
+        [80, 18],
+        [0, -68],
+        [0, 44],
+      ];
+
+      for (const { center, index, island } of majorClusterLabels) {
+        if (!center) continue;
+        const label =
+          `${island.name.toUpperCase()} · ${island.count} FILMS`;
+        context.font = "600 10px monospace";
         context.textAlign = "center";
-        const labelWidth = context.measureText(label).width;
-        context.fillStyle = "rgba(247,245,238,.9)";
+        const labelWidth = context.measureText(label).width + 14;
+        const labelHeight = 20;
+        let box = {
+          bottom: center.y - 22,
+          left: center.x - labelWidth / 2,
+          right: center.x + labelWidth / 2,
+          top: center.y - 42,
+        };
+        for (const [offsetX, offsetY] of labelOffsets) {
+          const left = clamp(
+            center.x + offsetX - labelWidth / 2,
+            6,
+            Math.max(6, bounds.width - labelWidth - 6),
+          );
+          const top = clamp(
+            center.y + offsetY,
+            6,
+            Math.max(6, bounds.height - labelHeight - 6),
+          );
+          const candidate = {
+            bottom: top + labelHeight,
+            left,
+            right: left + labelWidth,
+            top,
+          };
+          const overlaps = placedLabels.some(
+            (placed) =>
+              candidate.left < placed.right + 6 &&
+              candidate.right + 6 > placed.left &&
+              candidate.top < placed.bottom + 6 &&
+              candidate.bottom + 6 > placed.top,
+          );
+          box = candidate;
+          if (!overlaps) break;
+        }
+        placedLabels.push(box);
+
+        const labelCenterX = (box.left + box.right) / 2;
+        const labelEdgeY = box.top > center.y ? box.top : box.bottom;
+        context.strokeStyle = `${islandColors[index]}99`;
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(center.x, center.y);
+        context.lineTo(labelCenterX, labelEdgeY);
+        context.stroke();
+        context.fillStyle = "rgba(247,245,238,.96)";
         context.fillRect(
-          center.x - labelWidth / 2 - 5,
-          center.y - 31,
-          labelWidth + 10,
-          17,
+          box.left,
+          box.top,
+          box.right - box.left,
+          labelHeight,
+        );
+        context.strokeStyle = islandColors[index];
+        context.strokeRect(
+          box.left,
+          box.top,
+          box.right - box.left,
+          labelHeight,
         );
         context.fillStyle = "#111113";
-        context.fillText(label, center.x, center.y - 19);
-      });
+        context.fillText(label, labelCenterX, box.top + 13);
+      }
     }
 
     drawFrameRef.current = draw;
@@ -734,8 +816,8 @@ export default function SemanticIslandsPage() {
           <div className={styles.mapLegend}>
             <b>Semantic islands + PCA axes</b>
             <span>
-              Color shows a film’s cluster. PC1, PC2, and PC3 provide a fixed
-              frame while you rotate and travel.
+              Color shows a film’s cluster. Every major cluster is labeled;
+              PC1, PC2, and PC3 preserve orientation.
             </span>
           </div>
           <div ref={coordinatesRef} className={styles.coordinates}>
