@@ -674,9 +674,6 @@ export default function SemanticIslandsPage() {
         <nav aria-label="Explorer views">
           <Link href="/">Film table</Link>
           <Link href="/taste-map">2D taste map</Link>
-          <a href="/semantic-map-designs.html" target="_blank" rel="noreferrer">
-            Design lab
-          </a>
         </nav>
       </header>
 

@@ -95,6 +95,7 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /PC2/);
   assert.match(html, /PC3/);
   assert.doesNotMatch(html, /Picker spotlight/);
+  assert.doesNotMatch(html, /Design lab/);
   assert.match(html, /arrow keys/i);
   assert.match(html, /Criterion Genome PCA/);
   assert.match(html, /not yet an OpenAI text-embedding projection/i);
