@@ -175,7 +175,7 @@
 }
 
 .viewport {
-  background: var(--black);
+  background: #efede5;
   border-right: 1px solid var(--ink);
   height: min(74vh, 760px);
   min-height: 570px;
@@ -207,7 +207,7 @@
 
 .crosshair::before,
 .crosshair::after {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(17, 17, 19, 0.38);
   content: "";
   left: 50%;
   position: absolute;
@@ -228,9 +228,10 @@
 .coordinates,
 .focusPrompt,
 .hoverCard,
-.keyGuide {
-  background: rgba(8, 8, 10, 0.78);
-  color: #aaa;
+.keyGuide,
+.mapLegend {
+  background: rgba(247, 245, 238, 0.9);
+  color: #575751;
   font-family: var(--font-mono), monospace;
   font-size: 7px;
   letter-spacing: 0.05em;
@@ -240,22 +241,46 @@
 }
 
 .coordinates {
+  bottom: 48px;
   left: 14px;
   padding: 7px;
-  top: 14px;
 }
 
 .focusPrompt {
-  border: 1px solid #555;
-  color: white;
+  border: 1px solid #8e8c84;
+  color: var(--ink);
   padding: 8px 10px;
   right: 14px;
   top: 14px;
 }
 
 .focusPrompt.focused {
-  border-color: var(--yellow);
-  color: var(--yellow);
+  background: var(--yellow);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.mapLegend {
+  left: 14px;
+  max-width: 350px;
+  padding: 10px 12px;
+  position: absolute;
+  top: 14px;
+}
+
+.mapLegend b,
+.mapLegend span {
+  display: block;
+}
+
+.mapLegend b {
+  color: var(--ink);
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.mapLegend span {
+  line-height: 1.45;
 }
 
 .hoverCard {
@@ -273,7 +298,7 @@
 }
 
 .hoverCard b {
-  color: white;
+  color: var(--ink);
   font-family: var(--font-sans), sans-serif;
   font-size: 12px;
   letter-spacing: 0;
@@ -285,6 +310,7 @@
 }
 
 .keyGuide {
+  border-top: 1px solid rgba(17, 17, 19, 0.14);
   align-items: center;
   bottom: 0;
   display: flex;
@@ -292,6 +318,12 @@
   left: 0;
   padding: 11px 14px;
   right: 0;
+}
+
+.keyGuide kbd {
+  background: white;
+  border-color: #aaa79d;
+  color: var(--ink);
 }
 
 .keyGuide span {

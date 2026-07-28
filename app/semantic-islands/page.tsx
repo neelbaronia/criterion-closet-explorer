@@ -6,6 +6,7 @@ import {
   MouseEvent,
   PointerEvent,
   WheelEvent,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -77,24 +78,24 @@ type ViewMode = "islands" | "spotlight";
 
 const initialData = tasteMapData as unknown as TasteData;
 const islandColors = [
-  "#ff4b37",
-  "#6e82ff",
-  "#1bd6a2",
-  "#c979ff",
-  "#ffd924",
-  "#ff79b9",
-  "#42d8ec",
-  "#ff9d52",
+  "#d9472f",
+  "#365ed1",
+  "#078764",
+  "#8e46ae",
+  "#aa7900",
+  "#bc3f77",
+  "#187d91",
+  "#bd641f",
 ];
 const defaultPicker =
   initialData.pickers.find((picker) => picker.name === "Christopher Nolan") ??
   initialData.pickers[0];
 const initialCamera: Camera = {
-  pitch: -0.04,
+  pitch: -0.1,
   x: 0,
-  y: 0,
-  yaw: 0,
-  z: -1_480,
+  y: -20,
+  yaw: -0.12,
+  z: -1_350,
 };
 
 function filmWorld(film: Film) {
@@ -115,7 +116,13 @@ function formatYear(year: number | null) {
 
 export default function SemanticIslandsPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const coordinatesRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<Camera>({ ...initialCamera });
+  const drawFrameRef = useRef<() => void>(() => undefined);
+  const drawRequestRef = useRef<number | null>(null);
+  const keyboardFrameRef = useRef<number | null>(null);
+  const keyboardTimeRef = useRef(0);
+  const pressedKeysRef = useRef(new Set<string>());
   const projectedRef = useRef<ProjectedFilm[]>([]);
   const pointerRef = useRef({
     dragging: false,
@@ -124,16 +131,14 @@ export default function SemanticIslandsPage() {
     x: 0,
     y: 0,
   });
-  const [renderTick, setRenderTick] = useState(0);
   const [data, setData] = useState(initialData);
-  const [cameraDisplay, setCameraDisplay] = useState(initialCamera);
   const [selectedPickerId, setSelectedPickerId] = useState(defaultPicker.id);
   const [selectedFilmId, setSelectedFilmId] = useState(
     defaultPicker.filmIds[0] ?? Object.keys(initialData.films)[0],
   );
   const [hoveredFilmId, setHoveredFilmId] = useState("");
   const [selectedIsland, setSelectedIsland] = useState("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("spotlight");
+  const [viewMode, setViewMode] = useState<ViewMode>("islands");
   const [hasFocus, setHasFocus] = useState(false);
 
   const pickerById = useMemo(
@@ -147,6 +152,15 @@ export default function SemanticIslandsPage() {
     [selectedPicker],
   );
   const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
+  const filmPoints = useMemo(
+    () =>
+      filmEntries.map(([id, film]) => ({
+        film,
+        id,
+        world: filmWorld(film),
+      })),
+    [filmEntries],
+  );
   const pickerMembership = useMemo(() => {
     const membership = new Map<string, string[]>();
     for (const picker of data.pickers) {
@@ -214,14 +228,23 @@ export default function SemanticIslandsPage() {
     return () => controller.abort();
   }, []);
 
-  const updateView = () => {
-    setCameraDisplay({ ...cameraRef.current });
-    setRenderTick((value) => value + 1);
-  };
+  const requestDraw = useCallback(() => {
+    if (drawRequestRef.current !== null) return;
+    drawRequestRef.current = window.requestAnimationFrame(() => {
+      drawRequestRef.current = null;
+      drawFrameRef.current();
+      const camera = cameraRef.current;
+      if (coordinatesRef.current) {
+        coordinatesRef.current.textContent =
+          `X ${Math.round(camera.x)} · Y ${Math.round(camera.y)} · ` +
+          `Z ${Math.round(camera.z)}`;
+      }
+    });
+  }, []);
 
   function resetCamera() {
     cameraRef.current = { ...initialCamera };
-    updateView();
+    requestDraw();
   }
 
   function focusPicker() {
@@ -246,36 +269,43 @@ export default function SemanticIslandsPage() {
       yaw: 0,
       z: center.z / films.length - 1_000,
     };
-    updateView();
+    requestDraw();
   }
 
-  function moveCamera(key: string) {
+  function animateKeyboard(timestamp: number) {
+    const keys = pressedKeysRef.current;
+    if (!keys.size) {
+      keyboardFrameRef.current = null;
+      keyboardTimeRef.current = 0;
+      return;
+    }
+
     const camera = cameraRef.current;
-    const step = 85;
-    if (key === "ArrowLeft") camera.yaw -= 0.1;
-    if (key === "ArrowRight") camera.yaw += 0.1;
-    if (key === "ArrowUp") {
-      camera.x += Math.sin(camera.yaw) * step;
-      camera.z += Math.cos(camera.yaw) * step;
-    }
-    if (key === "ArrowDown") {
-      camera.x -= Math.sin(camera.yaw) * step;
-      camera.z -= Math.cos(camera.yaw) * step;
-    }
-    if (key.toLowerCase() === "a") {
-      camera.x -= Math.cos(camera.yaw) * step;
-      camera.z += Math.sin(camera.yaw) * step;
-    }
-    if (key.toLowerCase() === "d") {
-      camera.x += Math.cos(camera.yaw) * step;
-      camera.z -= Math.sin(camera.yaw) * step;
-    }
-    if (key.toLowerCase() === "w") camera.y += 65;
-    if (key.toLowerCase() === "s") camera.y -= 65;
-    if (key.toLowerCase() === "f") focusPicker();
-    if (key === " ") resetCamera();
-    camera.pitch = clamp(camera.pitch, -1.12, 1.12);
-    updateView();
+    const elapsed = keyboardTimeRef.current
+      ? Math.min((timestamp - keyboardTimeRef.current) / 1_000, 0.04)
+      : 0;
+    keyboardTimeRef.current = timestamp;
+    const turn = 1.35 * elapsed;
+    const travel = 470 * elapsed;
+    const vertical = 360 * elapsed;
+
+    if (keys.has("arrowleft")) camera.yaw -= turn;
+    if (keys.has("arrowright")) camera.yaw += turn;
+    const forward =
+      Number(keys.has("arrowup")) - Number(keys.has("arrowdown"));
+    const strafe = Number(keys.has("d")) - Number(keys.has("a"));
+    camera.x +=
+      (Math.sin(camera.yaw) * forward +
+        Math.cos(camera.yaw) * strafe) *
+      travel;
+    camera.z +=
+      (Math.cos(camera.yaw) * forward -
+        Math.sin(camera.yaw) * strafe) *
+      travel;
+    camera.y +=
+      (Number(keys.has("w")) - Number(keys.has("s"))) * vertical;
+    requestDraw();
+    keyboardFrameRef.current = window.requestAnimationFrame(animateKeyboard);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLCanvasElement>) {
@@ -298,20 +328,57 @@ export default function SemanticIslandsPage() {
     ];
     if (!controlledKeys.includes(event.key)) return;
     event.preventDefault();
-    moveCamera(event.key);
+    const key = event.key.toLowerCase();
+    if (key === "f") {
+      if (!event.repeat) focusPicker();
+      return;
+    }
+    if (key === " ") {
+      if (!event.repeat) resetCamera();
+      return;
+    }
+    pressedKeysRef.current.add(key);
+    if (keyboardFrameRef.current === null) {
+      keyboardFrameRef.current =
+        window.requestAnimationFrame(animateKeyboard);
+    }
   }
+
+  function handleKeyUp(event: KeyboardEvent<HTMLCanvasElement>) {
+    pressedKeysRef.current.delete(event.key.toLowerCase());
+  }
+
+  function stopKeyboardMotion() {
+    pressedKeysRef.current.clear();
+    keyboardTimeRef.current = 0;
+    if (keyboardFrameRef.current !== null) {
+      window.cancelAnimationFrame(keyboardFrameRef.current);
+      keyboardFrameRef.current = null;
+    }
+  }
+
+  useEffect(
+    () => () => {
+      if (drawRequestRef.current !== null) {
+        window.cancelAnimationFrame(drawRequestRef.current);
+      }
+      if (keyboardFrameRef.current !== null) {
+        window.cancelAnimationFrame(keyboardFrameRef.current);
+      }
+    },
+    [],
+  );
 
   function hitTest(event: MouseEvent<HTMLCanvasElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
-    return [...projectedRef.current]
-      .reverse()
-      .map((point) => ({
-        ...point,
-        distance: Math.hypot(point.screenX - x, point.screenY - y),
-      }))
-      .find((point) => point.distance <= Math.max(8, point.radius + 4));
+    for (let index = projectedRef.current.length - 1; index >= 0; index -= 1) {
+      const point = projectedRef.current[index];
+      const distance = Math.hypot(point.screenX - x, point.screenY - y);
+      if (distance <= Math.max(8, point.radius + 4)) return point;
+    }
+    return undefined;
   }
 
   function handlePointerDown(event: PointerEvent<HTMLCanvasElement>) {
@@ -340,7 +407,7 @@ export default function SemanticIslandsPage() {
       );
       pointer.x = event.clientX;
       pointer.y = event.clientY;
-      updateView();
+      requestDraw();
       return;
     }
     const film = hitTest(event);
@@ -365,7 +432,7 @@ export default function SemanticIslandsPage() {
     const amount = clamp(event.deltaY, -140, 140);
     camera.x -= Math.sin(camera.yaw) * amount;
     camera.z -= Math.cos(camera.yaw) * amount;
-    updateView();
+    requestDraw();
   }
 
   useEffect(() => {
@@ -377,16 +444,20 @@ export default function SemanticIslandsPage() {
     function draw() {
       if (!canvas || !context) return;
       const bounds = canvas.getBoundingClientRect();
-      const scale = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.floor(bounds.width * scale));
-      canvas.height = Math.max(1, Math.floor(bounds.height * scale));
+      const scale = Math.min(window.devicePixelRatio || 1, 1.5);
+      const pixelWidth = Math.max(1, Math.floor(bounds.width * scale));
+      const pixelHeight = Math.max(1, Math.floor(bounds.height * scale));
+      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+      }
       context.setTransform(scale, 0, 0, scale, 0, 0);
       context.clearRect(0, 0, bounds.width, bounds.height);
 
       const gradient = context.createLinearGradient(0, 0, 0, bounds.height);
-      gradient.addColorStop(0, "#08080b");
-      gradient.addColorStop(0.62, "#111116");
-      gradient.addColorStop(1, "#070709");
+      gradient.addColorStop(0, "#f7f5ee");
+      gradient.addColorStop(0.68, "#efede5");
+      gradient.addColorStop(1, "#e5e1d6");
       context.fillStyle = gradient;
       context.fillRect(0, 0, bounds.width, bounds.height);
 
@@ -413,65 +484,43 @@ export default function SemanticIslandsPage() {
         };
       }
 
-      context.strokeStyle = "rgba(255,255,255,.055)";
-      context.lineWidth = 1;
-      for (let ring = 180; ring <= 900; ring += 180) {
-        context.beginPath();
-        for (let step = 0; step <= 64; step += 1) {
-          const angle = (step / 64) * Math.PI * 2;
-          const projected = project({
-            x: Math.cos(angle) * ring,
-            y: 410,
-            z: Math.sin(angle) * ring,
-          });
-          if (!projected) continue;
-          if (step === 0) context.moveTo(projected.x, projected.y);
-          else context.lineTo(projected.x, projected.y);
+      const projected: {
+        chosen: boolean;
+        depth: number;
+        film: Film;
+        id: string;
+        islandVisible: boolean;
+        radius: number;
+        screenX: number;
+        screenY: number;
+      }[] = [];
+      for (const { film, id, world } of filmPoints) {
+        const screen = project(world);
+        if (
+          !screen ||
+          screen.x <= -30 ||
+          screen.x >= bounds.width + 30 ||
+          screen.y <= -30 ||
+          screen.y >= bounds.height + 30
+        ) {
+          continue;
         }
-        context.stroke();
+        const chosen = selectedPickerFilms.has(id);
+        const islandVisible =
+          selectedIsland === "all" || film.island === Number(selectedIsland);
+        const scaleByDepth = clamp(focal / screen.depth, 0.75, 2.1);
+        projected.push({
+          chosen,
+          depth: screen.depth,
+          film,
+          id,
+          islandVisible,
+          radius: (chosen ? 4.8 : 2.9) * scaleByDepth,
+          screenX: screen.x,
+          screenY: screen.y,
+        });
       }
-
-      const projected = filmEntries
-        .map(([id, film]) => {
-          const screen = project(filmWorld(film));
-          if (!screen) return undefined;
-          const chosen = selectedPickerFilms.has(id);
-          const islandVisible =
-            selectedIsland === "all" || film.island === Number(selectedIsland);
-          const scaleByDepth = clamp(focal / screen.depth, 0.3, 2.2);
-          return {
-            chosen,
-            depth: screen.depth,
-            film,
-            id,
-            islandVisible,
-            radius: (chosen ? 4.1 : 2.4) * scaleByDepth,
-            screenX: screen.x,
-            screenY: screen.y,
-          };
-        })
-        .filter(
-          (
-            point,
-          ): point is {
-            chosen: boolean;
-            depth: number;
-            film: Film;
-            id: string;
-            islandVisible: boolean;
-            radius: number;
-            screenX: number;
-            screenY: number;
-          } => Boolean(point),
-        )
-        .filter(
-          (point) =>
-            point.screenX > -30 &&
-            point.screenX < bounds.width + 30 &&
-            point.screenY > -30 &&
-            point.screenY < bounds.height + 30,
-        )
-        .sort((left, right) => right.depth - left.depth);
+      projected.sort((left, right) => right.depth - left.depth);
 
       projectedRef.current = projected.map(
         ({ depth, id, radius, screenX, screenY }) => ({
@@ -488,10 +537,10 @@ export default function SemanticIslandsPage() {
         const isHovered = point.id === hoveredFilmId;
         const fadedByPicker = viewMode === "spotlight" && !point.chosen;
         const fadedByIsland = !point.islandVisible;
-        const opacity = fadedByIsland ? 0.035 : fadedByPicker ? 0.12 : 0.92;
+        const opacity = fadedByIsland ? 0.08 : fadedByPicker ? 0.3 : 0.9;
         const color =
           viewMode === "spotlight" && point.chosen
-            ? "#ff4b37"
+            ? "#d9472f"
             : islandColors[point.film.island];
 
         context.beginPath();
@@ -505,11 +554,7 @@ export default function SemanticIslandsPage() {
         context.fillStyle = `${color}${Math.round(opacity * 255)
           .toString(16)
           .padStart(2, "0")}`;
-        context.shadowBlur =
-          !fadedByIsland && (point.chosen || isSelected) ? 14 : 0;
-        context.shadowColor = color;
         context.fill();
-        context.shadowBlur = 0;
 
         if (isSelected || (viewMode === "islands" && point.chosen)) {
           context.beginPath();
@@ -521,9 +566,9 @@ export default function SemanticIslandsPage() {
             Math.PI * 2,
           );
           context.strokeStyle = isSelected
-            ? "#ffffff"
-            : "rgba(255,255,255,.7)";
-          context.lineWidth = isSelected ? 1.6 : 0.75;
+            ? "#111113"
+            : "rgba(17,17,19,.72)";
+          context.lineWidth = isSelected ? 1.8 : 1;
           context.stroke();
         }
       }
@@ -546,23 +591,36 @@ export default function SemanticIslandsPage() {
             }),
           );
           if (!center) return;
-          context.fillStyle = islandColors[index];
-          context.font = "600 9px monospace";
+          const label = island.name.toUpperCase();
+          context.font = "600 11px monospace";
           context.textAlign = "center";
-          context.fillText(island.name.toUpperCase(), center.x, center.y - 18);
+          const labelWidth = context.measureText(label).width;
+          context.fillStyle = "rgba(247,245,238,.9)";
+          context.fillRect(
+            center.x - labelWidth / 2 - 5,
+            center.y - 31,
+            labelWidth + 10,
+            17,
+          );
+          context.fillStyle = "#111113";
+          context.fillText(label, center.x, center.y - 19);
         });
       }
     }
 
-    draw();
-    const resizeObserver = new ResizeObserver(draw);
+    drawFrameRef.current = draw;
+    requestDraw();
+    const resizeObserver = new ResizeObserver(requestDraw);
     resizeObserver.observe(canvas);
-    return () => resizeObserver.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      drawFrameRef.current = () => undefined;
+    };
   }, [
     data.meta.filmIslands,
-    filmEntries,
+    filmPoints,
     hoveredFilmId,
-    renderTick,
+    requestDraw,
     selectedFilmId,
     selectedIsland,
     selectedPickerFilms,
@@ -647,9 +705,13 @@ export default function SemanticIslandsPage() {
           <canvas
             ref={canvasRef}
             aria-label="Navigable three-dimensional semantic map of Criterion Closet films. Use arrow keys to turn and move."
-            onBlur={() => setHasFocus(false)}
+            onBlur={() => {
+              stopKeyboardMotion();
+              setHasFocus(false);
+            }}
             onFocus={() => setHasFocus(true)}
             onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
             onMouseLeave={() => setHoveredFilmId("")}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -658,9 +720,21 @@ export default function SemanticIslandsPage() {
             tabIndex={0}
           />
           <div className={styles.crosshair} aria-hidden="true" />
-          <div className={styles.coordinates}>
-            X {Math.round(cameraDisplay.x)} · Y {Math.round(cameraDisplay.y)} ·
-            Z {Math.round(cameraDisplay.z)}
+          <div className={styles.mapLegend}>
+            <b>
+              {viewMode === "spotlight"
+                ? `${selectedPicker.name} spotlight`
+                : "Semantic island colors"}
+            </b>
+            <span>
+              {viewMode === "spotlight"
+                ? "Red dots are this picker’s films; nearby dots have similar profiles."
+                : "Color shows a film’s cluster; outlined dots belong to the selected picker."}
+            </span>
+          </div>
+          <div ref={coordinatesRef} className={styles.coordinates}>
+            X {Math.round(initialCamera.x)} · Y {Math.round(initialCamera.y)} · Z{" "}
+            {Math.round(initialCamera.z)}
           </div>
           <div
             className={`${styles.focusPrompt} ${

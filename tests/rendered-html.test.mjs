@@ -98,6 +98,29 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /not yet an OpenAI text-embedding projection/i);
 });
 
+test("keeps 3D map navigation legible and off the React render loop", async () => {
+  const [component, styles] = await Promise.all([
+    readFile(
+      new URL("../app/semantic-islands/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/semantic-islands/semantic-islands.module.css",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(component, /requestAnimationFrame\(animateKeyboard\)/);
+  assert.match(component, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.5\)/);
+  assert.match(component, /const \[viewMode, setViewMode\].*"islands"/);
+  assert.match(component, /Semantic island colors/);
+  assert.doesNotMatch(component, /setRenderTick|setCameraDisplay|shadowBlur/);
+  assert.match(styles, /\.viewport\s*\{[^}]*background: #efede5/s);
+});
+
 test("returns ranked dream-list matches without requiring an API key", async () => {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("match-test", `${process.pid}-${Date.now()}`);
