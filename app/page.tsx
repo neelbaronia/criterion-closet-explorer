@@ -348,6 +348,7 @@ export default function Home() {
         </a>
         <p>Criterion Closet Picks / Unofficial database</p>
         <nav aria-label="Archive links">
+          <a href="/semantic-islands">3D islands</a>
           <a href="/design-variations.html">Design study</a>
           <a href="/taste-map" target="_blank" rel="noreferrer">
             Taste map

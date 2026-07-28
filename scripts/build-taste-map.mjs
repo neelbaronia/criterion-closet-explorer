@@ -620,6 +620,50 @@ function pcaPositions(profiles) {
   }));
 }
 
+function pcaPositions3D(profiles) {
+  const size = dimensions.length;
+  const means = Array.from({ length: size }, (_, dimensionIndex) =>
+    profiles.reduce((sum, profile) => sum + profile[dimensionIndex], 0) /
+    profiles.length,
+  );
+  const centered = profiles.map((profile) =>
+    profile.map((value, index) => value - means[index]),
+  );
+  const covariance = Array.from({ length: size }, () =>
+    new Array(size).fill(0),
+  );
+
+  for (const profile of centered) {
+    for (let row = 0; row < size; row += 1) {
+      for (let column = row; column < size; column += 1) {
+        covariance[row][column] +=
+          (profile[row] * profile[column]) / Math.max(1, profiles.length - 1);
+        covariance[column][row] = covariance[row][column];
+      }
+    }
+  }
+
+  const first = powerIteration(covariance, []);
+  const second = powerIteration(covariance, [first]);
+  const third = powerIteration(covariance, [first, second]);
+  const raw = centered.map((profile) =>
+    [first, second, third].map((axis) =>
+      profile.reduce((sum, value, index) => sum + value * axis[index], 0),
+    ),
+  );
+  const bounds = [0, 1, 2].map((axis) => {
+    const values = raw.map((point) => point[axis]).sort((a, b) => a - b);
+    return [percentile(values, 0.02), percentile(values, 0.98)];
+  });
+
+  return raw.map(([x, y, z], index) => ({
+    x: clamp((x - bounds[0][0]) / Math.max(0.001, bounds[0][1] - bounds[0][0])),
+    y: clamp((y - bounds[1][0]) / Math.max(0.001, bounds[1][1] - bounds[1][0])),
+    z: clamp((z - bounds[2][0]) / Math.max(0.001, bounds[2][1] - bounds[2][0])),
+    jitter: ((index * 7919) % 97) / 97,
+  }));
+}
+
 function kMeans(profiles, clusterCount = 8) {
   const centroids = [profiles[0].slice()];
   while (centroids.length < clusterCount) {
@@ -871,14 +915,36 @@ async function main() {
       .join(" + "),
   );
 
+  const filmPositions = pcaPositions3D(normalizedScores);
+  const {
+    assignments: filmIslandAssignments,
+    centroids: filmIslandCentroids,
+  } = kMeans(normalizedScores);
+  const filmIslandNames = filmIslandCentroids.map((centroid) =>
+    topIndices(
+      centroid.map((value, index) => value - globalMean[index]),
+      2,
+    )
+      .map((index) => dimensions[index].label)
+      .join(" + "),
+  );
+  const filmIslandCounts = new Array(filmIslandCentroids.length).fill(0);
+  filmIslandAssignments.forEach((island) => {
+    filmIslandCounts[island] += 1;
+  });
+
   const filmLookup = Object.fromEntries(
-    uniqueFilms.map((film) => [
+    uniqueFilms.map((film, index) => [
       film.filmId,
       {
         director: film.director,
+        island: filmIslandAssignments[index],
         title: film.title,
         year: film.year,
         wikipediaUrl: cache[film.filmId]?.url ?? "",
+        x: Math.round(filmPositions[index].x * 10_000) / 10_000,
+        y: Math.round(filmPositions[index].y * 10_000) / 10_000,
+        z: Math.round(filmPositions[index].z * 10_000) / 10_000,
       },
     ]),
   );
@@ -1031,6 +1097,27 @@ async function main() {
         family,
       })),
       filmCoverage: Math.round((matchedCount / uniqueFilms.length) * 100),
+      filmIslands: filmIslandNames.map((name, island) => {
+        const members = filmPositions.filter(
+          (_, index) => filmIslandAssignments[index] === island,
+        );
+        const center = ["x", "y", "z"].map(
+          (axis) =>
+            members.reduce((sum, point) => sum + point[axis], 0) /
+            Math.max(1, members.length),
+        );
+        return {
+          center: center.map((value) => Math.round(value * 10_000) / 10_000),
+          count: filmIslandCounts[island],
+          name,
+          traits: topIndices(
+            filmIslandCentroids[island].map(
+              (value, index) => value - globalMean[index],
+            ),
+            3,
+          ),
+        };
+      }),
       generatedOn: new Date().toISOString(),
       method:
         "60% dimension similarity + 25% rarity-weighted exact overlap + 15% director affinity",

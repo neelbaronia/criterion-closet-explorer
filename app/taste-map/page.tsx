@@ -302,6 +302,7 @@ export default function TasteMapPage() {
         <Link href="/">[ C—INDEX ]</Link>
         <span>Criterion Genome / quantified taste map</span>
         <nav>
+          <Link href="/semantic-islands">3D islands</Link>
           <a href="/semantic-map-designs.html" target="_blank" rel="noreferrer">
             Design study
           </a>

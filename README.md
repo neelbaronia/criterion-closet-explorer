@@ -20,6 +20,8 @@ The repository includes:
 - progressive 100-row rendering so the full archive remains fast to browse
 - an interactive picker Taste Map built from 36 quantified film dimensions,
   rare shared picks, and director affinity
+- a keyboard-navigable 3D Semantic Islands view of all 1,262 unique films,
+  with picker spotlights, island filters, and clickable film neighborhoods
 - [five complete visual directions](./public/design-variations.html) in one
   standalone HTML comparison file
 - a [twelve-direction similarity-map design lab](./public/semantic-map-designs.html)
@@ -34,7 +36,8 @@ npm run dev
 ```
 
 Then open `http://localhost:3000`. The live Taste Map is at
-`http://localhost:3000/taste-map`; the visual studies are at
+`http://localhost:3000/taste-map`; the 3D film map is at
+`http://localhost:3000/semantic-islands`; the visual studies are at
 `http://localhost:3000/design-variations.html` and
 `http://localhost:3000/semantic-map-designs.html`.
 
@@ -106,6 +109,12 @@ match. Refresh the generated profiles with:
 ```bash
 npm run data:taste
 ```
+
+The 3D view projects every film profile onto the first three principal
+components and groups the original 36-dimensional profiles into eight semantic
+islands. Click the map, then use the arrow keys to turn and travel; `A`/`D`
+strafe, `W`/`S` rise and descend, `F` focuses the selected picker, and Space
+resets the camera.
 
 The model is inspired by the continuous relevance approach of the
 [MovieLens Tag Genome](https://grouplens.org/datasets/movielens/tag-genome/),

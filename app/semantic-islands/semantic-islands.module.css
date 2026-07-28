@@ -1,0 +1,647 @@
+.page {
+  --black: #08080a;
+  --ink: #111113;
+  --paper: #f2f0e8;
+  --yellow: #f6d91c;
+  --red: #ff4b37;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.header {
+  align-items: center;
+  background: var(--black);
+  color: white;
+  display: grid;
+  font-family: var(--font-mono), monospace;
+  grid-template-columns: auto 1fr auto;
+  height: 62px;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.header a {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.header > span {
+  color: #888;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  margin-left: 30px;
+  text-transform: uppercase;
+}
+
+.header nav {
+  display: flex;
+  gap: 22px;
+}
+
+.header a:hover,
+.header a:focus-visible {
+  color: var(--yellow);
+}
+
+.titleBar {
+  align-items: end;
+  border-bottom: 1px solid var(--ink);
+  display: grid;
+  gap: 40px;
+  grid-template-columns: 1.35fr 0.65fr;
+  padding: 26px 24px 24px;
+}
+
+.titleBar span,
+.controlBar > label > span,
+.modeControl > span,
+.inspector section > span,
+.method span {
+  color: #777;
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.titleBar span {
+  color: var(--red);
+}
+
+.titleBar h1 {
+  font-size: clamp(44px, 6.8vw, 94px);
+  letter-spacing: -0.072em;
+  line-height: 0.82;
+  margin: 12px 0 0;
+  text-transform: uppercase;
+}
+
+.titleBar p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 480px;
+}
+
+.controlBar {
+  background: white;
+  border-bottom: 1px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(270px, 0.85fr) minmax(360px, 1.15fr) auto;
+  min-height: 68px;
+}
+
+.controlBar > label,
+.modeControl,
+.cameraActions {
+  border-right: 1px solid #cbc8bd;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 9px 16px;
+}
+
+.controlBar select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 6px;
+  padding: 0;
+}
+
+.modeControl > div,
+.cameraActions {
+  flex-direction: row;
+  gap: 6px;
+}
+
+.modeControl > div {
+  display: flex;
+  margin-top: 6px;
+}
+
+.modeControl button,
+.cameraActions button,
+.sourceLink {
+  background: transparent;
+  border: 1px solid #aaa;
+  color: inherit;
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  padding: 7px 9px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.modeControl button:hover,
+.cameraActions button:hover,
+.modeControl .activeButton {
+  background: var(--yellow);
+  border-color: var(--ink);
+}
+
+.cameraActions {
+  align-items: center;
+  border-right: 0;
+  padding: 12px;
+}
+
+.keyGuide kbd,
+.cameraActions kbd {
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  padding: 2px 4px;
+}
+
+.cameraActions kbd {
+  background: #eee;
+  border-color: #bbb;
+}
+
+.workspace {
+  border-bottom: 1px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.viewport {
+  background: var(--black);
+  border-right: 1px solid var(--ink);
+  height: min(74vh, 760px);
+  min-height: 570px;
+  overflow: hidden;
+  position: relative;
+}
+
+.viewport canvas {
+  display: block;
+  height: 100%;
+  outline: 0;
+  touch-action: none;
+  width: 100%;
+}
+
+.viewport canvas:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--yellow);
+}
+
+.crosshair {
+  height: 14px;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+}
+
+.crosshair::before,
+.crosshair::after {
+  background: rgba(255, 255, 255, 0.35);
+  content: "";
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair::before {
+  height: 1px;
+  width: 14px;
+}
+
+.crosshair::after {
+  height: 14px;
+  width: 1px;
+}
+
+.coordinates,
+.focusPrompt,
+.hoverCard,
+.keyGuide {
+  background: rgba(8, 8, 10, 0.78);
+  color: #aaa;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  position: absolute;
+  text-transform: uppercase;
+}
+
+.coordinates {
+  left: 14px;
+  padding: 7px;
+  top: 14px;
+}
+
+.focusPrompt {
+  border: 1px solid #555;
+  color: white;
+  padding: 8px 10px;
+  right: 14px;
+  top: 14px;
+}
+
+.focusPrompt.focused {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.hoverCard {
+  bottom: 66px;
+  left: 50%;
+  max-width: 320px;
+  padding: 10px 12px;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.hoverCard b,
+.hoverCard span {
+  display: block;
+}
+
+.hoverCard b {
+  color: white;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.hoverCard span {
+  margin-top: 4px;
+}
+
+.keyGuide {
+  align-items: center;
+  bottom: 0;
+  display: flex;
+  gap: 14px;
+  left: 0;
+  padding: 11px 14px;
+  right: 0;
+}
+
+.keyGuide span {
+  align-items: center;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.inspector {
+  background: white;
+  min-width: 0;
+  overflow: auto;
+}
+
+.inspector section {
+  border-bottom: 1px solid #cbc8bd;
+  padding: 18px;
+}
+
+.pickerSummary h2,
+.filmDetail h2 {
+  font-size: 28px;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+  margin: 9px 0 7px;
+  text-transform: uppercase;
+}
+
+.pickerSummary > p,
+.filmDetail > p {
+  color: #777;
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.pickerBars {
+  margin-top: 15px;
+}
+
+.pickerBars button {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #dedbd1;
+  display: grid;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  gap: 8px;
+  grid-template-columns: 52px 1fr 18px;
+  min-height: 32px;
+  padding: 0;
+  text-align: left;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.pickerBars button:hover span {
+  color: var(--red);
+}
+
+.pickerBars i {
+  align-self: center;
+  display: block;
+  height: 5px;
+  max-width: 52px;
+  min-width: 7px;
+}
+
+.pickerBars span,
+.pickerBars b {
+  align-self: center;
+}
+
+.pickerBars b {
+  text-align: right;
+}
+
+.islandBadge {
+  align-items: center;
+  display: flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  gap: 7px;
+  margin-top: 13px;
+  text-transform: uppercase;
+}
+
+.islandBadge i {
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.filmDetail dl {
+  border-top: 1px solid #dedbd1;
+  margin: 14px 0;
+  padding-top: 11px;
+}
+
+.filmDetail dt {
+  color: #888;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.filmDetail dd {
+  font-size: 10px;
+  line-height: 1.45;
+  margin: 5px 0 0;
+}
+
+.neighbors ol {
+  list-style: none;
+  margin: 12px -18px -18px;
+  padding: 0;
+}
+
+.neighbors li {
+  border-top: 1px solid #dedbd1;
+}
+
+.neighbors button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 22px 1fr;
+  min-height: 50px;
+  padding: 8px 18px;
+  text-align: left;
+  width: 100%;
+}
+
+.neighbors button:hover {
+  background: var(--yellow);
+}
+
+.neighbors button > b {
+  color: var(--red);
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+}
+
+.neighbors button > span {
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.neighbors small {
+  color: #777;
+  display: block;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  font-weight: 400;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.islandStrip {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.islandStrip button {
+  align-items: start;
+  background: white;
+  border: 0;
+  border-right: 1px solid #cbc8bd;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 9px 1fr auto;
+  min-height: 68px;
+  padding: 12px 10px;
+  text-align: left;
+}
+
+.islandStrip button:hover,
+.islandStrip .selectedIsland {
+  background: var(--yellow);
+}
+
+.islandStrip i {
+  border-radius: 50%;
+  height: 8px;
+  margin-top: 1px;
+  width: 8px;
+}
+
+.islandStrip .allIslands {
+  background: conic-gradient(
+    #ff4b37,
+    #6e82ff,
+    #1bd6a2,
+    #c979ff,
+    #ffd924,
+    #ff79b9,
+    #42d8ec,
+    #ff9d52,
+    #ff4b37
+  );
+}
+
+.islandStrip span,
+.islandStrip b {
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.islandStrip b {
+  color: #777;
+}
+
+.method {
+  align-items: center;
+  background: var(--black);
+  color: #aaa;
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.method p {
+  font-size: 11px;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 760px;
+}
+
+.method span {
+  color: #777;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1050px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .viewport {
+    border-bottom: 1px solid var(--ink);
+    border-right: 0;
+  }
+
+  .inspector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .inspector section {
+    border-bottom: 0;
+    border-right: 1px solid #cbc8bd;
+  }
+
+  .islandStrip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .islandStrip button {
+    border-bottom: 1px solid #cbc8bd;
+  }
+}
+
+@media (max-width: 760px) {
+  .header {
+    grid-template-columns: auto 1fr;
+    padding: 0 14px;
+  }
+
+  .header > span,
+  .header nav a:last-child {
+    display: none;
+  }
+
+  .titleBar {
+    grid-template-columns: 1fr;
+  }
+
+  .controlBar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cameraActions {
+    border-top: 1px solid #cbc8bd;
+    grid-column: 1 / -1;
+  }
+
+  .viewport {
+    height: 62vh;
+    min-height: 480px;
+  }
+
+  .keyGuide span:nth-child(n + 4) {
+    display: none;
+  }
+
+  .inspector {
+    display: block;
+  }
+
+  .inspector section {
+    border-bottom: 1px solid #cbc8bd;
+    border-right: 0;
+  }
+
+  .islandStrip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .method {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleBar h1 {
+    font-size: 45px;
+  }
+
+  .controlBar {
+    display: block;
+  }
+
+  .controlBar > label,
+  .modeControl {
+    border-bottom: 1px solid #cbc8bd;
+    border-right: 0;
+    min-height: 58px;
+  }
+
+  .cameraActions {
+    border-top: 0;
+  }
+
+  .viewport {
+    height: 58vh;
+    min-height: 420px;
+  }
+
+  .keyGuide {
+    gap: 8px;
+  }
+
+  .islandStrip {
+    grid-template-columns: 1fr;
+  }
+}

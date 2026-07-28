@@ -43,6 +43,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
   assert.match(html, /\/taste-map/);
+  assert.match(html, /\/semantic-islands/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
@@ -80,6 +81,22 @@ test("server-renders the quantified Closet Taste Map", async () => {
   assert.match(html, /Christopher Nolan/);
   assert.match(html, /Wikipedia/);
   assert.match(html, /Design study/);
+  assert.match(html, /3D islands/);
+});
+
+test("server-renders the navigable 3D Semantic Islands explorer", async () => {
+  const response = await render("/semantic-islands");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>3D Semantic Islands — The Closet Index<\/title>/i);
+  assert.match(html, /3D Semantic Islands/);
+  assert.match(html, /Christopher Nolan/);
+  assert.match(html, /Picker spotlight/);
+  assert.match(html, /arrow keys/i);
+  assert.match(html, /Criterion Genome PCA/);
+  assert.match(html, /not yet an OpenAI text-embedding projection/i);
 });
 
 test("returns ranked dream-list matches without requiring an API key", async () => {
@@ -174,9 +191,17 @@ test("ships a quantified and explainable picker Taste Map", async () => {
   assert.equal(tasteMap.meta.pickerCount, 390);
   assert.equal(tasteMap.meta.uniqueFilms, 1_262);
   assert.equal(tasteMap.meta.dimensions.length, 36);
+  assert.equal(tasteMap.meta.filmIslands.length, 8);
   assert.ok(tasteMap.meta.filmCoverage >= 90);
   assert.equal(tasteMap.pickers.length, 390);
   assert.ok(tasteMap.edges.length > 500);
+
+  for (const film of Object.values(tasteMap.films)) {
+    assert.ok(film.x >= 0 && film.x <= 1);
+    assert.ok(film.y >= 0 && film.y <= 1);
+    assert.ok(film.z >= 0 && film.z <= 1);
+    assert.ok(film.island >= 0 && film.island < 8);
+  }
 
   for (const picker of tasteMap.pickers) {
     assert.equal(picker.profile.length, 36);
