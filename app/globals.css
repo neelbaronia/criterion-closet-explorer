@@ -406,6 +406,39 @@ tbody tr:hover .poster-frame img {
   text-transform: uppercase;
 }
 
+.hall-of-fame-row {
+  height: auto;
+  min-height: 96px;
+}
+
+.poster-collage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 48px);
+}
+
+.poster-collage img {
+  height: 48px;
+  min-width: 0;
+}
+
+.director-film-list {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  gap: 4px 9px;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.director-film-list span:not(:last-child)::after {
+  color: var(--red);
+  content: " /";
+}
+
 .year-cell,
 .picker-cell {
   font-family: var(--font-mono), monospace;
@@ -518,6 +551,61 @@ tbody tr:hover .person-avatar img {
 
 .picker-separator {
   color: var(--muted);
+}
+
+.picker-cell--aggregate {
+  padding: 12px;
+  text-transform: uppercase;
+}
+
+.aggregate-picker-list {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.aggregate-picker-link {
+  align-items: center;
+  background: var(--white);
+  border: 1px solid #bdbbb2;
+  color: var(--black);
+  display: inline-flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  gap: 6px;
+  line-height: 1;
+  padding: 6px 7px;
+  text-decoration: none;
+}
+
+.aggregate-picker-link i {
+  color: var(--red);
+  font-size: 6px;
+  font-style: normal;
+}
+
+.aggregate-picker-link:hover,
+.aggregate-picker-link:focus-visible {
+  background: var(--yellow);
+  border-color: var(--black);
+  outline: 2px solid var(--black);
+  outline-offset: 1px;
+}
+
+.aggregate-picker-link--missing {
+  color: var(--muted);
+}
+
+.hall-coverage {
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.hall-coverage strong {
+  color: var(--red);
 }
 
 .video-icon-link {

@@ -62,9 +62,42 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /https:\/\/vimeo\.com\/1213276700/);
   assert.match(html, /dateTime="2026-07-16"/);
   assert.match(html, /5749/);
-  assert.match(html, /total movie picks/);
+  assert.match(html, /movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("consolidates Hall of Fame rows and links every picker video", async () => {
+  const [source, styles, films] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../data/films.json", import.meta.url), "utf8").then(
+      JSON.parse,
+    ),
+  ]);
+
+  assert.match(source, /kind: "movie"/);
+  assert.match(source, /kind: "director"/);
+  assert.match(source, /collectPickerVideos\(records, closetVideos\)/);
+  assert.match(source, /<PickerVideoLinks entries=\{row\.pickerVideos\}/);
+  assert.match(source, /href=\{entry\.video\.url\}/);
+  assert.match(styles, /\.aggregate-picker-list/);
+  assert.match(styles, /\.poster-collage/);
+
+  const movieCollections = new Map();
+  const directorCollections = new Map();
+  for (const film of films) {
+    const movieSet = movieCollections.get(film.filmId) ?? new Set();
+    movieSet.add(film.collectionId);
+    movieCollections.set(film.filmId, movieSet);
+    const directorSet = directorCollections.get(film.director) ?? new Set();
+    directorSet.add(film.collectionId);
+    directorCollections.set(film.director, directorSet);
+  }
+  assert.ok(Math.max(...[...movieCollections.values()].map((set) => set.size)) > 30);
+  assert.ok(
+    Math.max(...[...directorCollections.values()].map((set) => set.size)) > 50,
+  );
 });
 
 test("server-renders the quantified Closet Taste Map", async () => {

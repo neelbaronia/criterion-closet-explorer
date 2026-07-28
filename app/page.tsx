@@ -44,6 +44,20 @@ type SortField =
   | "moviePicks"
   | "directorPicks";
 type SortDirection = "asc" | "desc";
+type PickerVideoEntry = {
+  collectionId: string;
+  picker: string;
+  video?: ClosetVideo;
+};
+type TableRow = {
+  kind: "director" | "movie" | "pick";
+  key: string;
+  pickCount: number;
+  pickerVideos: PickerVideoEntry[];
+  primary: Film;
+  records: Film[];
+  uniqueFilms: Film[];
+};
 const pageSize = 100;
 
 const initialFilms = filmsData as unknown as Film[];
@@ -151,6 +165,59 @@ function PersonAvatar({
   );
 }
 
+function collectPickerVideos(
+  records: Film[],
+  closetVideos: Record<string, ClosetVideo>,
+) {
+  const entries = new Map<string, PickerVideoEntry>();
+  for (const film of records) {
+    if (!entries.has(film.collectionId)) {
+      entries.set(film.collectionId, {
+        collectionId: film.collectionId,
+        picker: film.picker,
+        video: closetVideos[film.collectionId],
+      });
+    }
+  }
+  return [...entries.values()].sort((left, right) => {
+    const leftDate =
+      left.video?.publishedOn || left.video?.recordedOn || "";
+    const rightDate =
+      right.video?.publishedOn || right.video?.recordedOn || "";
+    return rightDate.localeCompare(leftDate) ||
+      left.picker.localeCompare(right.picker);
+  });
+}
+
+function PickerVideoLinks({ entries }: { entries: PickerVideoEntry[] }) {
+  return (
+    <span className="aggregate-picker-list">
+      {entries.map((entry) =>
+        entry.video ? (
+          <a
+            className="aggregate-picker-link"
+            href={entry.video.url}
+            key={entry.collectionId}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Watch ${entry.picker}'s Closet Picks interview`}
+          >
+            <span>{entry.picker}</span>
+            <i aria-hidden="true">▶</i>
+          </a>
+        ) : (
+          <span
+            className="aggregate-picker-link aggregate-picker-link--missing"
+            key={entry.collectionId}
+          >
+            {entry.picker}
+          </span>
+        ),
+      )}
+    </span>
+  );
+}
+
 export default function Home() {
   const [archive, setArchive] = useState({
     closetVideos: initialClosetVideos,
@@ -182,18 +249,32 @@ export default function Home() {
     [closetVideos],
   );
 
-  const { directorPickCounts, moviePickCounts } = useMemo(() => {
+  const {
+    directorPickCounts,
+    directorRecords,
+    moviePickCounts,
+    movieRecords,
+  } = useMemo(() => {
     const movieCollections = new Map<string, Set<string>>();
     const directorCollections = new Map<string, Set<string>>();
+    const movieRecords = new Map<string, Film[]>();
+    const directorRecords = new Map<string, Film[]>();
     for (const film of films) {
       const movieSet =
         movieCollections.get(film.filmId) ?? new Set<string>();
       movieSet.add(film.collectionId);
       movieCollections.set(film.filmId, movieSet);
+      const movieGroup = movieRecords.get(film.filmId) ?? [];
+      movieGroup.push(film);
+      movieRecords.set(film.filmId, movieGroup);
+
       const directorSet =
         directorCollections.get(film.director) ?? new Set<string>();
       directorSet.add(film.collectionId);
       directorCollections.set(film.director, directorSet);
+      const directorGroup = directorRecords.get(film.director) ?? [];
+      directorGroup.push(film);
+      directorRecords.set(film.director, directorGroup);
     }
     return {
       directorPickCounts: new Map(
@@ -208,6 +289,8 @@ export default function Home() {
           collections.size,
         ]),
       ),
+      directorRecords,
+      movieRecords,
     };
   }, [films]);
 
@@ -324,12 +407,85 @@ export default function Home() {
     sortField,
   ]);
 
+  const tableRows = useMemo<TableRow[]>(() => {
+    if (sortField === "moviePicks") {
+      const filmIds = [...new Set(filteredFilms.map((film) => film.filmId))];
+      return filmIds.map((filmId) => {
+        const records = movieRecords.get(filmId) ?? [];
+        const primary = records[0]!;
+        return {
+          kind: "movie",
+          key: `movie-${filmId}`,
+          pickCount: moviePickCounts.get(filmId) ?? records.length,
+          pickerVideos: collectPickerVideos(records, closetVideos),
+          primary,
+          records,
+          uniqueFilms: [primary],
+        };
+      });
+    }
+
+    if (sortField === "directorPicks") {
+      const names = [...new Set(filteredFilms.map((film) => film.director))];
+      return names.map((name) => {
+        const records = directorRecords.get(name) ?? [];
+        const uniqueFilms = [
+          ...new Map(records.map((film) => [film.filmId, film])).values(),
+        ].sort(
+          (left, right) =>
+            (moviePickCounts.get(right.filmId) ?? 0) -
+              (moviePickCounts.get(left.filmId) ?? 0) ||
+            left.title.localeCompare(right.title),
+        );
+        return {
+          kind: "director",
+          key: `director-${name}`,
+          pickCount: directorPickCounts.get(name) ?? records.length,
+          pickerVideos: collectPickerVideos(records, closetVideos),
+          primary: (uniqueFilms[0] ?? records[0])!,
+          records,
+          uniqueFilms,
+        };
+      });
+    }
+
+    return filteredFilms.map((film) => ({
+      kind: "pick",
+      key: film.id,
+      pickCount: 1,
+      pickerVideos: collectPickerVideos([film], closetVideos),
+      primary: film,
+      records: [film],
+      uniqueFilms: [film],
+    }));
+  }, [
+    closetVideos,
+    directorPickCounts,
+    directorRecords,
+    filteredFilms,
+    moviePickCounts,
+    movieRecords,
+    sortField,
+  ]);
+
   const filtersActive =
     Boolean(query) ||
     picker !== "All closet pickers" ||
     director !== "All directors" ||
     decade !== "All decades";
-  const visibleFilms = filteredFilms.slice(0, visibleCount);
+  const visibleRows = tableRows.slice(0, visibleCount);
+  const totalRows =
+    sortField === "moviePicks"
+      ? movieRecords.size
+      : sortField === "directorPicks"
+        ? directorRecords.size
+        : films.length;
+  const rowLabel =
+    sortField === "moviePicks"
+      ? "movies"
+      : sortField === "directorPicks"
+        ? "directors"
+        : "movie picks";
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
@@ -534,8 +690,8 @@ export default function Home() {
 
         <div className="table-status" aria-live="polite">
           <p>
-            Showing <strong>{visibleFilms.length}</strong> of{" "}
-            {filteredFilms.length} matching / {films.length} total movie picks
+            Showing <strong>{visibleRows.length}</strong> of {tableRows.length}{" "}
+            matching / {totalRows} total {rowLabel}
           </p>
           <p className="availability-note">
             Streaming checked for {verifiedAvailabilityCount} titles / U.S. /{" "}
@@ -555,16 +711,18 @@ export default function Home() {
               <thead>
                 <tr>
                   <th className="poster-column" scope="col">
-                    Poster
+                    {sortField === "directorPicks" ? "Posters" : "Poster"}
                   </th>
                   <th scope="col" aria-sort={ariaSort("title")}>
                     <button type="button" onClick={() => toggleSort("title")}>
-                      Title <span>{sortMark("title")}</span>
+                      {sortField === "directorPicks" ? "Picked films" : "Title"}{" "}
+                      <span>{sortMark("title")}</span>
                     </button>
                   </th>
                   <th scope="col" aria-sort={ariaSort("year")}>
                     <button type="button" onClick={() => toggleSort("year")}>
-                      Year <span>{sortMark("year")}</span>
+                      {sortField === "directorPicks" ? "Years" : "Year"}{" "}
+                      <span>{sortMark("year")}</span>
                     </button>
                   </th>
                   <th scope="col" aria-sort={ariaSort("director")}>
@@ -577,20 +735,109 @@ export default function Home() {
                   </th>
                   <th scope="col" aria-sort={ariaSort("picker")}>
                     <button type="button" onClick={() => toggleSort("picker")}>
-                      Closet picker <span>{sortMark("picker")}</span>
+                      {sortField === "moviePicks" ||
+                      sortField === "directorPicks"
+                        ? "Closet pickers"
+                        : "Closet picker"}{" "}
+                      <span>{sortMark("picker")}</span>
                     </button>
                   </th>
                   <th className="watch-column" scope="col">
-                    Where to watch
+                    {sortField === "directorPicks"
+                      ? "Streaming coverage"
+                      : "Where to watch"}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {visibleFilms.map((film, index) => {
+                {visibleRows.map((row, index) => {
+                  const film = row.primary;
                   const availability = streamingAvailability.titles[film.slug];
                   const video = closetVideos[film.collectionId];
+
+                  if (row.kind === "director") {
+                    const years = row.uniqueFilms
+                      .map((entry) => entry.year)
+                      .filter((year): year is number => year !== null);
+                    const firstYear = years.length ? Math.min(...years) : null;
+                    const lastYear = years.length ? Math.max(...years) : null;
+                    const checkedTitles = row.uniqueFilms.filter(
+                      (entry) =>
+                        streamingAvailability.titles[entry.slug]?.providers
+                          .length,
+                    ).length;
+                    return (
+                      <tr className="hall-of-fame-row" key={row.key}>
+                        <td className="poster-cell">
+                          <div className="poster-frame poster-collage">
+                            {row.uniqueFilms.slice(0, 4).map((entry) => (
+                              <img
+                                src={entry.poster}
+                                alt={`${entry.title} poster`}
+                                key={entry.filmId}
+                                loading={index < 4 ? "eager" : "lazy"}
+                              />
+                            ))}
+                          </div>
+                        </td>
+                        <td className="title-cell">
+                          <span className="ranked-metadata">
+                            <strong>
+                              {row.uniqueFilms.length} picked films
+                            </strong>
+                            <span className="director-film-list">
+                              {row.uniqueFilms.slice(0, 7).map((entry) => (
+                                <span key={entry.filmId}>{entry.title}</span>
+                              ))}
+                              {row.uniqueFilms.length > 7 && (
+                                <span>
+                                  +{row.uniqueFilms.length - 7} more
+                                </span>
+                              )}
+                            </span>
+                          </span>
+                        </td>
+                        <td className="year-cell">
+                          {firstYear === null
+                            ? "—"
+                            : firstYear === lastYear
+                              ? firstYear
+                              : `${firstYear}–${lastYear}`}
+                        </td>
+                        <td className="director-cell">
+                          <div className="person-entry">
+                            <PersonAvatar
+                              fallbackImage={peopleImages[film.director]}
+                              name={film.director}
+                            />
+                            <span className="ranked-metadata">
+                              <span>{film.director}</span>
+                              <span className="hall-of-fame-count">
+                                {row.pickCount} Closet picks
+                              </span>
+                            </span>
+                          </div>
+                        </td>
+                        <td className="picker-cell picker-cell--aggregate">
+                          <PickerVideoLinks entries={row.pickerVideos} />
+                        </td>
+                        <td>
+                          <span className="hall-coverage">
+                            <strong>{checkedTitles}</strong> of{" "}
+                            {row.uniqueFilms.length} titles checked
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  }
+
                   return (
-                    <tr key={film.id}>
+                    <tr
+                      className={
+                        row.kind === "movie" ? "hall-of-fame-row" : undefined
+                      }
+                      key={row.key}
+                    >
                       <td className="poster-cell">
                         <div className="poster-frame">
                           <img
@@ -603,10 +850,9 @@ export default function Home() {
                       <td className="title-cell">
                         <span className="ranked-metadata">
                           <strong>{film.title}</strong>
-                          {sortField === "moviePicks" && (
+                          {row.kind === "movie" && (
                             <span className="hall-of-fame-count">
-                              {moviePickCount(film, moviePickCounts)} Closet
-                              picks
+                              {row.pickCount} Closet picks
                             </span>
                           )}
                         </span>
@@ -620,49 +866,50 @@ export default function Home() {
                           />
                           <span className="ranked-metadata">
                             <span>{film.director}</span>
-                            {sortField === "directorPicks" && (
-                              <span className="hall-of-fame-count">
-                                {directorPickCount(
-                                  film,
-                                  directorPickCounts,
-                                )}{" "}
-                                Closet picks
-                              </span>
-                            )}
                           </span>
                         </div>
                       </td>
-                      <td className="picker-cell">
-                        <div className="person-entry">
-                          <PersonAvatar
-                            fallbackImage={peopleImages[film.picker]}
-                            image={video?.pickerImage}
-                            name={film.picker}
-                          />
-                          <span className="picker-video-list">
-                            <span className="picker-video-item">
-                              <span className="picker-metadata">
-                                <span>{film.picker}</span>
-                                {video?.recordedOn && (
-                                  <time dateTime={video.recordedOn}>
-                                    {formatVideoDate(video.recordedOn)}
-                                  </time>
+                      <td
+                        className={`picker-cell${
+                          row.kind === "movie"
+                            ? " picker-cell--aggregate"
+                            : ""
+                        }`}
+                      >
+                        {row.kind === "movie" ? (
+                          <PickerVideoLinks entries={row.pickerVideos} />
+                        ) : (
+                          <div className="person-entry">
+                            <PersonAvatar
+                              fallbackImage={peopleImages[film.picker]}
+                              image={video?.pickerImage}
+                              name={film.picker}
+                            />
+                            <span className="picker-video-list">
+                              <span className="picker-video-item">
+                                <span className="picker-metadata">
+                                  <span>{film.picker}</span>
+                                  {video?.recordedOn && (
+                                    <time dateTime={video.recordedOn}>
+                                      {formatVideoDate(video.recordedOn)}
+                                    </time>
+                                  )}
+                                </span>
+                                {video && (
+                                  <a
+                                    className="video-icon-link"
+                                    href={video.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    aria-label={`Watch ${film.picker}'s Closet Picks interview`}
+                                  >
+                                    <span aria-hidden="true">▶</span>
+                                  </a>
                                 )}
                               </span>
-                              {video && (
-                                <a
-                                  className="video-icon-link"
-                                  href={video.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  aria-label={`Watch ${film.picker}'s Closet Picks interview`}
-                                >
-                                  <span aria-hidden="true">▶</span>
-                                </a>
-                              )}
                             </span>
-                          </span>
-                        </div>
+                          </div>
+                        )}
                       </td>
                       <td>
                         <div className="watch-links">
@@ -691,7 +938,7 @@ export default function Home() {
               </tbody>
             </table>
 
-            {!filteredFilms.length && (
+            {!tableRows.length && (
               <div className="empty-state">
                 <strong>No films found.</strong>
                 <p>Try another title, director, picker, or decade.</p>
@@ -701,7 +948,7 @@ export default function Home() {
               </div>
             )}
 
-            {visibleFilms.length < filteredFilms.length && (
+            {visibleRows.length < tableRows.length && (
               <div className="load-more">
                 <button
                   type="button"
@@ -710,11 +957,11 @@ export default function Home() {
                   }
                 >
                   Load next{" "}
-                  {Math.min(pageSize, filteredFilms.length - visibleFilms.length)}{" "}
-                  picks
+                  {Math.min(pageSize, tableRows.length - visibleRows.length)}{" "}
+                  {rowLabel}
                 </button>
                 <span>
-                  {visibleFilms.length} / {filteredFilms.length}
+                  {visibleRows.length} / {tableRows.length}
                 </span>
               </div>
             )}
