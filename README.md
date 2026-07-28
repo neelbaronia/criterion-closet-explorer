@@ -124,9 +124,10 @@ npm run data:taste
 
 The 3D view projects every film profile onto the first three principal
 components and groups the original 36-dimensional profiles into eight semantic
-islands. Click the map, then use the arrow keys to turn and travel; `A`/`D`
-strafe, `W`/`S` rise and descend, and Space resets the camera. Fixed PC1, PC2,
-and PC3 axes plus a ground grid preserve orientation as the camera moves.
+islands. Click the map, then use the arrow keys to change point of view and
+`W`/`A`/`S`/`D` to move forward, strafe, and reverse; Space resets the camera.
+Fixed PC1, PC2, and PC3 axes plus a ground grid preserve orientation as the
+camera moves.
 
 The model is inspired by the continuous relevance approach of the
 [MovieLens Tag Genome](https://grouplens.org/datasets/movielens/tag-genome/),

@@ -160,7 +160,6 @@
   padding: 12px;
 }
 
-.keyGuide kbd,
 .cameraActions kbd {
   background: rgba(255, 255, 255, 0.11);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -233,9 +232,8 @@
 }
 
 .coordinates,
-.focusPrompt,
+.controlNotice,
 .hoverCard,
-.keyGuide,
 .mapLegend {
   background: rgba(247, 245, 238, 0.9);
   color: #575751;
@@ -248,20 +246,44 @@
 }
 
 .coordinates {
-  bottom: 48px;
+  bottom: 14px;
   left: 14px;
   padding: 7px;
 }
 
-.focusPrompt {
+.controlNotice {
   border: 1px solid #8e8c84;
   color: var(--ink);
-  padding: 8px 10px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
   right: 14px;
   top: 14px;
 }
 
-.focusPrompt.focused {
+.controlNotice b {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+}
+
+.controlNotice kbd {
+  background: white;
+  border: 1px solid #aaa79d;
+  border-radius: 2px;
+  color: var(--ink);
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  min-width: 62px;
+  padding: 3px 5px;
+  text-align: center;
+}
+
+.controlNotice span {
+  color: #777;
+}
+
+.controlNotice.focused {
   background: var(--yellow);
   border-color: var(--ink);
   color: var(--ink);
@@ -291,7 +313,7 @@
 }
 
 .hoverCard {
-  bottom: 66px;
+  bottom: 16px;
   left: 50%;
   max-width: 320px;
   padding: 10px 12px;
@@ -314,29 +336,6 @@
 
 .hoverCard span {
   margin-top: 4px;
-}
-
-.keyGuide {
-  border-top: 1px solid rgba(17, 17, 19, 0.14);
-  align-items: center;
-  bottom: 0;
-  display: flex;
-  gap: 14px;
-  left: 0;
-  padding: 11px 14px;
-  right: 0;
-}
-
-.keyGuide kbd {
-  background: white;
-  border-color: #aaa79d;
-  color: var(--ink);
-}
-
-.keyGuide span {
-  align-items: center;
-  display: inline-flex;
-  gap: 4px;
 }
 
 .inspector {
@@ -592,10 +591,6 @@
     min-height: 480px;
   }
 
-  .keyGuide span:nth-child(n + 4) {
-    display: none;
-  }
-
   .inspector {
     display: block;
   }
@@ -640,8 +635,8 @@
     min-height: 420px;
   }
 
-  .keyGuide {
-    gap: 8px;
+  .mapLegend {
+    max-width: 210px;
   }
 
   .islandStrip {

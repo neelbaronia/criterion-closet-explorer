@@ -96,7 +96,8 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /PC3/);
   assert.doesNotMatch(html, /Picker spotlight/);
   assert.doesNotMatch(html, /Design lab/);
-  assert.match(html, /arrow keys/i);
+  assert.match(html, /Change POV/);
+  assert.match(html, /Navigate/);
   assert.match(html, /Criterion Genome PCA/);
   assert.match(html, /not yet an OpenAI text-embedding projection/i);
 });
@@ -122,6 +123,11 @@ test("keeps 3D map navigation legible and off the React render loop", async () =
   assert.match(component, /label: "PC2"/);
   assert.match(component, /label: "PC3"/);
   assert.match(component, /gridLines/);
+  assert.match(
+    component,
+    /Number\(keys\.has\("w"\)\) - Number\(keys\.has\("s"\)\)/,
+  );
+  assert.match(component, /camera\.pitch -= look/);
   assert.doesNotMatch(
     component,
     /setRenderTick|setCameraDisplay|shadowBlur|Picker spotlight|viewMode/,

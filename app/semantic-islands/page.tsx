@@ -235,14 +235,16 @@ export default function SemanticIslandsPage() {
       ? Math.min((timestamp - keyboardTimeRef.current) / 1_000, 0.04)
       : 0;
     keyboardTimeRef.current = timestamp;
-    const turn = 1.35 * elapsed;
+    const look = 1.35 * elapsed;
     const travel = 470 * elapsed;
-    const vertical = 360 * elapsed;
 
-    if (keys.has("arrowleft")) camera.yaw -= turn;
-    if (keys.has("arrowright")) camera.yaw += turn;
+    if (keys.has("arrowleft")) camera.yaw -= look;
+    if (keys.has("arrowright")) camera.yaw += look;
+    if (keys.has("arrowup")) camera.pitch -= look;
+    if (keys.has("arrowdown")) camera.pitch += look;
+    camera.pitch = clamp(camera.pitch, -1.12, 1.12);
     const forward =
-      Number(keys.has("arrowup")) - Number(keys.has("arrowdown"));
+      Number(keys.has("w")) - Number(keys.has("s"));
     const strafe = Number(keys.has("d")) - Number(keys.has("a"));
     camera.x +=
       (Math.sin(camera.yaw) * forward +
@@ -252,8 +254,6 @@ export default function SemanticIslandsPage() {
       (Math.cos(camera.yaw) * forward -
         Math.sin(camera.yaw) * strafe) *
       travel;
-    camera.y +=
-      (Number(keys.has("w")) - Number(keys.has("s"))) * vertical;
     requestDraw();
     keyboardFrameRef.current = window.requestAnimationFrame(animateKeyboard);
   }
@@ -715,7 +715,7 @@ export default function SemanticIslandsPage() {
         <div className={styles.viewport}>
           <canvas
             ref={canvasRef}
-            aria-label="Navigable three-dimensional semantic map of Criterion Closet films. Use arrow keys to turn and move."
+            aria-label="Navigable three-dimensional semantic map of Criterion Closet films. Use arrow keys to change point of view and WASD to move."
             onBlur={() => {
               stopKeyboardMotion();
               setHasFocus(false);
@@ -743,11 +743,17 @@ export default function SemanticIslandsPage() {
             {Math.round(initialCamera.z)}
           </div>
           <div
-            className={`${styles.focusPrompt} ${
+            className={`${styles.controlNotice} ${
               hasFocus ? styles.focused : ""
             }`}
           >
-            {hasFocus ? "Keyboard navigation active" : "Click map to fly"}
+            <b>
+              <kbd>← ↑ ↓ →</kbd> Change POV
+            </b>
+            <b>
+              <kbd>W A S D</kbd> Navigate
+            </b>
+            <span>{hasFocus ? "Controls active" : "Click map to activate"}</span>
           </div>
           {hoveredFilm && (
             <div className={styles.hoverCard}>
@@ -757,25 +763,6 @@ export default function SemanticIslandsPage() {
               </span>
             </div>
           )}
-          <div className={styles.keyGuide}>
-            <span>
-              <kbd>←</kbd>
-              <kbd>→</kbd> turn
-            </span>
-            <span>
-              <kbd>↑</kbd>
-              <kbd>↓</kbd> travel
-            </span>
-            <span>
-              <kbd>A</kbd>
-              <kbd>D</kbd> strafe
-            </span>
-            <span>
-              <kbd>W</kbd>
-              <kbd>S</kbd> rise
-            </span>
-            <span>drag orbit · scroll dolly</span>
-          </div>
         </div>
 
         <aside className={styles.inspector}>
