@@ -42,8 +42,9 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Newest Closet interviews/);
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
-  assert.match(html, /\/taste-map/);
-  assert.match(html, /\/semantic-islands/);
+  assert.match(html, />CCDB</);
+  assert.doesNotMatch(html, /Criterion Closet Picks \/ Unofficial database/);
+  assert.doesNotMatch(html, /Archive links/);
   assert.match(html, /sprocket-rail/);
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);

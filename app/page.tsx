@@ -71,7 +71,6 @@ const streamingAvailability = streamingAvailabilityData as {
 const verifiedAvailabilityCount = Object.keys(
   streamingAvailability.titles,
 ).length;
-const sourceUrl = "https://www.criterion.com/closet-picks";
 
 function channelUrl(title: string) {
   return `https://www.criterionchannel.com/search?q=${encodeURIComponent(title)}`;
@@ -570,20 +569,9 @@ export default function Home() {
   return (
     <main id="top">
       <header className="site-header">
-        <a className="wordmark" href="#top" aria-label="The Closet Index home">
-          [ C—INDEX ]
+        <a className="wordmark" href="#top" aria-label="CCDB home">
+          CCDB
         </a>
-        <p>Criterion Closet Picks / Unofficial database</p>
-        <nav aria-label="Archive links">
-          <a href="/semantic-islands">3D islands</a>
-          <a href="/design-variations.html">Design study</a>
-          <a href="/taste-map" target="_blank" rel="noreferrer">
-            Taste map
-          </a>
-          <a href={sourceUrl} target="_blank" rel="noreferrer">
-            Criterion source ↗
-          </a>
-        </nav>
       </header>
 
       <section className="database-shell" aria-labelledby="database-title">
