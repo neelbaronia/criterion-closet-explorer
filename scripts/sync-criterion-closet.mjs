@@ -243,6 +243,22 @@ function parseGuestVisits(payload) {
   return { collectionUrls, visitsByCollection };
 }
 
+function parseTrackedVisits(videos) {
+  const collectionUrls = [];
+  const visitsByCollection = new Map();
+
+  for (const video of Object.values(videos)) {
+    if (!video.criterionUrl || !video.collectionId) continue;
+    collectionUrls.push(video.criterionUrl);
+    visitsByCollection.set(video.collectionId, {
+      publishedOn: video.publishedOn ?? "",
+      url: video.url ?? "",
+    });
+  }
+
+  return { collectionUrls, visitsByCollection };
+}
+
 function parseBrowseFilms(html) {
   const films = new Map();
   const rowPattern =
@@ -416,7 +432,7 @@ async function main() {
   await mkdir(DATA_DIR, { recursive: true });
 
   console.log("Fetching official archive indexes...");
-  const [indexMarkdown, searchMarkdown, browseHtml, guestExport] =
+  const [indexMarkdown, searchMarkdown, browseHtml, trackedVideos] =
     await Promise.all([
       cachedFetch(
         "index",
@@ -439,16 +455,27 @@ async function main() {
         "html",
         refreshIndexes,
       ),
-      cachedJson(
-        "community",
-        "guests",
-        "https://closetpicks.westenb.org/exports/guests.json",
-        refreshIndexes,
+      readFile(path.join(DATA_DIR, "closet-videos.json"), "utf8").then(
+        JSON.parse,
       ),
     ]);
 
   const visits = parseArchive(searchMarkdown);
-  const guestMetadata = parseGuestVisits(guestExport);
+  let guestMetadata;
+  try {
+    const guestExport = await cachedJson(
+      "community",
+      "guests",
+      "https://closetpicks.westenb.org/exports/guests.json",
+      refreshIndexes,
+    );
+    guestMetadata = parseGuestVisits(guestExport);
+  } catch (error) {
+    console.warn(
+      `Community video metadata was unavailable; using the last verified snapshot: ${error}`,
+    );
+    guestMetadata = parseTrackedVisits(trackedVideos);
+  }
   const urlsByCollectionId = new Map();
   for (const url of [
     ...parseCollectionUrls(indexMarkdown),
