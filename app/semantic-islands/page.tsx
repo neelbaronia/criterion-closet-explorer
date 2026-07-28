@@ -74,8 +74,6 @@ type ProjectedFilm = {
   screenY: number;
 };
 
-type ViewMode = "islands" | "spotlight";
-
 const initialData = tasteMapData as unknown as TasteData;
 const islandColors = [
   "#d9472f",
@@ -87,15 +85,13 @@ const islandColors = [
   "#187d91",
   "#bd641f",
 ];
-const defaultPicker =
-  initialData.pickers.find((picker) => picker.name === "Christopher Nolan") ??
-  initialData.pickers[0];
+const axisColors = ["#9f3529", "#2857ae", "#08745a"];
 const initialCamera: Camera = {
-  pitch: -0.1,
+  pitch: -0.18,
   x: 0,
   y: -20,
-  yaw: -0.12,
-  z: -1_350,
+  yaw: -0.45,
+  z: -1_450,
 };
 
 function filmWorld(film: Film) {
@@ -132,25 +128,13 @@ export default function SemanticIslandsPage() {
     y: 0,
   });
   const [data, setData] = useState(initialData);
-  const [selectedPickerId, setSelectedPickerId] = useState(defaultPicker.id);
   const [selectedFilmId, setSelectedFilmId] = useState(
-    defaultPicker.filmIds[0] ?? Object.keys(initialData.films)[0],
+    Object.keys(initialData.films)[0],
   );
   const [hoveredFilmId, setHoveredFilmId] = useState("");
   const [selectedIsland, setSelectedIsland] = useState("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("islands");
   const [hasFocus, setHasFocus] = useState(false);
 
-  const pickerById = useMemo(
-    () => new Map(data.pickers.map((picker) => [picker.id, picker])),
-    [data.pickers],
-  );
-  const selectedPicker =
-    pickerById.get(selectedPickerId) ?? data.pickers[0];
-  const selectedPickerFilms = useMemo(
-    () => new Set(selectedPicker.filmIds),
-    [selectedPicker],
-  );
   const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
   const filmPoints = useMemo(
     () =>
@@ -191,15 +175,6 @@ export default function SemanticIslandsPage() {
       .sort((left, right) => left.distance - right.distance)
       .slice(0, 5);
   }, [filmEntries, selectedFilm, selectedFilmId]);
-
-  const pickerIslandCounts = useMemo(() => {
-    const counts = new Array(data.meta.filmIslands.length).fill(0);
-    for (const filmId of selectedPicker.filmIds) {
-      const film = data.films[filmId];
-      if (film) counts[film.island] += 1;
-    }
-    return counts;
-  }, [data.films, data.meta.filmIslands.length, selectedPicker]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -244,31 +219,6 @@ export default function SemanticIslandsPage() {
 
   function resetCamera() {
     cameraRef.current = { ...initialCamera };
-    requestDraw();
-  }
-
-  function focusPicker() {
-    const films = selectedPicker.filmIds
-      .map((filmId) => data.films[filmId])
-      .filter(Boolean);
-    if (!films.length) return;
-    const center = films.reduce(
-      (total, film) => {
-        const point = filmWorld(film);
-        total.x += point.x;
-        total.y += point.y;
-        total.z += point.z;
-        return total;
-      },
-      { x: 0, y: 0, z: 0 },
-    );
-    cameraRef.current = {
-      pitch: 0,
-      x: center.x / films.length,
-      y: center.y / films.length,
-      yaw: 0,
-      z: center.z / films.length - 1_000,
-    };
     requestDraw();
   }
 
@@ -322,17 +272,11 @@ export default function SemanticIslandsPage() {
       "W",
       "s",
       "S",
-      "f",
-      "F",
       " ",
     ];
     if (!controlledKeys.includes(event.key)) return;
     event.preventDefault();
     const key = event.key.toLowerCase();
-    if (key === "f") {
-      if (!event.repeat) focusPicker();
-      return;
-    }
     if (key === " ") {
       if (!event.repeat) resetCamera();
       return;
@@ -484,8 +428,113 @@ export default function SemanticIslandsPage() {
         };
       }
 
+      context.lineWidth = 1;
+      context.strokeStyle = "rgba(17,17,19,.1)";
+      for (let grid = -600; grid <= 600; grid += 200) {
+        const gridLines = [
+          [
+            { x: -600, y: -430, z: grid },
+            { x: 600, y: -430, z: grid },
+          ],
+          [
+            { x: grid, y: -430, z: -600 },
+            { x: grid, y: -430, z: 600 },
+          ],
+        ];
+        for (const [start, end] of gridLines) {
+          const screenStart = project(start);
+          const screenEnd = project(end);
+          if (!screenStart || !screenEnd) continue;
+          context.beginPath();
+          context.moveTo(screenStart.x, screenStart.y);
+          context.lineTo(screenEnd.x, screenEnd.y);
+          context.stroke();
+        }
+      }
+
+      const axes = [
+        {
+          color: axisColors[0],
+          end: { x: 680, y: 0, z: 0 },
+          label: "PC1",
+          point: (position: number) => ({ x: position, y: 0, z: 0 }),
+          start: { x: -680, y: 0, z: 0 },
+        },
+        {
+          color: axisColors[1],
+          end: { x: 0, y: 480, z: 0 },
+          label: "PC2",
+          point: (position: number) => ({ x: 0, y: position, z: 0 }),
+          start: { x: 0, y: -480, z: 0 },
+        },
+        {
+          color: axisColors[2],
+          end: { x: 0, y: 0, z: 680 },
+          label: "PC3",
+          point: (position: number) => ({ x: 0, y: 0, z: position }),
+          start: { x: 0, y: 0, z: -680 },
+        },
+      ];
+
+      for (const axis of axes) {
+        const start = project(axis.start);
+        const end = project(axis.end);
+        if (!start || !end) continue;
+        context.strokeStyle = axis.color;
+        context.lineWidth = 1.5;
+        context.beginPath();
+        context.moveTo(start.x, start.y);
+        context.lineTo(end.x, end.y);
+        context.stroke();
+
+        const angle = Math.atan2(end.y - start.y, end.x - start.x);
+        const perpendicularX = -Math.sin(angle) * 4;
+        const perpendicularY = Math.cos(angle) * 4;
+        for (const position of [-400, -200, 0, 200, 400]) {
+          const tick = project(axis.point(position));
+          if (!tick) continue;
+          context.beginPath();
+          context.moveTo(
+            tick.x - perpendicularX,
+            tick.y - perpendicularY,
+          );
+          context.lineTo(
+            tick.x + perpendicularX,
+            tick.y + perpendicularY,
+          );
+          context.stroke();
+        }
+
+        context.fillStyle = axis.color;
+        context.beginPath();
+        context.moveTo(end.x, end.y);
+        context.lineTo(
+          end.x - Math.cos(angle - 0.5) * 9,
+          end.y - Math.sin(angle - 0.5) * 9,
+        );
+        context.lineTo(
+          end.x - Math.cos(angle + 0.5) * 9,
+          end.y - Math.sin(angle + 0.5) * 9,
+        );
+        context.closePath();
+        context.fill();
+
+        context.font = "600 11px monospace";
+        context.textAlign = "center";
+        const label = `${axis.label}+`;
+        const labelWidth = context.measureText(label).width;
+        context.fillStyle = "rgba(247,245,238,.94)";
+        context.fillRect(
+          end.x - labelWidth / 2 - 4,
+          end.y - 25,
+          labelWidth + 8,
+          16,
+        );
+        context.fillStyle = axis.color;
+        context.fillText(label, end.x, end.y - 13);
+      }
+
       const projected: {
-        chosen: boolean;
         depth: number;
         film: Film;
         id: string;
@@ -505,17 +554,15 @@ export default function SemanticIslandsPage() {
         ) {
           continue;
         }
-        const chosen = selectedPickerFilms.has(id);
         const islandVisible =
           selectedIsland === "all" || film.island === Number(selectedIsland);
         const scaleByDepth = clamp(focal / screen.depth, 0.75, 2.1);
         projected.push({
-          chosen,
           depth: screen.depth,
           film,
           id,
           islandVisible,
-          radius: (chosen ? 4.8 : 2.9) * scaleByDepth,
+          radius: 3.1 * scaleByDepth,
           screenX: screen.x,
           screenY: screen.y,
         });
@@ -535,13 +582,9 @@ export default function SemanticIslandsPage() {
       for (const point of projected) {
         const isSelected = point.id === selectedFilmId;
         const isHovered = point.id === hoveredFilmId;
-        const fadedByPicker = viewMode === "spotlight" && !point.chosen;
         const fadedByIsland = !point.islandVisible;
-        const opacity = fadedByIsland ? 0.08 : fadedByPicker ? 0.3 : 0.9;
-        const color =
-          viewMode === "spotlight" && point.chosen
-            ? "#d9472f"
-            : islandColors[point.film.island];
+        const opacity = fadedByIsland ? 0.08 : 0.9;
+        const color = islandColors[point.film.island];
 
         context.beginPath();
         context.arc(
@@ -556,7 +599,7 @@ export default function SemanticIslandsPage() {
           .padStart(2, "0")}`;
         context.fill();
 
-        if (isSelected || (viewMode === "islands" && point.chosen)) {
+        if (isSelected) {
           context.beginPath();
           context.arc(
             point.screenX,
@@ -573,39 +616,37 @@ export default function SemanticIslandsPage() {
         }
       }
 
-      if (viewMode === "islands") {
-        data.meta.filmIslands.forEach((island, index) => {
-          if (selectedIsland !== "all" && Number(selectedIsland) !== index) {
-            return;
-          }
-          const center = project(
-            filmWorld({
-              director: "",
-              island: index,
-              title: "",
-              wikipediaUrl: "",
-              x: island.center[0],
-              y: island.center[1],
-              year: null,
-              z: island.center[2],
-            }),
-          );
-          if (!center) return;
-          const label = island.name.toUpperCase();
-          context.font = "600 11px monospace";
-          context.textAlign = "center";
-          const labelWidth = context.measureText(label).width;
-          context.fillStyle = "rgba(247,245,238,.9)";
-          context.fillRect(
-            center.x - labelWidth / 2 - 5,
-            center.y - 31,
-            labelWidth + 10,
-            17,
-          );
-          context.fillStyle = "#111113";
-          context.fillText(label, center.x, center.y - 19);
-        });
-      }
+      data.meta.filmIslands.forEach((island, index) => {
+        if (selectedIsland !== "all" && Number(selectedIsland) !== index) {
+          return;
+        }
+        const center = project(
+          filmWorld({
+            director: "",
+            island: index,
+            title: "",
+            wikipediaUrl: "",
+            x: island.center[0],
+            y: island.center[1],
+            year: null,
+            z: island.center[2],
+          }),
+        );
+        if (!center) return;
+        const label = island.name.toUpperCase();
+        context.font = "600 11px monospace";
+        context.textAlign = "center";
+        const labelWidth = context.measureText(label).width;
+        context.fillStyle = "rgba(247,245,238,.9)";
+        context.fillRect(
+          center.x - labelWidth / 2 - 5,
+          center.y - 31,
+          labelWidth + 10,
+          17,
+        );
+        context.fillStyle = "#111113";
+        context.fillText(label, center.x, center.y - 19);
+      });
     }
 
     drawFrameRef.current = draw;
@@ -623,8 +664,6 @@ export default function SemanticIslandsPage() {
     requestDraw,
     selectedFilmId,
     selectedIsland,
-    selectedPickerFilms,
-    viewMode,
   ]);
 
   return (
@@ -652,48 +691,23 @@ export default function SemanticIslandsPage() {
         </p>
       </section>
 
-      <section className={styles.controlBar} aria-label="Map controls">
-        <label>
-          <span>Spotlight a picker</span>
-          <select
-            value={selectedPicker.id}
-            onChange={(event) => {
-              setSelectedPickerId(event.target.value);
-              const picker = pickerById.get(event.target.value);
-              if (picker?.filmIds[0]) setSelectedFilmId(picker.filmIds[0]);
-              setViewMode("spotlight");
-            }}
-          >
-            {data.pickers.map((picker) => (
-              <option key={picker.id} value={picker.id}>
-                {picker.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className={styles.modeControl}>
-          <span>Color mode</span>
+      <section className={styles.controlBar} aria-label="Latent-space axes">
+        <div className={styles.axisGuide}>
+          <span>Orientation</span>
           <div>
-            <button
-              className={viewMode === "spotlight" ? styles.activeButton : ""}
-              type="button"
-              onClick={() => setViewMode("spotlight")}
-            >
-              Picker spotlight
-            </button>
-            <button
-              className={viewMode === "islands" ? styles.activeButton : ""}
-              type="button"
-              onClick={() => setViewMode("islands")}
-            >
-              Semantic islands
-            </button>
+            {axisColors.map((color, index) => (
+              <b key={color}>
+                <i style={{ background: color }} />
+                PC{index + 1}
+              </b>
+            ))}
           </div>
         </div>
+        <p>
+          The three axes are principal components: compressed mixtures of all
+          36 film dimensions. Distance is meaningful; no axis is a single genre.
+        </p>
         <div className={styles.cameraActions}>
-          <button type="button" onClick={focusPicker}>
-            Focus picks <kbd>F</kbd>
-          </button>
           <button type="button" onClick={resetCamera}>
             Reset <kbd>Space</kbd>
           </button>
@@ -721,15 +735,10 @@ export default function SemanticIslandsPage() {
           />
           <div className={styles.crosshair} aria-hidden="true" />
           <div className={styles.mapLegend}>
-            <b>
-              {viewMode === "spotlight"
-                ? `${selectedPicker.name} spotlight`
-                : "Semantic island colors"}
-            </b>
+            <b>Semantic islands + PCA axes</b>
             <span>
-              {viewMode === "spotlight"
-                ? "Red dots are this picker’s films; nearby dots have similar profiles."
-                : "Color shows a film’s cluster; outlined dots belong to the selected picker."}
+              Color shows a film’s cluster. PC1, PC2, and PC3 provide a fixed
+              frame while you rotate and travel.
             </span>
           </div>
           <div ref={coordinatesRef} className={styles.coordinates}>
@@ -773,41 +782,6 @@ export default function SemanticIslandsPage() {
         </div>
 
         <aside className={styles.inspector}>
-          <section className={styles.pickerSummary}>
-            <span>Picker spotlight</span>
-            <h2>{selectedPicker.name}</h2>
-            <p>{selectedPicker.pickCount} unique films across the map</p>
-            <div className={styles.pickerBars}>
-              {pickerIslandCounts
-                .map((count, island) => ({ count, island }))
-                .filter(({ count }) => count > 0)
-                .sort((left, right) => right.count - left.count)
-                .slice(0, 5)
-                .map(({ count, island }) => (
-                  <button
-                    key={island}
-                    type="button"
-                    onClick={() => {
-                      setSelectedIsland(String(island));
-                      setViewMode("islands");
-                    }}
-                  >
-                    <i
-                      style={{
-                        background: islandColors[island],
-                        width: `${Math.max(
-                          10,
-                          (count / selectedPicker.pickCount) * 100,
-                        )}%`,
-                      }}
-                    />
-                    <span>{data.meta.filmIslands[island].name}</span>
-                    <b>{count}</b>
-                  </button>
-                ))}
-            </div>
-          </section>
-
           {selectedFilm && (
             <section className={styles.filmDetail}>
               <span>Selected film</span>
@@ -885,10 +859,7 @@ export default function SemanticIslandsPage() {
             }
             key={`${index}-${island.name}`}
             type="button"
-            onClick={() => {
-              setSelectedIsland(String(index));
-              setViewMode("islands");
-            }}
+            onClick={() => setSelectedIsland(String(index))}
           >
             <i style={{ background: islandColors[index] }} />
             <span>{island.name}</span>

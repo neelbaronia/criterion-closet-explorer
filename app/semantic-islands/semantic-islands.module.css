@@ -58,8 +58,7 @@
 }
 
 .titleBar span,
-.controlBar > label > span,
-.modeControl > span,
+.axisGuide > span,
 .inspector section > span,
 .method span {
   color: #777;
@@ -92,12 +91,12 @@
   background: white;
   border-bottom: 1px solid var(--ink);
   display: grid;
-  grid-template-columns: minmax(270px, 0.85fr) minmax(360px, 1.15fr) auto;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(360px, 1.25fr) auto;
   min-height: 68px;
 }
 
-.controlBar > label,
-.modeControl,
+.axisGuide,
+.controlBar > p,
 .cameraActions {
   border-right: 1px solid #cbc8bd;
   display: flex;
@@ -106,28 +105,38 @@
   padding: 9px 16px;
 }
 
-.controlBar select {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 6px;
-  padding: 0;
-}
-
-.modeControl > div,
 .cameraActions {
   flex-direction: row;
   gap: 6px;
 }
 
-.modeControl > div {
+.axisGuide > div {
   display: flex;
+  gap: 16px;
   margin-top: 6px;
 }
 
-.modeControl button,
+.axisGuide b {
+  align-items: center;
+  display: inline-flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  gap: 6px;
+}
+
+.axisGuide i {
+  display: block;
+  height: 2px;
+  width: 22px;
+}
+
+.controlBar > p {
+  color: #666;
+  font-size: 11px;
+  line-height: 1.45;
+  margin: 0;
+}
+
 .cameraActions button,
 .sourceLink {
   background: transparent;
@@ -140,9 +149,7 @@
   text-transform: uppercase;
 }
 
-.modeControl button:hover,
-.cameraActions button:hover,
-.modeControl .activeButton {
+.cameraActions button:hover {
   background: var(--yellow);
   border-color: var(--ink);
 }
@@ -343,7 +350,6 @@
   padding: 18px;
 }
 
-.pickerSummary h2,
 .filmDetail h2 {
   font-size: 28px;
   letter-spacing: -0.05em;
@@ -352,54 +358,12 @@
   text-transform: uppercase;
 }
 
-.pickerSummary > p,
 .filmDetail > p {
   color: #777;
   font-family: var(--font-mono), monospace;
   font-size: 8px;
   margin: 0;
   text-transform: uppercase;
-}
-
-.pickerBars {
-  margin-top: 15px;
-}
-
-.pickerBars button {
-  background: transparent;
-  border: 0;
-  border-top: 1px solid #dedbd1;
-  display: grid;
-  font-family: var(--font-mono), monospace;
-  font-size: 7px;
-  gap: 8px;
-  grid-template-columns: 52px 1fr 18px;
-  min-height: 32px;
-  padding: 0;
-  text-align: left;
-  text-transform: uppercase;
-  width: 100%;
-}
-
-.pickerBars button:hover span {
-  color: var(--red);
-}
-
-.pickerBars i {
-  align-self: center;
-  display: block;
-  height: 5px;
-  max-width: 52px;
-  min-width: 7px;
-}
-
-.pickerBars span,
-.pickerBars b {
-  align-self: center;
-}
-
-.pickerBars b {
-  text-align: right;
 }
 
 .islandBadge {
@@ -575,7 +539,7 @@
 
   .inspector {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .inspector section {
@@ -608,12 +572,19 @@
   }
 
   .controlBar {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto;
+  }
+
+  .controlBar > p {
+    border-right: 0;
+    border-top: 1px solid #cbc8bd;
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .cameraActions {
-    border-top: 1px solid #cbc8bd;
-    grid-column: 1 / -1;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .viewport {
@@ -653,8 +624,8 @@
     display: block;
   }
 
-  .controlBar > label,
-  .modeControl {
+  .axisGuide,
+  .controlBar > p {
     border-bottom: 1px solid #cbc8bd;
     border-right: 0;
     min-height: 58px;

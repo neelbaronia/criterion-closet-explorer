@@ -91,8 +91,10 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   const html = await response.text();
   assert.match(html, /<title>3D Semantic Islands — The Closet Index<\/title>/i);
   assert.match(html, /3D Semantic Islands/);
-  assert.match(html, /Christopher Nolan/);
-  assert.match(html, /Picker spotlight/);
+  assert.match(html, /PC1/);
+  assert.match(html, /PC2/);
+  assert.match(html, /PC3/);
+  assert.doesNotMatch(html, /Picker spotlight/);
   assert.match(html, /arrow keys/i);
   assert.match(html, /Criterion Genome PCA/);
   assert.match(html, /not yet an OpenAI text-embedding projection/i);
@@ -115,9 +117,14 @@ test("keeps 3D map navigation legible and off the React render loop", async () =
 
   assert.match(component, /requestAnimationFrame\(animateKeyboard\)/);
   assert.match(component, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.5\)/);
-  assert.match(component, /const \[viewMode, setViewMode\].*"islands"/);
-  assert.match(component, /Semantic island colors/);
-  assert.doesNotMatch(component, /setRenderTick|setCameraDisplay|shadowBlur/);
+  assert.match(component, /label: "PC1"/);
+  assert.match(component, /label: "PC2"/);
+  assert.match(component, /label: "PC3"/);
+  assert.match(component, /gridLines/);
+  assert.doesNotMatch(
+    component,
+    /setRenderTick|setCameraDisplay|shadowBlur|Picker spotlight|viewMode/,
+  );
   assert.match(styles, /\.viewport\s*\{[^}]*background: #efede5/s);
 });
 
