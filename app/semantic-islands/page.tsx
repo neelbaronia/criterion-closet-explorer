@@ -86,6 +86,13 @@ type SemanticAwardCandidate = {
   spread: number;
 };
 
+type MapSearchOption = {
+  display: string;
+  id: string;
+  kind: "director" | "film" | "picker";
+  name: string;
+};
+
 const initialData = tasteMapData as unknown as TasteData;
 const islandColors = [
   "#d9472f",
@@ -183,8 +190,8 @@ export default function SemanticIslandsPage() {
   const [selectedIsland, setSelectedIsland] = useState("all");
   const [selectedPickerId, setSelectedPickerId] = useState("all");
   const [selectedDirectorName, setSelectedDirectorName] = useState("all");
-  const [filmQuery, setFilmQuery] = useState("");
-  const [filmSearchStatus, setFilmSearchStatus] = useState("");
+  const [mapQuery, setMapQuery] = useState("");
+  const [mapSearchStatus, setMapSearchStatus] = useState("");
   const [hasFocus, setHasFocus] = useState(false);
 
   const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
@@ -215,19 +222,31 @@ export default function SemanticIslandsPage() {
       .map(([name, filmIds]) => ({ filmIds, name }))
       .sort((left, right) => left.name.localeCompare(right.name));
   }, [filmEntries]);
-  const filmSearchOptions = useMemo(
-    () =>
-      filmEntries
-        .map(([id, film]) => ({
-          display: `${film.title}${formatYear(film.year)} — ${film.director}`,
-          film,
-          id,
-        }))
-        .sort((left, right) =>
-          left.film.title.localeCompare(right.film.title),
-        ),
-    [filmEntries],
-  );
+  const mapSearchOptions = useMemo<MapSearchOption[]>(() => {
+    const films = filmEntries.map(([id, film]) => ({
+      display: `Film · ${film.title}${formatYear(film.year)} — ${film.director}`,
+      id,
+      kind: "film" as const,
+      name: film.title,
+    }));
+    const directors = directorOptions.map((director) => ({
+      display: `Director · ${director.name}`,
+      id: director.name,
+      kind: "director" as const,
+      name: director.name,
+    }));
+    const pickers = pickerOptions.map((picker) => ({
+      display: `Picker · ${picker.name}`,
+      id: picker.id,
+      kind: "picker" as const,
+      name: picker.name,
+    }));
+    return [...films, ...directors, ...pickers].sort(
+      (left, right) =>
+        left.name.localeCompare(right.name) ||
+        left.kind.localeCompare(right.kind),
+    );
+  }, [directorOptions, filmEntries, pickerOptions]);
   const pickerMembership = useMemo(() => {
     const membership = new Map<string, Picker[]>();
     for (const picker of data.pickers) {
@@ -438,34 +457,46 @@ export default function SemanticIslandsPage() {
     setSelectedPickerId("all");
     setSelectedDirectorName("all");
     setSelectedIsland("all");
-    setFilmQuery(`${film.title}${formatYear(film.year)} — ${film.director}`);
-    setFilmSearchStatus(`Selected ${film.title}`);
   }
 
-  function searchFilms(event: FormEvent<HTMLFormElement>) {
+  function chooseSearchOption(option: MapSearchOption) {
+    setMapQuery(option.display);
+    if (option.kind === "director") {
+      selectDirector(option.name);
+      setMapSearchStatus(`Highlighted director ${option.name}`);
+    } else if (option.kind === "picker") {
+      selectPicker(option.id);
+      setMapSearchStatus(`Highlighted picker ${option.name}`);
+    } else {
+      selectSearchedFilm(option.id);
+      setMapSearchStatus(`Selected ${option.name}`);
+    }
+  }
+
+  function searchMap(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const query = filmQuery.trim().toLocaleLowerCase();
+    const query = mapQuery.trim().toLocaleLowerCase();
     if (!query) {
-      setFilmSearchStatus("Enter a movie title");
+      setMapSearchStatus("Enter a film, director, or picker");
       return;
     }
     const match =
-      filmSearchOptions.find(
-        ({ display }) => display.toLocaleLowerCase() === query,
+      mapSearchOptions.find(
+        (option) => option.display.toLocaleLowerCase() === query,
       ) ??
-      filmSearchOptions.find(
-        ({ film }) => film.title.toLocaleLowerCase() === query,
+      mapSearchOptions.find(
+        (option) => option.name.toLocaleLowerCase() === query,
       ) ??
-      filmSearchOptions.find(({ film }) =>
-        film.title.toLocaleLowerCase().startsWith(query),
+      mapSearchOptions.find((option) =>
+        option.name.toLocaleLowerCase().startsWith(query),
       ) ??
-      filmSearchOptions.find(({ film }) =>
-        film.title.toLocaleLowerCase().includes(query),
+      mapSearchOptions.find((option) =>
+        option.name.toLocaleLowerCase().includes(query),
       );
     if (match) {
-      selectSearchedFilm(match.id);
+      chooseSearchOption(match);
     } else {
-      setFilmSearchStatus("No matching title");
+      setMapSearchStatus("No matching film, director, or picker");
     }
   }
 
@@ -1168,35 +1199,36 @@ export default function SemanticIslandsPage() {
               : `${directorOptions.length} directors`}
           </small>
         </label>
-        <form className={styles.filmSearch} onSubmit={searchFilms}>
-          <span>Find a movie</span>
+        <form className={styles.filmSearch} onSubmit={searchMap}>
+          <span>Search map</span>
           <div>
             <input
-              aria-label="Search movie titles"
+              aria-label="Search films, directors, or pickers"
               autoComplete="off"
-              list="semantic-map-film-titles"
-              placeholder={`Search ${filmSearchOptions.length.toLocaleString()} titles`}
+              list="semantic-map-search-options"
+              placeholder="Search films, directors, or pickers"
               type="search"
-              value={filmQuery}
+              value={mapQuery}
               onChange={(event) => {
                 const value = event.target.value;
-                setFilmQuery(value);
-                setFilmSearchStatus("");
-                const exactMatch = filmSearchOptions.find(
-                  ({ display }) => display === value,
+                setMapQuery(value);
+                setMapSearchStatus("");
+                const exactMatch = mapSearchOptions.find(
+                  (option) => option.display === value,
                 );
-                if (exactMatch) selectSearchedFilm(exactMatch.id);
+                if (exactMatch) chooseSearchOption(exactMatch);
               }}
             />
             <button type="submit">Find</button>
           </div>
-          <datalist id="semantic-map-film-titles">
-            {filmSearchOptions.map(({ display, id }) => (
-              <option key={id} value={display} />
+          <datalist id="semantic-map-search-options">
+            {mapSearchOptions.map(({ display, id, kind }) => (
+              <option key={`${kind}-${id}`} value={display} />
             ))}
           </datalist>
           <small aria-live="polite">
-            {filmSearchStatus || `${filmSearchOptions.length} searchable films`}
+            {mapSearchStatus ||
+              `${filmEntries.length.toLocaleString()} films · ${directorOptions.length.toLocaleString()} directors · ${pickerOptions.length.toLocaleString()} pickers`}
           </small>
         </form>
         <div className={styles.axisGuide}>

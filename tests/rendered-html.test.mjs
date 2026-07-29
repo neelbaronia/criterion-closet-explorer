@@ -201,8 +201,10 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /All pickers/);
   assert.match(html, /Highlight director/);
   assert.match(html, /All directors/);
-  assert.match(html, /aria-label="Search movie titles"/);
-  assert.match(html, /Search 1,262 titles/);
+  assert.match(html, /aria-label="Search films, directors, or pickers"/);
+  assert.match(html, /Search films, directors, or pickers/);
+  assert.match(html, /Director · Christopher Nolan/);
+  assert.match(html, /Picker · Christopher Nolan/);
   assert.match(html, /Christopher Nolan/);
   assert.match(html, /picker colors/);
   assert.doesNotMatch(html, /Picker spotlight/);
@@ -247,7 +249,7 @@ test("color-codes map points by picker and highlights one picker", async () => {
   assert.match(styles, /\.pickerCardGrid/);
 });
 
-test("filters the Semantic Map by director and searches individual films", async () => {
+test("searches the Semantic Map by film, director, and picker", async () => {
   const [component, styles] = await Promise.all([
     readFile(
       new URL("../app/semantic-islands/page.tsx", import.meta.url),
@@ -267,11 +269,17 @@ test("filters the Semantic Map by director and searches individual films", async
   assert.match(component, /function selectDirector\(directorName: string\)/);
   assert.match(component, /setSelectedPickerId\("all"\)/);
   assert.match(component, /setSelectedDirectorName\("all"\)/);
-  assert.match(component, /aria-label="Search movie titles"/);
-  assert.match(component, /list="semantic-map-film-titles"/);
-  assert.match(component, /function searchFilms\(event: FormEvent<HTMLFormElement>\)/);
-  assert.match(component, /film\.title\.toLocaleLowerCase\(\)\.includes\(query\)/);
-  assert.match(component, /selectSearchedFilm\(exactMatch\.id\)/);
+  assert.match(component, /aria-label="Search films, directors, or pickers"/);
+  assert.match(component, /list="semantic-map-search-options"/);
+  assert.match(component, /function searchMap\(event: FormEvent<HTMLFormElement>\)/);
+  assert.match(component, /kind: "director" as const/);
+  assert.match(component, /kind: "film" as const/);
+  assert.match(component, /kind: "picker" as const/);
+  assert.match(component, /option\.name\.toLocaleLowerCase\(\)\.includes\(query\)/);
+  assert.match(component, /chooseSearchOption\(exactMatch\)/);
+  assert.match(component, /selectDirector\(option\.name\)/);
+  assert.match(component, /selectPicker\(option\.id\)/);
+  assert.match(component, /selectSearchedFilm\(option\.id\)/);
   assert.match(styles, /\.directorFilter/);
   assert.match(styles, /\.filmSearch/);
 });
