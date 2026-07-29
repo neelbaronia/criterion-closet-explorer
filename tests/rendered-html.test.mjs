@@ -215,7 +215,7 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /Most consistent director/);
   assert.match(html, /RMS spread/);
   assert.match(html, /at least five mapped films/);
-  assert.match(html, /not yet an OpenAI text-embedding projection/i);
+  assert.doesNotMatch(html, /not yet an OpenAI text-embedding projection/i);
 });
 
 test("color-codes map points by picker and highlights one picker", async () => {

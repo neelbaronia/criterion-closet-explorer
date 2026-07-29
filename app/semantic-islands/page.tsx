@@ -1518,12 +1518,6 @@ export default function SemanticIslandsPage() {
       </section>
 
       <footer className={styles.method}>
-        <p>
-          The map uses three principal components of the same 36-dimension
-          Criterion Genome as the 2D Taste Map. It is computed from Criterion
-          metadata and Wikipedia descriptions/categories; it is not yet an
-          OpenAI text-embedding projection.
-        </p>
         <span>
           {data.meta.filmCoverage}% description coverage ·{" "}
           {data.meta.dimensions.length} dimensions · 8 computed islands
