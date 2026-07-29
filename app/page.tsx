@@ -439,18 +439,7 @@ export default function Home() {
     sortField,
   ]);
 
-  const filtersActive =
-    Boolean(query) ||
-    picker !== "All closet pickers" ||
-    director !== "All directors" ||
-    decade !== "All decades";
   const visibleRows = tableRows.slice(0, visibleCount);
-  const totalRows =
-    sortField === "moviePicks"
-      ? movieRecords.size
-      : sortField === "directorPicks"
-        ? directorRecords.size
-        : films.length;
   const rowLabel =
     sortField === "moviePicks"
       ? "movies"
@@ -660,18 +649,6 @@ export default function Home() {
               <option value="picker:desc">Picker Z–A</option>
             </select>
           </label>
-        </div>
-
-        <div className="table-status" aria-live="polite">
-          <p>
-            Showing <strong>{visibleRows.length}</strong> of {tableRows.length}{" "}
-            matching / {totalRows} total {rowLabel}
-          </p>
-          {filtersActive && (
-            <button type="button" onClick={clearFilters}>
-              Clear filters ×
-            </button>
-          )}
         </div>
 
         <div className="filmstrip-table">

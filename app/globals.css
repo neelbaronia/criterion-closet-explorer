@@ -172,7 +172,6 @@ a {
 
 .eyebrow,
 .filter-panel label > span,
-.table-status,
 thead,
 footer {
   font-family: var(--font-mono), monospace;
@@ -256,37 +255,6 @@ footer {
   font-family: var(--font-mono), monospace;
   font-size: 8px;
   padding: 4px 6px;
-}
-
-.table-status {
-  align-items: center;
-  background: var(--yellow);
-  border-bottom: 1px solid var(--black);
-  display: grid;
-  font-size: 9px;
-  grid-template-columns: 1fr auto;
-  letter-spacing: 0.05em;
-  min-height: 40px;
-  padding: 8px 28px;
-  text-transform: uppercase;
-}
-
-.table-status p {
-  margin: 0;
-}
-
-.table-status strong {
-  font-size: 12px;
-}
-
-.table-status button {
-  background: transparent;
-  border: 0;
-  font-size: 9px;
-  padding: 3px 0;
-  text-decoration: underline;
-  text-transform: uppercase;
-  text-underline-offset: 3px;
 }
 
 .filmstrip-table {
@@ -903,10 +871,6 @@ footer a:focus-visible {
     grid-column: 1 / -1;
   }
 
-  .table-status {
-    grid-template-columns: 1fr auto;
-  }
-
 }
 
 @media (max-width: 620px) {
@@ -985,16 +949,6 @@ footer a:focus-visible {
   .filter-panel select {
     font-size: 12px;
     height: 34px;
-  }
-
-  .table-status {
-    gap: 8px;
-    min-height: 38px;
-    padding: 8px 16px;
-  }
-
-  .table-status p {
-    line-height: 1.35;
   }
 
   .sprocket-rail {

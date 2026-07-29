@@ -446,8 +446,10 @@ test("reflows the database and Semantic Map for narrow mobile screens", async ()
   assert.match(mapPage, /Drag to orbit on touch screens/);
   assert.match(
     mapPage,
-    /const initialCamera: Camera = \{\s*pitch: -0\.08,\s*x: 340,\s*y: 130,\s*yaw: -0\.18,/s,
+    /const initialCamera: Camera = \{\s*pitch: 0,\s*x: 0,\s*y: 0,\s*yaw: 0,/s,
   );
+  assert.doesNotMatch(databasePage, /className="table-status"/);
+  assert.doesNotMatch(globalStyles, /\.table-status\s*\{/);
   assert.match(mapStyles, /\.controlNotice b\.touchControl/);
   assert.match(mapStyles, /scroll-snap-type: x proximity/);
   assert.match(

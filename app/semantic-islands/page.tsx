@@ -107,12 +107,12 @@ const islandColors = [
   "#bd641f",
 ];
 const axisColors = ["#9f3529", "#2857ae", "#08745a"];
-// Keep all three axes legible without starting the film cloud off-center.
+// Start square to the PCA plane; visitors can orbit into depth from here.
 const initialCamera: Camera = {
-  pitch: -0.08,
-  x: 340,
-  y: 130,
-  yaw: -0.18,
+  pitch: 0,
+  x: 0,
+  y: 0,
+  yaw: 0,
   z: -1_450,
 };
 
