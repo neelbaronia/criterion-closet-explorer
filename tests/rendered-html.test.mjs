@@ -315,6 +315,8 @@ test("ranks picker and director taste from diverse to consistent", async () => {
   assert.match(component, /setLeaderboardEntity\("director"\)/);
   assert.match(component, /setLeaderboardSort/);
   assert.match(component, /\[\.\.\.activeLeaderboard\]\.reverse\(\)/);
+  assert.match(component, /import peopleData from "\.\.\/\.\.\/data\/people\.json"/);
+  assert.match(component, /image: initialPeopleImages\[director\.name\] \?\? ""/);
   assert.match(component, /Most diverse first/);
   assert.match(component, /Most consistent first/);
   assert.match(component, /Sort by RMS spread:/);

@@ -13,6 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
+import peopleData from "../../data/people.json";
 import tasteMapData from "../../data/taste-map.json";
 import SiteNavigation from "../site-navigation";
 import styles from "./semantic-islands.module.css";
@@ -94,6 +95,7 @@ type MapSearchOption = {
 };
 
 const initialData = tasteMapData as unknown as TasteData;
+const initialPeopleImages = peopleData as Record<string, string>;
 const islandColors = [
   "#d9472f",
   "#365ed1",
@@ -345,7 +347,7 @@ export default function SemanticIslandsPage() {
         return {
           entity: "director",
           filmIds: director.filmIds,
-          image: "",
+          image: initialPeopleImages[director.name] ?? "",
           name: director.name,
           spread,
         };
