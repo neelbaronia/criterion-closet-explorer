@@ -41,7 +41,7 @@ export default function SiteNavigation({
           href="/semantic-islands"
           aria-current={active === "mapping" ? "page" : undefined}
         >
-          3D Mapping
+          3D Map
         </a>
       </nav>
     </>

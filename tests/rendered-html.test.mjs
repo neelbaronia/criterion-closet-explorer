@@ -49,7 +49,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /https:\/\/github\.com\/neelbaronia/);
   assert.match(html, /aria-label="Primary views"/);
   assert.match(html, /aria-current="page">DB</);
-  assert.match(html, />3D Mapping</);
+  assert.match(html, />3D Map</);
   assert.doesNotMatch(html, /Criterion Closet Picks \/ Unofficial database/);
   assert.doesNotMatch(html, /Archive links/);
   assert.match(html, /sprocket-rail/);
@@ -190,7 +190,7 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /<title>3D Semantic Islands — The Closet Index<\/title>/i);
   assert.match(html, /Semantic Mappings/);
   assert.match(html, />DB</);
-  assert.match(html, /aria-current="page">3D Mapping</);
+  assert.match(html, /aria-current="page">3D Map</);
   assert.match(html, /PC1/);
   assert.match(html, /PC2/);
   assert.match(html, /PC3/);
