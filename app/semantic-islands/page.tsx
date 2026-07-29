@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-html-link-for-pages -- View switches use full navigation so the large archive route cannot stall an RSC transition. */
 
 import {
   KeyboardEvent,
@@ -13,6 +12,7 @@ import {
   useState,
 } from "react";
 import tasteMapData from "../../data/taste-map.json";
+import SiteNavigation from "../site-navigation";
 import styles from "./semantic-islands.module.css";
 
 type Dimension = {
@@ -750,14 +750,7 @@ export default function SemanticIslandsPage() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <a href="/">[ C—INDEX ]</a>
-        <span>Film latent space / three axes</span>
-        <nav aria-label="Explorer views">
-          <a href="/">Film table</a>
-          <a href="/taste-map">2D taste map</a>
-        </nav>
-      </header>
+      <SiteNavigation active="mapping" />
 
       <section className={styles.titleBar}>
         <div>

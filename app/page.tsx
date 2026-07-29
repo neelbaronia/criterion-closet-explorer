@@ -6,6 +6,7 @@ import closetVideosData from "../data/closet-videos.json";
 import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
 import streamingAvailabilityData from "../data/streaming-availability.json";
+import SiteNavigation from "./site-navigation";
 
 type Film = {
   collectionId: string;
@@ -578,23 +579,7 @@ export default function Home() {
 
   return (
     <main id="top">
-      <header className="site-header">
-        <a
-          className="wordmark"
-          href="#top"
-          aria-label="Criterion Closet DB home"
-        >
-          Criterion Closet DB
-        </a>
-        <a
-          className="maker-link"
-          href="https://github.com/neelbaronia"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Made by nbaronia ↗
-        </a>
-      </header>
+      <SiteNavigation active="db" />
 
       <section className="database-shell" aria-labelledby="database-title">
         <h1 className="visually-hidden" id="database-title">

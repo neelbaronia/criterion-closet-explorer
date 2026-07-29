@@ -45,6 +45,9 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, />Criterion Closet DB</);
   assert.match(html, /Made by nbaronia/);
   assert.match(html, /https:\/\/github\.com\/neelbaronia/);
+  assert.match(html, /aria-label="Primary views"/);
+  assert.match(html, /aria-current="page">DB</);
+  assert.match(html, />3D Mapping</);
   assert.doesNotMatch(html, /Criterion Closet Picks \/ Unofficial database/);
   assert.doesNotMatch(html, /Archive links/);
   assert.match(html, /sprocket-rail/);
@@ -130,6 +133,8 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   const html = await response.text();
   assert.match(html, /<title>3D Semantic Islands — The Closet Index<\/title>/i);
   assert.match(html, /Semantic Mappings/);
+  assert.match(html, />DB</);
+  assert.match(html, /aria-current="page">3D Mapping</);
   assert.match(html, /PC1/);
   assert.match(html, /PC2/);
   assert.match(html, /PC3/);
@@ -170,7 +175,7 @@ test("keeps 3D map navigation legible and off the React render loop", async () =
   assert.match(component, /keys\.has\("arrowdown"\)\) camera\.pitch -= look/);
   assert.match(component, /island\.count >= 40/);
   assert.match(component, /Every major cluster is labeled/);
-  assert.match(component, /<a href="\/">Film table<\/a>/);
+  assert.match(component, /<SiteNavigation active="mapping" \/>/);
   assert.doesNotMatch(component, /import Link from "next\/link"/);
   assert.doesNotMatch(
     component,
