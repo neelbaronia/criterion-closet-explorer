@@ -74,7 +74,22 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /5749/);
   assert.match(html, /movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
+  assert.doesNotMatch(html, /Load next/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("automatically appends table rows with infinite scroll", async () => {
+  const [source, styles] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(source, /new IntersectionObserver/);
+  assert.match(source, /rootMargin: "800px 0px"/);
+  assert.match(source, /Math\.min\(current \+ pageSize, tableRows\.length\)/);
+  assert.match(source, /ref=\{infiniteScrollRef\}/);
+  assert.doesNotMatch(source, /Load next/);
+  assert.match(styles, /\.infinite-scroll-sentinel/);
 });
 
 test("consolidates Hall of Fame rows and links every picker video", async () => {

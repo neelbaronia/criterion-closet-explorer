@@ -727,38 +727,46 @@ tbody tr:hover .person-avatar img {
   text-transform: uppercase;
 }
 
-.load-more {
+.infinite-scroll-sentinel {
   align-items: center;
   background: var(--paper);
   border-top: 1px solid var(--black);
   display: flex;
   font-family: var(--font-mono), monospace;
   justify-content: center;
-  min-height: 74px;
+  min-height: 64px;
   padding: 14px 28px;
   position: relative;
-}
-
-.load-more button {
-  background: var(--black);
-  border: 0;
-  color: var(--white);
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  padding: 12px 18px;
   text-transform: uppercase;
 }
 
-.load-more button:hover,
-.load-more button:focus-visible {
-  background: var(--red);
+.infinite-scroll-sentinel span {
+  align-items: center;
+  display: inline-flex;
+  font-size: 8px;
+  letter-spacing: 0.06em;
 }
 
-.load-more span {
+.infinite-scroll-sentinel span::before {
+  animation: infinite-scroll-pulse 0.9s steps(4, end) infinite;
+  color: var(--red);
+  content: "●";
+  font-size: 8px;
+  margin-right: 9px;
+}
+
+.infinite-scroll-sentinel b {
   color: var(--muted);
   font-size: 8px;
+  font-weight: 400;
   position: absolute;
   right: 28px;
+}
+
+@keyframes infinite-scroll-pulse {
+  50% {
+    opacity: 0.25;
+  }
 }
 
 footer {

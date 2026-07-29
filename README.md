@@ -16,7 +16,7 @@ The repository includes:
 - default reverse-chronological video-release order, plus sorting by title, film
   year, director, or picker
 - filters for Closet picker, director, and decade
-- progressive 100-row rendering so the full archive remains fast to browse
+- infinite scrolling in 100-row batches so the full archive remains fast to browse
 - an interactive picker Taste Map built from 36 quantified film dimensions,
   rare shared picks, and director affinity
 - a keyboard-navigable 3D Semantic Islands view of all 1,262 unique films,

@@ -202,6 +202,7 @@ export default function Home() {
   const [sortDirection, setSortDirection] =
     useState<SortDirection>("desc");
   const [visibleCount, setVisibleCount] = useState(pageSize);
+  const infiniteScrollRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const { closetVideos, films, peopleImages } = archive;
 
@@ -496,6 +497,24 @@ export default function Home() {
       });
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    const sentinel = infiniteScrollRef.current;
+    if (!sentinel || visibleCount >= tableRows.length) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setVisibleCount((current) =>
+          Math.min(current + pageSize, tableRows.length),
+        );
+      },
+      { rootMargin: "800px 0px", threshold: 0.01 },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [tableRows.length, visibleCount]);
 
   function clearFilters() {
     setQuery("");
@@ -893,20 +912,16 @@ export default function Home() {
             )}
 
             {visibleRows.length < tableRows.length && (
-              <div className="load-more">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setVisibleCount((current) => current + pageSize)
-                  }
-                >
-                  Load next{" "}
-                  {Math.min(pageSize, tableRows.length - visibleRows.length)}{" "}
-                  {rowLabel}
-                </button>
-                <span>
+              <div
+                className="infinite-scroll-sentinel"
+                ref={infiniteScrollRef}
+                role="status"
+                aria-live="polite"
+              >
+                <span>Scroll to load more {rowLabel}</span>
+                <b>
                   {visibleRows.length} / {tableRows.length}
-                </span>
+                </b>
               </div>
             )}
           </div>
