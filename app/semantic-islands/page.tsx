@@ -1521,6 +1521,7 @@ export default function SemanticIslandsPage() {
           <div className={styles.leaderboardColumns} aria-hidden="true">
             <span>Rank</span>
             <span>{leaderboardEntity === "picker" ? "Picker" : "Director"}</span>
+            <span>Films</span>
             <span>Mapped films</span>
             <span>RMS spread</span>
           </div>
@@ -1536,6 +1537,21 @@ export default function SemanticIslandsPage() {
                 .slice(0, 2)
                 .map((part) => part[0])
                 .join("");
+              const candidateFilms = [...new Set(candidate.filmIds)]
+                .map((filmId) => ({
+                  film: data.films[filmId],
+                  id: filmId,
+                }))
+                .filter(
+                  (entry): entry is { film: Film; id: string } =>
+                    Boolean(entry.film),
+                )
+                .sort(
+                  (left, right) =>
+                    (left.film.year ?? Number.MAX_SAFE_INTEGER) -
+                      (right.film.year ?? Number.MAX_SAFE_INTEGER) ||
+                    left.film.title.localeCompare(right.film.title),
+                );
 
               return (
                 <li key={`${candidate.entity}-${candidate.name}`}>
@@ -1564,6 +1580,30 @@ export default function SemanticIslandsPage() {
                               : "Director"}
                       </span>
                     </div>
+                  </div>
+                  <div
+                    aria-label={`${candidate.name}'s mapped films`}
+                    className={styles.leaderboardFilmography}
+                  >
+                    {candidateFilms.map(({ film, id }) => (
+                      <figure key={id} title={`${film.title}${formatYear(film.year)}`}>
+                        <div>
+                          {film.poster ? (
+                            <img
+                              alt={`${film.title} poster`}
+                              loading="lazy"
+                              src={film.poster}
+                            />
+                          ) : (
+                            <span aria-hidden="true">No poster</span>
+                          )}
+                        </div>
+                        <figcaption>
+                          <b>{film.title}</b>
+                          <span>{film.year ?? "Year unknown"}</span>
+                        </figcaption>
+                      </figure>
+                    ))}
                   </div>
                   <b className={styles.leaderboardFilmCount}>
                     {candidate.filmIds.length}

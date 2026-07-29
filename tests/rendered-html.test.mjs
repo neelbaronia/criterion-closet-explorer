@@ -324,10 +324,15 @@ test("ranks picker and director taste from diverse to consistent", async () => {
   assert.match(component, /role="tabpanel"/);
   assert.match(component, /String\(index \+ 1\)\.padStart\(3, "0"\)/);
   assert.match(component, /candidate\.spread\.toFixed\(3\)/);
+  assert.match(component, /className=\{styles\.leaderboardFilmography\}/);
+  assert.match(component, /\[\.\.\.new Set\(candidate\.filmIds\)\]/);
+  assert.match(component, /alt=\{`\$\{film\.title\} poster`\}/);
+  assert.match(component, /<span>\{film\.year \?\? "Year unknown"\}<\/span>/);
   assert.match(styles, /\.semanticAwards/);
   assert.match(styles, /\.leaderboardTabs/);
   assert.match(styles, /\.leaderboardSort/);
   assert.match(styles, /\.leaderboardList/);
+  assert.match(styles, /\.leaderboardFilmography/);
   assert.match(styles, /\.leaderboardScore/);
   assert.doesNotMatch(component, /leaderboardRange/);
   assert.doesNotMatch(component, /rangePercent/);

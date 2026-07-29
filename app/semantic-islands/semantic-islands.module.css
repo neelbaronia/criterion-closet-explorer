@@ -774,7 +774,12 @@
 .leaderboardList li {
   align-items: center;
   display: grid;
-  grid-template-columns: 68px minmax(220px, 1fr) 120px minmax(180px, 0.8fr);
+  grid-template-columns:
+    60px
+    minmax(210px, 0.55fr)
+    minmax(420px, 1.45fr)
+    100px
+    110px;
 }
 
 .leaderboardColumns {
@@ -802,7 +807,7 @@
 
 .leaderboardList li {
   border-bottom: 1px solid #d2cfc5;
-  min-height: 66px;
+  min-height: 156px;
 }
 
 .leaderboardList li:last-child {
@@ -867,6 +872,78 @@
   margin: 0 0 5px;
   overflow-wrap: anywhere;
   text-transform: uppercase;
+}
+
+.leaderboardFilmography {
+  align-items: flex-start;
+  align-self: stretch;
+  border-left: 1px solid #d2cfc5;
+  display: flex;
+  gap: 9px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 10px 12px;
+  scrollbar-color: var(--ink) #dedcd4;
+  scrollbar-width: thin;
+}
+
+.leaderboardFilmography figure {
+  flex: 0 0 72px;
+  margin: 0;
+  min-width: 0;
+}
+
+.leaderboardFilmography figure > div {
+  align-items: center;
+  aspect-ratio: 2 / 3;
+  background: #dedcd4;
+  border: 1px solid var(--ink);
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  width: 72px;
+}
+
+.leaderboardFilmography img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.leaderboardFilmography figure > div > span {
+  font-family: var(--font-mono), monospace;
+  font-size: 6px;
+  padding: 5px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.leaderboardFilmography figcaption {
+  margin-top: 5px;
+}
+
+.leaderboardFilmography figcaption b,
+.leaderboardFilmography figcaption span {
+  display: block;
+  font-family: var(--font-mono), monospace;
+  text-transform: uppercase;
+}
+
+.leaderboardFilmography figcaption b {
+  display: -webkit-box;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.leaderboardFilmography figcaption span {
+  color: #777;
+  font-size: 6px;
+  margin-top: 3px;
 }
 
 .leaderboardFilmCount {
@@ -1107,9 +1184,10 @@
     align-items: stretch;
     grid-template-areas:
       "rank identity identity"
-      "rank films score";
+      "rank titles titles"
+      "rank count score";
     grid-template-columns: 46px minmax(0, 0.82fr) minmax(0, 1.18fr);
-    min-height: 88px;
+    min-height: 0;
   }
 
   .leaderboardRank {
@@ -1125,9 +1203,15 @@
     padding: 8px 10px;
   }
 
+  .leaderboardFilmography {
+    border-top: 1px solid #d2cfc5;
+    grid-area: titles;
+    padding: 9px 10px;
+  }
+
   .leaderboardFilmCount {
     gap: 7px;
-    grid-area: films;
+    grid-area: count;
     padding: 8px 10px;
   }
 
@@ -1262,6 +1346,14 @@
 
   .leaderboardIdentity h3 {
     font-size: 13px;
+  }
+
+  .leaderboardFilmography figure {
+    flex-basis: 60px;
+  }
+
+  .leaderboardFilmography figure > div {
+    width: 60px;
   }
 
 }
