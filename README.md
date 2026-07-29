@@ -4,6 +4,8 @@ An unofficial, navigable companion to the Criterion Closet Picks series. Explore
 films by title, year, director, decade, or the person who chose them, then jump
 to the matching Criterion edition.
 
+Live at [ccdb.nbaronia.com](https://ccdb.nbaronia.com).
+
 The repository includes:
 
 - a responsive, searchable film table
@@ -142,6 +144,12 @@ The standalone study contains five visual systems:
 
 The production explorer uses a table-focused version of **The Filmstrip**
 direction.
+
+## Deployment
+
+The Vercel adapter in `api/server.mjs` runs the vinext server bundle so the
+interactive routes and archive APIs stay available in production. Static
+assets are served directly from `dist/client`.
 
 ## Notes
 

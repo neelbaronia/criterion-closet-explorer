@@ -438,3 +438,18 @@ test("loads verified main-branch snapshots without a site redeploy", async () =>
   assert.match(archiveRoute, /s-maxage=900/);
   assert.match(tasteRoute, /s-maxage=900/);
 });
+
+test("ships the Vercel adapter for the public CCDB domain", async () => {
+  const [adapter, config] = await Promise.all([
+    readFile(new URL("../api/server.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../vercel.json", import.meta.url), "utf8").then(
+      JSON.parse,
+    ),
+  ]);
+
+  assert.match(adapter, /import worker from "\.\.\/dist\/server\/index\.js"/);
+  assert.match(adapter, /worker\.fetch\(request, \{\}, executionContext\)/);
+  assert.equal(config.outputDirectory, "dist/client");
+  assert.equal(config.routes[0].handle, "filesystem");
+  assert.equal(config.routes[1].dest, "/api/server");
+});
