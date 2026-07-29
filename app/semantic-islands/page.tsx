@@ -361,10 +361,6 @@ export default function SemanticIslandsPage() {
     };
   }, [data.films, data.pickers, directorOptions]);
   const activeLeaderboard = semanticLeaderboards[leaderboardEntity];
-  const leaderboardMaximum = activeLeaderboard[0]?.spread ?? 0;
-  const leaderboardMinimum =
-    activeLeaderboard.at(-1)?.spread ?? leaderboardMaximum;
-  const leaderboardRange = leaderboardMaximum - leaderboardMinimum;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1488,11 +1484,6 @@ export default function SemanticIslandsPage() {
               <b>{semanticLeaderboards.director.length}</b>
             </button>
           </div>
-          <div className={styles.leaderboardScale}>
-            <span>Most diverse</span>
-            <i />
-            <span>Most consistent</span>
-          </div>
           <div className={styles.leaderboardColumns} aria-hidden="true">
             <span>Rank</span>
             <span>{leaderboardEntity === "picker" ? "Picker" : "Director"}</span>
@@ -1506,70 +1497,49 @@ export default function SemanticIslandsPage() {
             role="tabpanel"
           >
             {activeLeaderboard.map((candidate, index) => {
-            const color =
-              candidate.entity === "picker"
-                ? pickerColor(candidate.name)
-                : pickerColor(`Director: ${candidate.name}`);
-            const initials = candidate.name
-              .split(/\s+/)
-              .slice(0, 2)
-              .map((part) => part[0])
-              .join("");
-            const rangePercent = leaderboardRange
-              ? ((candidate.spread - leaderboardMinimum) / leaderboardRange) *
-                100
-              : 100;
+              const initials = candidate.name
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((part) => part[0])
+                .join("");
 
-            return (
-              <li
-                key={`${candidate.entity}-${candidate.name}`}
-                style={{ borderLeftColor: color }}
-              >
-                <b className={styles.leaderboardRank}>
-                  {String(index + 1).padStart(3, "0")}
-                </b>
-                <div className={styles.leaderboardIdentity}>
-                  {candidate.image ? (
-                    <img
-                      src={candidate.image}
-                      alt={`${candidate.name}, Criterion Closet picker`}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <i style={{ background: color }} aria-hidden="true">
-                      {initials}
-                    </i>
-                  )}
-                  <div>
-                    <h3>{candidate.name}</h3>
-                    <span>
-                      {index === 0
-                        ? "Most diverse"
-                        : index === activeLeaderboard.length - 1
-                          ? "Most consistent"
-                          : candidate.entity === "picker"
-                            ? "Closet picker"
-                            : "Director"}
-                    </span>
+              return (
+                <li key={`${candidate.entity}-${candidate.name}`}>
+                  <b className={styles.leaderboardRank}>
+                    {String(index + 1).padStart(3, "0")}
+                  </b>
+                  <div className={styles.leaderboardIdentity}>
+                    {candidate.image ? (
+                      <img
+                        src={candidate.image}
+                        alt={`${candidate.name}, Criterion Closet picker`}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <i aria-hidden="true">{initials}</i>
+                    )}
+                    <div>
+                      <h3>{candidate.name}</h3>
+                      <span>
+                        {index === 0
+                          ? "Most diverse"
+                          : index === activeLeaderboard.length - 1
+                            ? "Most consistent"
+                            : candidate.entity === "picker"
+                              ? "Closet picker"
+                              : "Director"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <b className={styles.leaderboardFilmCount}>
-                  {candidate.filmIds.length}
-                </b>
-                <div className={styles.leaderboardScore}>
-                  <b>{candidate.spread.toFixed(3)}</b>
-                  <i>
-                    <span
-                      style={{
-                        background: color,
-                        width: `${Math.max(rangePercent, 1.5)}%`,
-                      }}
-                    />
-                  </i>
-                </div>
-              </li>
-            );
-          })}
+                  <b className={styles.leaderboardFilmCount}>
+                    {candidate.filmIds.length}
+                  </b>
+                  <div className={styles.leaderboardScore}>
+                    <b>{candidate.spread.toFixed(3)}</b>
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </div>
         <footer>

@@ -321,6 +321,14 @@ test("ranks picker and director taste from diverse to consistent", async () => {
   assert.match(styles, /\.leaderboardTabs/);
   assert.match(styles, /\.leaderboardList/);
   assert.match(styles, /\.leaderboardScore/);
+  assert.doesNotMatch(component, /leaderboardRange/);
+  assert.doesNotMatch(component, /rangePercent/);
+  assert.doesNotMatch(component, /borderLeftColor: color/);
+  assert.doesNotMatch(styles, /\.leaderboardScale/);
+  assert.doesNotMatch(
+    styles,
+    /linear-gradient\(90deg, var\(--red\), var\(--yellow\)/,
+  );
 });
 
 test("adds posters and color-mapped picker portrait cards to the map inspector", async () => {
