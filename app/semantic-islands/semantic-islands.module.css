@@ -9,16 +9,6 @@
   min-height: 100vh;
 }
 
-.titleBar {
-  align-items: end;
-  border-bottom: 1px solid var(--ink);
-  display: grid;
-  gap: 40px;
-  grid-template-columns: 1.35fr 0.65fr;
-  padding: 26px 24px 24px;
-}
-
-.titleBar span,
 .pickerFilter > span,
 .directorFilter > span,
 .filmSearch > span,
@@ -30,25 +20,6 @@
   font-size: 8px;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-}
-
-.titleBar span {
-  color: var(--red);
-}
-
-.titleBar h1 {
-  font-size: clamp(44px, 6.8vw, 94px);
-  letter-spacing: -0.072em;
-  line-height: 0.82;
-  margin: 12px 0 0;
-  text-transform: uppercase;
-}
-
-.titleBar p {
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 0;
-  max-width: 480px;
 }
 
 .controlBar {
@@ -912,10 +883,6 @@
 }
 
 @media (max-width: 760px) {
-  .titleBar {
-    grid-template-columns: 1fr;
-  }
-
   .controlBar {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   }
@@ -984,10 +951,6 @@
 }
 
 @media (max-width: 480px) {
-  .titleBar h1 {
-    font-size: 45px;
-  }
-
   .controlBar {
     display: block;
   }

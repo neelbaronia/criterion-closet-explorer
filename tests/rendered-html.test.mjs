@@ -189,7 +189,9 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Semantic Map — The Closet Index<\/title>/i);
-  assert.match(html, /Semantic Mappings/);
+  assert.doesNotMatch(html, /Semantic Mappings/);
+  assert.doesNotMatch(html, /Live map \/ Criterion Genome PCA/);
+  assert.doesNotMatch(html, /Fly through 1,262 films/);
   assert.match(html, />DB</);
   assert.match(html, /aria-current="page">Semantic Map</);
   assert.match(html, /PC1/);
@@ -207,7 +209,7 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.doesNotMatch(html, /Design lab/);
   assert.match(html, /Change POV/);
   assert.match(html, /Navigate/);
-  assert.match(html, /Criterion Genome PCA/);
+  assert.doesNotMatch(html, /Criterion Genome PCA/);
   assert.match(html, /Range &amp; Consistency/);
   assert.match(html, /Most diverse picker/);
   assert.match(html, /Most diverse director/);

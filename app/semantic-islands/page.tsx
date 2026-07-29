@@ -1103,18 +1103,6 @@ export default function SemanticIslandsPage() {
     <main className={styles.page}>
       <SiteNavigation active="mapping" />
 
-      <section className={styles.titleBar}>
-        <div>
-          <span>Live map / Criterion Genome PCA</span>
-          <h1>Semantic Mappings</h1>
-        </div>
-        <p>
-          Fly through {data.meta.uniqueFilms.toLocaleString()} films. Nearby
-          dots share more of their mood, form, theme, mode, and era profile;
-          color identifies the people who picked them.
-        </p>
-      </section>
-
       <section className={styles.controlBar} aria-label="Semantic map controls">
         <label className={styles.pickerFilter}>
           <span>Highlight picker</span>
