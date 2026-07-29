@@ -433,11 +433,11 @@
 }
 
 .selectedPoster {
-  aspect-ratio: 2 / 3;
   background: #dedbd1;
   border: 1px solid var(--ink);
   display: block;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   width: 92px;
 }
 
@@ -556,11 +556,11 @@
 
 .neighbors button > img {
   aspect-ratio: 2 / 3;
-  background: #dedbd1;
+  background: var(--black);
   border: 1px solid #aaa79d;
   display: block;
   height: 50px;
-  object-fit: cover;
+  object-fit: contain;
   width: 34px;
 }
 
@@ -786,10 +786,10 @@
 
 .awardPosterRail img {
   aspect-ratio: 2 / 3;
-  background: #dedbd1;
+  background: var(--black);
   border: 1px solid #aaa79d;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
 }
 

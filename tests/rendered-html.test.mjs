@@ -331,7 +331,18 @@ test("adds posters and color-mapped picker portrait cards to the map inspector",
   assert.match(component, /src=\{picker\.image\}/);
   assert.match(component, /src=\{film\.poster\}/);
   assert.match(styles, /\.pickerCardGrid/);
-  assert.match(styles, /\.neighbors button > img/);
+  assert.match(
+    styles,
+    /\.selectedPoster\s*\{[^}]*height: auto;[^}]*object-fit: contain;/s,
+  );
+  assert.match(
+    styles,
+    /\.neighbors button > img\s*\{[^}]*object-fit: contain;/s,
+  );
+  assert.match(
+    styles,
+    /\.awardPosterRail img\s*\{[^}]*object-fit: contain;/s,
+  );
   assert.ok(Object.values(tasteMap.films).every((film) => film.poster));
   assert.ok(tasteMap.pickers.every((picker) => picker.image));
 });
