@@ -679,75 +679,105 @@ export default function Home() {
           <div className="table-wrap">
             <table
               className={
-                sortField === "moviePicks" ||
                 sortField === "directorPicks"
-                  ? "hall-of-fame-table"
-                  : undefined
+                  ? "hall-of-fame-table director-hall-of-fame-table"
+                  : sortField === "moviePicks"
+                    ? "hall-of-fame-table movie-hall-of-fame-table"
+                    : undefined
               }
             >
               <thead>
                 <tr>
-                  <th className="poster-column" scope="col">
-                    {sortField === "directorPicks" ? "Posters" : "Poster"}
-                  </th>
-                  <th
-                    className="title-column"
-                    scope="col"
-                    aria-sort={ariaSort("title")}
-                  >
-                    <button type="button" onClick={() => toggleSort("title")}>
-                      {sortField === "directorPicks" ? "Picked films" : "Title"}{" "}
-                      <span>{sortMark("title")}</span>
-                    </button>
-                  </th>
-                  {sortField === "moviePicks" && (
-                    <th className="mentions-column" scope="col">
-                      Mentions
-                    </th>
+                  {sortField === "directorPicks" ? (
+                    <>
+                      <th
+                        className="director-hof-director-column"
+                        scope="col"
+                      >
+                        Director
+                      </th>
+                      <th className="director-hof-count-column" scope="col">
+                        Number of films
+                      </th>
+                      <th className="director-hof-films-column" scope="col">
+                        Picked films
+                      </th>
+                      <th className="mentions-column" scope="col">
+                        Total mentions
+                      </th>
+                      <th className="picker-column" scope="col">
+                        Closet pickers
+                      </th>
+                      <th className="buy-column" scope="col">
+                        Buy from Criterion
+                      </th>
+                    </>
+                  ) : (
+                    <>
+                      <th className="poster-column" scope="col">
+                        Poster
+                      </th>
+                      <th
+                        className="title-column"
+                        scope="col"
+                        aria-sort={ariaSort("title")}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleSort("title")}
+                        >
+                          Title <span>{sortMark("title")}</span>
+                        </button>
+                      </th>
+                      {sortField === "moviePicks" && (
+                        <th className="mentions-column" scope="col">
+                          Mentions
+                        </th>
+                      )}
+                      <th
+                        className="year-column"
+                        scope="col"
+                        aria-sort={ariaSort("year")}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleSort("year")}
+                        >
+                          Year <span>{sortMark("year")}</span>
+                        </button>
+                      </th>
+                      <th
+                        className="director-column"
+                        scope="col"
+                        aria-sort={ariaSort("director")}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleSort("director")}
+                        >
+                          Director <span>{sortMark("director")}</span>
+                        </button>
+                      </th>
+                      <th
+                        className="picker-column"
+                        scope="col"
+                        aria-sort={ariaSort("picker")}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleSort("picker")}
+                        >
+                          {sortField === "moviePicks"
+                            ? "Closet pickers"
+                            : "Closet picker"}{" "}
+                          <span>{sortMark("picker")}</span>
+                        </button>
+                      </th>
+                      <th className="buy-column" scope="col">
+                        Buy from Criterion
+                      </th>
+                    </>
                   )}
-                  <th
-                    className="year-column"
-                    scope="col"
-                    aria-sort={ariaSort("year")}
-                  >
-                    <button type="button" onClick={() => toggleSort("year")}>
-                      {sortField === "directorPicks" ? "Years" : "Year"}{" "}
-                      <span>{sortMark("year")}</span>
-                    </button>
-                  </th>
-                  <th
-                    className="director-column"
-                    scope="col"
-                    aria-sort={ariaSort("director")}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => toggleSort("director")}
-                    >
-                      Director <span>{sortMark("director")}</span>
-                    </button>
-                  </th>
-                  {sortField === "directorPicks" && (
-                    <th className="mentions-column" scope="col">
-                      Mentions
-                    </th>
-                  )}
-                  <th
-                    className="picker-column"
-                    scope="col"
-                    aria-sort={ariaSort("picker")}
-                  >
-                    <button type="button" onClick={() => toggleSort("picker")}>
-                      {sortField === "moviePicks" ||
-                      sortField === "directorPicks"
-                        ? "Closet pickers"
-                        : "Closet picker"}{" "}
-                      <span>{sortMark("picker")}</span>
-                    </button>
-                  </th>
-                  <th className="buy-column" scope="col">
-                    Buy from Criterion
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -757,59 +787,34 @@ export default function Home() {
                   const videoUrl = youtubeVideoUrl(video);
 
                   if (row.kind === "director") {
-                    const years = row.uniqueFilms
-                      .map((entry) => entry.year)
-                      .filter((year): year is number => year !== null);
-                    const firstYear = years.length ? Math.min(...years) : null;
-                    const lastYear = years.length ? Math.max(...years) : null;
                     return (
                       <tr className="hall-of-fame-row" key={row.key}>
-                        <td className="poster-cell">
-                          <div className="poster-frame poster-collage">
-                            {row.uniqueFilms.slice(0, 4).map((entry) => (
-                              <img
-                                src={entry.poster}
-                                alt={`${entry.title} poster`}
-                                key={entry.filmId}
-                                loading={index < 4 ? "eager" : "lazy"}
-                              />
-                            ))}
-                          </div>
-                        </td>
-                        <td className="title-cell">
-                          <span className="ranked-metadata">
-                            <strong>
-                              {row.uniqueFilms.length} picked films
-                            </strong>
-                            <span className="director-film-list">
-                              {row.uniqueFilms.slice(0, 7).map((entry) => (
-                                <span key={entry.filmId}>{entry.title}</span>
-                              ))}
-                              {row.uniqueFilms.length > 7 && (
-                                <span>
-                                  +{row.uniqueFilms.length - 7} more
-                                </span>
-                              )}
-                            </span>
-                          </span>
-                        </td>
-                        <td className="year-cell">
-                          {firstYear === null
-                            ? "—"
-                            : firstYear === lastYear
-                              ? firstYear
-                              : `${firstYear}–${lastYear}`}
-                        </td>
-                        <td className="director-cell">
+                        <td className="director-cell director-hof-director-cell">
                           <div className="person-entry">
                             <PersonAvatar
                               fallbackImage={peopleImages[film.director]}
                               name={film.director}
                             />
                             <span className="ranked-metadata">
-                              <span>{film.director}</span>
+                              <strong>{film.director}</strong>
                             </span>
                           </div>
+                        </td>
+                        <td
+                          className="director-film-count-cell"
+                          aria-label={`${row.uniqueFilms.length} films`}
+                        >
+                          <strong>{row.uniqueFilms.length}</strong>
+                          <span>films</span>
+                        </td>
+                        <td className="director-hof-films-cell">
+                          <span className="director-hof-film-list">
+                            {row.uniqueFilms.map((entry) => (
+                              <span key={entry.filmId}>
+                                {entry.title} ({entry.year ?? "—"})
+                              </span>
+                            ))}
+                          </span>
                         </td>
                         <td
                           className="mentions-cell"

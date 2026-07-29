@@ -129,12 +129,24 @@ test("consolidates Hall of Fame rows and links every picker video", async () => 
   );
   assert.match(
     source,
-    /sortField === "directorPicks" && \(\s*<th className="mentions-column"/,
+    /sortField === "directorPicks" \? \(\s*<>\s*<th\s*className="director-hof-director-column"/,
+  );
+  assert.match(source, />\s*Number of films\s*</);
+  assert.match(source, />\s*Total mentions\s*</);
+  assert.match(
+    source,
+    /\{entry\.title\} \(\{entry\.year \?\? "—"\}\)/,
+  );
+  assert.match(
+    source,
+    /className="director-film-count-cell"[\s\S]*row\.uniqueFilms\.length/,
   );
   assert.match(source, /aria-label=\{`\$\{row\.pickCount\} mentions`\}/);
   assert.match(styles, /\.aggregate-picker-list/);
-  assert.match(styles, /\.poster-collage/);
+  assert.match(styles, /\.director-hof-film-list/);
   assert.match(styles, /\.mentions-cell/);
+  assert.doesNotMatch(source, /poster-frame poster-collage/);
+  assert.doesNotMatch(source, /\+\{row\.uniqueFilms\.length - 7\} more/);
   assert.doesNotMatch(source, /hall-of-fame-count/);
 
   const movieCollections = new Map();
