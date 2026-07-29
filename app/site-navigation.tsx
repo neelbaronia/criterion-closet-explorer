@@ -18,7 +18,7 @@ export default function SiteNavigation({
         <span className="site-title">Criterion Closet DB</span>
         <a
           className="maker-link"
-          href="https://github.com/neelbaronia"
+          href="https://www.nbaronia.com"
           target="_blank"
           rel="noreferrer"
         >

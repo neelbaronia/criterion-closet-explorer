@@ -46,7 +46,8 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, />CCDB</);
   assert.match(html, />Criterion Closet DB</);
   assert.match(html, /Made by nbaronia/);
-  assert.match(html, /https:\/\/github\.com\/neelbaronia/);
+  assert.match(html, /https:\/\/www\.nbaronia\.com/);
+  assert.doesNotMatch(html, /https:\/\/github\.com\/neelbaronia/);
   assert.match(html, /aria-label="Primary views"/);
   assert.match(html, /aria-current="page">DB</);
   assert.match(html, />Semantic Map</);
