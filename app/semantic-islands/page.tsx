@@ -110,6 +110,19 @@ function formatYear(year: number | null) {
   return year ? ` (${year})` : "";
 }
 
+function pickerColor(name: string) {
+  let hash = 2_166_136_261;
+  for (const character of name) {
+    hash ^= character.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 16_777_619);
+  }
+  const unsignedHash = hash >>> 0;
+  const hue = ((unsignedHash & 0xffff) / 0xffff) * 360;
+  const saturation = 64 + ((unsignedHash >>> 16) & 0x0f);
+  const lightness = 36 + ((unsignedHash >>> 20) & 0x0f);
+  return `hsl(${hue.toFixed(2)} ${saturation}% ${lightness}%)`;
+}
+
 export default function SemanticIslandsPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const coordinatesRef = useRef<HTMLDivElement>(null);
@@ -119,6 +132,7 @@ export default function SemanticIslandsPage() {
   const keyboardFrameRef = useRef<number | null>(null);
   const keyboardTimeRef = useRef(0);
   const pressedKeysRef = useRef(new Set<string>());
+  const pickerSpritesRef = useRef(new Map<string, HTMLCanvasElement>());
   const projectedRef = useRef<ProjectedFilm[]>([]);
   const pointerRef = useRef({
     dragging: false,
@@ -133,6 +147,7 @@ export default function SemanticIslandsPage() {
   );
   const [hoveredFilmId, setHoveredFilmId] = useState("");
   const [selectedIsland, setSelectedIsland] = useState("all");
+  const [selectedPickerId, setSelectedPickerId] = useState("all");
   const [hasFocus, setHasFocus] = useState(false);
 
   const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
@@ -145,17 +160,35 @@ export default function SemanticIslandsPage() {
       })),
     [filmEntries],
   );
+  const pickerOptions = useMemo(
+    () =>
+      [...data.pickers].sort((left, right) =>
+        left.name.localeCompare(right.name),
+      ),
+    [data.pickers],
+  );
   const pickerMembership = useMemo(() => {
-    const membership = new Map<string, string[]>();
+    const membership = new Map<string, Picker[]>();
     for (const picker of data.pickers) {
       for (const filmId of picker.filmIds) {
-        const names = membership.get(filmId) ?? [];
-        names.push(picker.name);
-        membership.set(filmId, names);
+        const members = membership.get(filmId) ?? [];
+        members.push(picker);
+        membership.set(filmId, members);
       }
     }
     return membership;
   }, [data.pickers]);
+  const selectedPicker = useMemo(
+    () =>
+      selectedPickerId === "all"
+        ? undefined
+        : data.pickers.find((picker) => picker.id === selectedPickerId),
+    [data.pickers, selectedPickerId],
+  );
+  const selectedPickerFilmIds = useMemo(
+    () => new Set(selectedPicker?.filmIds ?? []),
+    [selectedPicker],
+  );
   const selectedFilm = data.films[selectedFilmId];
   const hoveredFilm = hoveredFilmId ? data.films[hoveredFilmId] : undefined;
 
@@ -217,9 +250,23 @@ export default function SemanticIslandsPage() {
     });
   }, []);
 
+  useEffect(() => {
+    pickerSpritesRef.current.clear();
+    requestDraw();
+  }, [pickerMembership, requestDraw]);
+
   function resetCamera() {
     cameraRef.current = { ...initialCamera };
     requestDraw();
+  }
+
+  function selectPicker(pickerId: string) {
+    setSelectedPickerId(pickerId);
+    setSelectedIsland("all");
+    if (pickerId === "all") return;
+    const nextPicker = data.pickers.find((picker) => picker.id === pickerId);
+    const firstFilmId = nextPicker?.filmIds[0];
+    if (firstFilmId) setSelectedFilmId(firstFilmId);
   }
 
   function animateKeyboard(timestamp: number) {
@@ -539,6 +586,7 @@ export default function SemanticIslandsPage() {
         film: Film;
         id: string;
         islandVisible: boolean;
+        pickerHighlighted: boolean;
         radius: number;
         screenX: number;
         screenY: number;
@@ -556,12 +604,15 @@ export default function SemanticIslandsPage() {
         }
         const islandVisible =
           selectedIsland === "all" || film.island === Number(selectedIsland);
+        const pickerHighlighted =
+          !selectedPicker || selectedPickerFilmIds.has(id);
         const scaleByDepth = clamp(focal / screen.depth, 0.75, 2.1);
         projected.push({
           depth: screen.depth,
           film,
           id,
           islandVisible,
+          pickerHighlighted,
           radius: 3.1 * scaleByDepth,
           screenX: screen.x,
           screenY: screen.y,
@@ -569,7 +620,14 @@ export default function SemanticIslandsPage() {
       }
       projected.sort((left, right) => right.depth - left.depth);
 
-      projectedRef.current = projected.map(
+      const orderedPoints = selectedPicker
+        ? [
+            ...projected.filter((point) => !point.pickerHighlighted),
+            ...projected.filter((point) => point.pickerHighlighted),
+          ]
+        : projected;
+
+      projectedRef.current = orderedPoints.map(
         ({ depth, id, radius, screenX, screenY }) => ({
           depth,
           id,
@@ -579,32 +637,121 @@ export default function SemanticIslandsPage() {
         }),
       );
 
-      for (const point of projected) {
+      function getPickerSprite(filmId: string) {
+        const cached = pickerSpritesRef.current.get(filmId);
+        if (cached) return cached;
+
+        const sprite = document.createElement("canvas");
+        const size = 32;
+        const center = size / 2;
+        const radius = 14;
+        sprite.width = size;
+        sprite.height = size;
+        const spriteContext = sprite.getContext("2d");
+        if (!spriteContext) return sprite;
+
+        const memberships = pickerMembership.get(filmId) ?? [];
+        if (memberships.length <= 1) {
+          spriteContext.beginPath();
+          spriteContext.arc(center, center, radius, 0, Math.PI * 2);
+          spriteContext.fillStyle = memberships[0]
+            ? pickerColor(memberships[0].name)
+            : "#77756e";
+          spriteContext.fill();
+        } else {
+          const slice = (Math.PI * 2) / memberships.length;
+          memberships.forEach((picker, index) => {
+            const start = -Math.PI / 2 + slice * index;
+            spriteContext.beginPath();
+            spriteContext.moveTo(center, center);
+            spriteContext.arc(
+              center,
+              center,
+              radius,
+              start,
+              start + slice + 0.002,
+            );
+            spriteContext.closePath();
+            spriteContext.fillStyle = pickerColor(picker.name);
+            spriteContext.fill();
+          });
+        }
+
+        pickerSpritesRef.current.set(filmId, sprite);
+        return sprite;
+      }
+
+      for (const point of orderedPoints) {
         const isSelected = point.id === selectedFilmId;
         const isHovered = point.id === hoveredFilmId;
         const fadedByIsland = !point.islandVisible;
-        const opacity = fadedByIsland ? 0.08 : 0.9;
-        const color = islandColors[point.film.island];
+        const radius =
+          point.radius +
+          (selectedPicker && point.pickerHighlighted ? 1.3 : 0) +
+          (isSelected || isHovered ? 2 : 0);
+        const opacity = selectedPicker
+          ? point.pickerHighlighted
+            ? fadedByIsland
+              ? 0.18
+              : 0.98
+            : 0.035
+          : fadedByIsland
+            ? 0.08
+            : 0.92;
 
-        context.beginPath();
-        context.arc(
-          point.screenX,
-          point.screenY,
-          point.radius + (isSelected || isHovered ? 2 : 0),
-          0,
-          Math.PI * 2,
-        );
-        context.fillStyle = `${color}${Math.round(opacity * 255)
-          .toString(16)
-          .padStart(2, "0")}`;
-        context.fill();
-
-        if (isSelected) {
+        context.save();
+        context.globalAlpha = opacity;
+        if (selectedPicker && point.pickerHighlighted) {
           context.beginPath();
           context.arc(
             point.screenX,
             point.screenY,
-            point.radius + (isSelected ? 5 : 2.5),
+            radius + 2.2,
+            0,
+            Math.PI * 2,
+          );
+          context.strokeStyle = "rgba(255,255,255,.96)";
+          context.lineWidth = 2.4;
+          context.stroke();
+          context.beginPath();
+          context.arc(
+            point.screenX,
+            point.screenY,
+            radius,
+            0,
+            Math.PI * 2,
+          );
+          context.fillStyle = pickerColor(selectedPicker.name);
+          context.fill();
+        } else if (selectedPicker) {
+          context.beginPath();
+          context.arc(
+            point.screenX,
+            point.screenY,
+            radius,
+            0,
+            Math.PI * 2,
+          );
+          context.fillStyle = "#77756e";
+          context.fill();
+        } else {
+          const sprite = getPickerSprite(point.id);
+          context.drawImage(
+            sprite,
+            point.screenX - radius,
+            point.screenY - radius,
+            radius * 2,
+            radius * 2,
+          );
+        }
+        context.restore();
+
+        if (isSelected || isHovered) {
+          context.beginPath();
+          context.arc(
+            point.screenX,
+            point.screenY,
+            radius + (isSelected ? 4.5 : 2.5),
             0,
             Math.PI * 2,
           );
@@ -743,9 +890,12 @@ export default function SemanticIslandsPage() {
     data.meta.filmIslands,
     filmPoints,
     hoveredFilmId,
+    pickerMembership,
     requestDraw,
     selectedFilmId,
     selectedIsland,
+    selectedPicker,
+    selectedPickerFilmIds,
   ]);
 
   return (
@@ -759,18 +909,49 @@ export default function SemanticIslandsPage() {
         </div>
         <p>
           Fly through {data.meta.uniqueFilms.toLocaleString()} films. Nearby
-          dots share more of their mood, form, theme, mode, and era profile.
+          dots share more of their mood, form, theme, mode, and era profile;
+          color identifies the people who picked them.
         </p>
       </section>
 
-      <section className={styles.controlBar} aria-label="Latent-space axes">
+      <section className={styles.controlBar} aria-label="3D map controls">
+        <label className={styles.pickerFilter}>
+          <span>Highlight picker</span>
+          <div>
+            <i
+              className={selectedPicker ? "" : styles.allPickers}
+              style={
+                selectedPicker
+                  ? { background: pickerColor(selectedPicker.name) }
+                  : undefined
+              }
+            />
+            <select
+              aria-label="Highlight a closet picker"
+              value={selectedPickerId}
+              onChange={(event) => selectPicker(event.target.value)}
+            >
+              <option value="all">All pickers</option>
+              {pickerOptions.map((picker) => (
+                <option key={picker.id} value={picker.id}>
+                  {picker.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <small>
+            {selectedPicker
+              ? `${selectedPicker.filmIds.length} films highlighted`
+              : `${pickerOptions.length} picker colors`}
+          </small>
+        </label>
         <div className={styles.axisGuide}>
           <span>Orientation</span>
           <div>
             {axisColors.map((color, index) => (
               <b key={color}>
                 <i style={{ background: color }} />
-                PC{index + 1}
+                {`PC${index + 1}`}
               </b>
             ))}
           </div>
@@ -807,11 +988,22 @@ export default function SemanticIslandsPage() {
           />
           <div className={styles.crosshair} aria-hidden="true" />
           <div className={styles.mapLegend}>
-            <b>Semantic islands + PCA axes</b>
-            <span>
-              Color shows a film’s cluster. Every major cluster is labeled;
-              PC1, PC2, and PC3 preserve orientation.
-            </span>
+            <b>
+              {selectedPicker
+                ? `${selectedPicker.name} · ${selectedPicker.filmIds.length} films`
+                : "Picker colors + PCA axes"}
+            </b>
+            {selectedPicker ? (
+              <span>
+                Their picks are enlarged in one stable color; all other films
+                are dimmed for context.
+              </span>
+            ) : (
+              <span>
+                Each picker has a stable color. Divided dots were picked by
+                several people; cluster labels retain island colors.
+              </span>
+            )}
           </div>
           <div ref={coordinatesRef} className={styles.coordinates}>
             X {Math.round(initialCamera.x)} · Y {Math.round(initialCamera.y)} · Z{" "}
@@ -860,7 +1052,20 @@ export default function SemanticIslandsPage() {
                 <div>
                   <dt>Picked by</dt>
                   <dd>
-                    {(pickerMembership.get(selectedFilmId) ?? []).join(" · ")}
+                    <span className={styles.pickerNameList}>
+                      {(pickerMembership.get(selectedFilmId) ?? []).map(
+                        (picker) => (
+                          <span key={picker.id}>
+                            <i
+                              style={{
+                                background: pickerColor(picker.name),
+                              }}
+                            />
+                            {picker.name}
+                          </span>
+                        ),
+                      )}
+                    </span>
                   </dd>
                 </div>
               </dl>

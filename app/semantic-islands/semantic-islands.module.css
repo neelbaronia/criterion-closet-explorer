@@ -19,6 +19,7 @@
 }
 
 .titleBar span,
+.pickerFilter > span,
 .axisGuide > span,
 .inspector section > span,
 .method span {
@@ -52,10 +53,15 @@
   background: white;
   border-bottom: 1px solid var(--ink);
   display: grid;
-  grid-template-columns: minmax(260px, 0.75fr) minmax(360px, 1.25fr) auto;
+  grid-template-columns:
+    minmax(240px, 0.8fr)
+    minmax(220px, 0.65fr)
+    minmax(360px, 1.25fr)
+    auto;
   min-height: 68px;
 }
 
+.pickerFilter,
 .axisGuide,
 .controlBar > p,
 .cameraActions {
@@ -64,6 +70,62 @@
   flex-direction: column;
   justify-content: center;
   padding: 9px 16px;
+}
+
+.pickerFilter {
+  gap: 5px;
+}
+
+.pickerFilter > div {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 10px minmax(0, 1fr);
+}
+
+.pickerFilter i {
+  border-radius: 50%;
+  display: block;
+  height: 9px;
+  width: 9px;
+}
+
+.pickerFilter .allPickers {
+  background: conic-gradient(
+    #d9472f,
+    #365ed1,
+    #078764,
+    #8e46ae,
+    #bc3f77,
+    #187d91,
+    #d9472f
+  );
+}
+
+.pickerFilter select {
+  appearance: none;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--ink) 50%)
+      calc(100% - 8px) 50% / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%)
+      calc(100% - 3px) 50% / 5px 5px no-repeat;
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 0;
+  outline-offset: 3px;
+  padding: 2px 20px 2px 0;
+  width: 100%;
+}
+
+.pickerFilter small {
+  color: #777;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .cameraActions {
@@ -361,6 +423,31 @@
   margin: 5px 0 0;
 }
 
+.pickerNameList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.pickerNameList > span {
+  align-items: center;
+  border: 1px solid #d0cdc3;
+  display: inline-flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  gap: 5px;
+  padding: 4px 5px;
+  text-transform: uppercase;
+}
+
+.pickerNameList i {
+  border-radius: 50%;
+  display: block;
+  flex: 0 0 auto;
+  height: 7px;
+  width: 7px;
+}
+
 .neighbors ol {
   list-style: none;
   margin: 12px -18px -18px;
@@ -488,6 +575,16 @@
 }
 
 @media (max-width: 1050px) {
+  .controlBar {
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, 0.8fr) auto;
+  }
+
+  .controlBar > p {
+    border-top: 1px solid #cbc8bd;
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
   }
@@ -525,11 +622,22 @@
     grid-template-columns: 1fr auto;
   }
 
+  .pickerFilter {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .axisGuide {
+    border-top: 1px solid #cbc8bd;
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
   .controlBar > p {
     border-right: 0;
     border-top: 1px solid #cbc8bd;
     grid-column: 1 / -1;
-    grid-row: 2;
+    grid-row: 3;
   }
 
   .cameraActions {
@@ -570,6 +678,7 @@
     display: block;
   }
 
+  .pickerFilter,
   .axisGuide,
   .controlBar > p {
     border-bottom: 1px solid #cbc8bd;

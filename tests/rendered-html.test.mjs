@@ -194,12 +194,43 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /PC1/);
   assert.match(html, /PC2/);
   assert.match(html, /PC3/);
+  assert.match(html, /Highlight picker/);
+  assert.match(html, /All pickers/);
+  assert.match(html, /Christopher Nolan/);
+  assert.match(html, /picker colors/);
   assert.doesNotMatch(html, /Picker spotlight/);
   assert.doesNotMatch(html, /Design lab/);
   assert.match(html, /Change POV/);
   assert.match(html, /Navigate/);
   assert.match(html, /Criterion Genome PCA/);
   assert.match(html, /not yet an OpenAI text-embedding projection/i);
+});
+
+test("color-codes map points by picker and highlights one picker", async () => {
+  const [component, styles] = await Promise.all([
+    readFile(
+      new URL("../app/semantic-islands/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/semantic-islands/semantic-islands.module.css",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(component, /function pickerColor\(name: string\)/);
+  assert.match(component, /selectedPickerFilmIds\.has\(id\)/);
+  assert.match(component, /document\.createElement\("canvas"\)/);
+  assert.match(component, /const slice = \(Math\.PI \* 2\) \/ memberships\.length/);
+  assert.match(component, /context\.drawImage\(/);
+  assert.match(component, /aria-label="Highlight a closet picker"/);
+  assert.match(component, /setSelectedIsland\("all"\)/);
+  assert.match(component, /\$\{selectedPicker\.filmIds\.length\} films highlighted/);
+  assert.match(styles, /\.pickerFilter/);
+  assert.match(styles, /\.pickerNameList/);
 });
 
 test("keeps 3D map navigation legible and off the React render loop", async () => {
@@ -230,7 +261,7 @@ test("keeps 3D map navigation legible and off the React render loop", async () =
   assert.match(component, /keys\.has\("arrowup"\)\) camera\.pitch \+= look/);
   assert.match(component, /keys\.has\("arrowdown"\)\) camera\.pitch -= look/);
   assert.match(component, /island\.count >= 40/);
-  assert.match(component, /Every major cluster is labeled/);
+  assert.match(component, /cluster labels retain island colors/);
   assert.match(component, /<SiteNavigation active="mapping" \/>/);
   assert.doesNotMatch(component, /import Link from "next\/link"/);
   assert.doesNotMatch(
