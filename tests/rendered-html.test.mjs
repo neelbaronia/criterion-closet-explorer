@@ -93,6 +93,22 @@ test("automatically appends table rows with infinite scroll", async () => {
   assert.match(styles, /\.infinite-scroll-sentinel/);
 });
 
+test("keeps the CCDB badge compact and the centered title prominent", async () => {
+  const styles = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(styles, /\.wordmark\s*\{[^}]*justify-self: start/s);
+  assert.match(styles, /\.wordmark\s*\{[^}]*height: 32px/s);
+  assert.match(styles, /\.wordmark\s*\{[^}]*width: 64px/s);
+  assert.match(styles, /\.site-title\s*\{[^}]*font-weight: 900/s);
+  assert.match(
+    styles,
+    /\.site-title\s*\{[^}]*font-size: clamp\(17px, 1\.35vw, 22px\)/s,
+  );
+});
+
 test("consolidates Hall of Fame rows and links every picker video", async () => {
   const [source, styles, films] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
