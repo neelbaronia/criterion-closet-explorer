@@ -85,8 +85,8 @@ audit currently has no unmatched visits, collection pages, or film records.
 Direct interview links, official recorded dates, video-release dates, and picker
 images live in
 [`data/closet-videos.json`](./data/closet-videos.json). Video-release dates
-drive the default newest-first order, while each row displays Criterion’s
-interview-recording date.
+drive the default newest-first order and are the dates displayed in each row.
+Criterion’s interview-recording dates remain in the snapshot for provenance.
 Selection data is sourced from the
 [official Criterion Closet Picks archive](https://www.criterion.com/closet-picks)
 and [visit-date index](https://www.criterion.com/closet-picks/search). Cover art

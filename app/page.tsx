@@ -643,7 +643,7 @@ export default function Home() {
               value={`${sortField}:${sortDirection}`}
               onChange={(event) => changeSort(event.target.value)}
             >
-              <option value="closet:desc">Newest Closet interviews</option>
+              <option value="closet:desc">Newest video releases</option>
               <option value="moviePicks:desc">
                 Movie Hall of Fame: most picks
               </option>
@@ -908,9 +908,10 @@ export default function Home() {
                               <span className="picker-video-item">
                                 <span className="picker-metadata">
                                   <span>{film.picker}</span>
-                                  {video?.recordedOn && (
-                                    <time dateTime={video.recordedOn}>
-                                      {formatVideoDate(video.recordedOn)}
+                                  {video?.publishedOn && (
+                                    <time dateTime={video.publishedOn}>
+                                      Published{" "}
+                                      {formatVideoDate(video.publishedOn)}
                                     </time>
                                   )}
                                 </span>
@@ -976,9 +977,9 @@ export default function Home() {
 
         <footer>
           <p>
-            Film selections, cover art, picker photos, and interview dates
-            sourced from Criterion. Director photos via Wikimedia Commons and
-            TMDB where available.
+            Film selections, cover art, and picker photos sourced from
+            Criterion. Publication dates reflect the linked videos. Director
+            photos via Wikimedia Commons and TMDB where available.
           </p>
           <p>
             Independent project; not affiliated with The Criterion Collection.

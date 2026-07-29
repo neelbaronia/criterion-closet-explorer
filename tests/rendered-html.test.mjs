@@ -40,7 +40,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /https:\/\/www\.criterion\.com\/films\//);
   assert.doesNotMatch(html, /Where to watch|Availability not checked/);
   assert.match(html, /All closet pickers/);
-  assert.match(html, /Newest Closet interviews/);
+  assert.match(html, /Newest video releases/);
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
   assert.match(html, />CCDB</);
@@ -61,8 +61,8 @@ test("server-renders the Closet Index product shell", async () => {
     html,
     /https:\/\/www\.youtube\.com\/watch\?v=t9fgFt-Ibik/,
   );
-  assert.match(html, /Jun 19, 2026/);
-  assert.match(html, /dateTime="2026-06-19"/);
+  assert.match(html, /Jul 24, 2026/);
+  assert.match(html, /dateTime="2026-07-24"/);
   assert.match(
     html,
     /Watch Christopher Nolan&#x27;s Closet Picks interview/,
@@ -72,7 +72,9 @@ test("server-renders the Closet Index product shell", async () => {
     html,
     /https:\/\/www\.youtube\.com\/watch\?v=ZCxYGx6ueNM/,
   );
-  assert.match(html, /dateTime="2026-07-16"/);
+  assert.match(html, /Jul 27, 2026/);
+  assert.match(html, /dateTime="2026-07-27"/);
+  assert.doesNotMatch(html, /dateTime="2026-07-16"/);
   assert.match(html, /5749/);
   assert.match(html, /movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
