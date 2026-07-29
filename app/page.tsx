@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import closetVideosData from "../data/closet-videos.json";
 import filmsData from "../data/films.json";
 import peopleData from "../data/people.json";
-import streamingAvailabilityData from "../data/streaming-availability.json";
 import SiteNavigation from "./site-navigation";
 
 type Film = {
@@ -30,11 +29,6 @@ type ClosetVideo = {
   recordedOn: string;
   title: string;
   url: string;
-};
-type Provider = "criterion" | "netflix" | "prime" | "max";
-type Availability = {
-  providers: Provider[];
-  source: string;
 };
 type SortField =
   | "closet"
@@ -64,40 +58,6 @@ const pageSize = 100;
 const initialFilms = filmsData as unknown as Film[];
 const initialPeopleImages = peopleData as Record<string, string>;
 const initialClosetVideos = closetVideosData as Record<string, ClosetVideo>;
-const streamingAvailability = streamingAvailabilityData as {
-  region: string;
-  checkedOn: string;
-  titles: Record<string, Availability>;
-};
-const verifiedAvailabilityCount = Object.keys(
-  streamingAvailability.titles,
-).length;
-
-function channelUrl(title: string) {
-  return `https://www.criterionchannel.com/search?q=${encodeURIComponent(title)}`;
-}
-
-function netflixUrl(title: string) {
-  return `https://www.netflix.com/search?q=${encodeURIComponent(title)}`;
-}
-
-function primeVideoUrl(title: string) {
-  return `https://www.amazon.com/s?k=${encodeURIComponent(title)}&i=instant-video`;
-}
-
-function maxUrl(title: string) {
-  return `https://www.justwatch.com/us/provider/hbo-max/movies?q=${encodeURIComponent(title)}`;
-}
-
-const providerDetails: Record<
-  Provider,
-  { label: string; url: (title: string) => string }
-> = {
-  criterion: { label: "Criterion", url: channelUrl },
-  netflix: { label: "Netflix", url: netflixUrl },
-  prime: { label: "Prime", url: primeVideoUrl },
-  max: { label: "Max", url: maxUrl },
-};
 
 const videoDateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
@@ -688,10 +648,6 @@ export default function Home() {
             Showing <strong>{visibleRows.length}</strong> of {tableRows.length}{" "}
             matching / {totalRows} total {rowLabel}
           </p>
-          <p className="availability-note">
-            Streaming checked for {verifiedAvailabilityCount} titles / U.S. /{" "}
-            {streamingAvailability.checkedOn}.
-          </p>
           {filtersActive && (
             <button type="button" onClick={clearFilters}>
               Clear filters ×
@@ -737,17 +693,14 @@ export default function Home() {
                       <span>{sortMark("picker")}</span>
                     </button>
                   </th>
-                  <th className="watch-column" scope="col">
-                    {sortField === "directorPicks"
-                      ? "Streaming coverage"
-                      : "Where to watch"}
+                  <th className="buy-column" scope="col">
+                    Buy from Criterion
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {visibleRows.map((row, index) => {
                   const film = row.primary;
-                  const availability = streamingAvailability.titles[film.slug];
                   const video = closetVideos[film.collectionId];
                   const videoUrl = youtubeVideoUrl(video);
 
@@ -757,11 +710,6 @@ export default function Home() {
                       .filter((year): year is number => year !== null);
                     const firstYear = years.length ? Math.min(...years) : null;
                     const lastYear = years.length ? Math.max(...years) : null;
-                    const checkedTitles = row.uniqueFilms.filter(
-                      (entry) =>
-                        streamingAvailability.titles[entry.slug]?.providers
-                          .length,
-                    ).length;
                     return (
                       <tr className="hall-of-fame-row" key={row.key}>
                         <td className="poster-cell">
@@ -818,10 +766,20 @@ export default function Home() {
                           <PickerVideoLinks entries={row.pickerVideos} />
                         </td>
                         <td>
-                          <span className="hall-coverage">
-                            <strong>{checkedTitles}</strong> of{" "}
-                            {row.uniqueFilms.length} titles checked
-                          </span>
+                          <div className="criterion-buy-list">
+                            {row.uniqueFilms.map((entry) => (
+                              <a
+                                className="criterion-buy-link"
+                                href={entry.criterionUrl}
+                                key={entry.filmId}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={`Buy ${entry.title} from Criterion`}
+                              >
+                                {entry.title} ↗
+                              </a>
+                            ))}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -908,25 +866,15 @@ export default function Home() {
                         )}
                       </td>
                       <td>
-                        <div className="watch-links">
-                          {availability?.providers.length ? (
-                            availability.providers.map((provider) => (
-                              <a
-                                href={providerDetails[provider].url(film.title)}
-                                key={provider}
-                                target="_blank"
-                                rel="noreferrer"
-                                aria-label={`Watch ${film.title} on ${providerDetails[provider].label}`}
-                              >
-                                {providerDetails[provider].label} ↗
-                              </a>
-                            ))
-                          ) : (
-                            <span className="no-streams">
-                              Availability not checked
-                            </span>
-                          )}
-                        </div>
+                        <a
+                          className="criterion-buy-link"
+                          href={film.criterionUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Buy ${film.title} from Criterion`}
+                        >
+                          Buy from Criterion ↗
+                        </a>
                       </td>
                     </tr>
                   );

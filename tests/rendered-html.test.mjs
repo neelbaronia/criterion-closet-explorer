@@ -34,10 +34,11 @@ test("server-renders the Closet Index product shell", async () => {
     /<title>The Closet Index — Explore Criterion Closet Picks<\/title>/i,
   );
   assert.match(html, /Criterion Closet picks/);
-  assert.match(html, /Where to watch/);
+  assert.match(html, /Buy from Criterion/);
   assert.match(html, /Criterion/);
-  assert.match(html, /Availability not checked/);
-  assert.doesNotMatch(html, /All services/);
+  assert.match(html, /aria-label="Buy [^"]+ from Criterion"/);
+  assert.match(html, /https:\/\/www\.criterion\.com\/films\//);
+  assert.doesNotMatch(html, /Where to watch|Availability not checked/);
   assert.match(html, /All closet pickers/);
   assert.match(html, /Newest Closet interviews/);
   assert.match(html, /Movie Hall of Fame: most picks/);

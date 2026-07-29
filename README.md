@@ -2,7 +2,7 @@
 
 An unofficial, navigable companion to the Criterion Closet Picks series. Explore
 films by title, year, director, decade, or the person who chose them, then jump
-to live streaming-availability searches.
+to the matching Criterion edition.
 
 The repository includes:
 
@@ -10,8 +10,7 @@ The repository includes:
 - 5,749 movie-pick rows covering 1,262 unique films from 397 published
   Closet pick lists
 - box-set picks expanded into the individual films Criterion lists in each set
-- poster artwork and verified U.S. subscription availability across Criterion
-  Channel, Netflix, Prime Video, and Max for the currently checked titles
+- poster artwork and direct purchase links to each title’s Criterion page
 - director photos where available and official Criterion images for every picker
 - a video icon and interview date for every published pick-list page
 - default reverse-chronological video-release order, plus sorting by title, film
@@ -86,10 +85,6 @@ images live in
 [`data/closet-videos.json`](./data/closet-videos.json). Video-release dates
 drive the default newest-first order, while each row displays Criterion’s
 interview-recording date.
-Current tracked streaming availability lives in
-[`data/streaming-availability.json`](./data/streaming-availability.json) and is
-date-stamped so it can be refreshed as catalogs change.
-
 Selection data is sourced from the
 [official Criterion Closet Picks archive](https://www.criterion.com/closet-picks)
 and [visit-date index](https://www.criterion.com/closet-picks/search). Cover art
@@ -97,8 +92,7 @@ and picker images are delivered by Criterion. Director photos use Wikimedia
 Commons, with a TMDB fallback where already available. Direct video URLs and
 release dates are matched by Criterion collection ID using the
 [Closet Picks machine-readable export](https://closetpicks.westenb.org/llm-export/).
-Streaming links open provider searches because availability changes by date and
-region.
+Purchase links open the official Criterion film page for each pick.
 
 ## Taste Map
 
