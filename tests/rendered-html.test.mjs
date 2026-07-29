@@ -49,7 +49,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /https:\/\/github\.com\/neelbaronia/);
   assert.match(html, /aria-label="Primary views"/);
   assert.match(html, /aria-current="page">DB</);
-  assert.match(html, />3D Map</);
+  assert.match(html, />Semantic Map</);
   assert.doesNotMatch(html, /Criterion Closet Picks \/ Unofficial database/);
   assert.doesNotMatch(html, /Archive links/);
   assert.match(html, /sprocket-rail/);
@@ -187,10 +187,10 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>3D Semantic Islands — The Closet Index<\/title>/i);
+  assert.match(html, /<title>Semantic Map — The Closet Index<\/title>/i);
   assert.match(html, /Semantic Mappings/);
   assert.match(html, />DB</);
-  assert.match(html, /aria-current="page">3D Map</);
+  assert.match(html, /aria-current="page">Semantic Map</);
   assert.match(html, /PC1/);
   assert.match(html, /PC2/);
   assert.match(html, /PC3/);
@@ -230,10 +230,39 @@ test("color-codes map points by picker and highlights one picker", async () => {
   assert.match(component, /setSelectedIsland\("all"\)/);
   assert.match(component, /\$\{selectedPicker\.filmIds\.length\} films highlighted/);
   assert.match(styles, /\.pickerFilter/);
-  assert.match(styles, /\.pickerNameList/);
+  assert.match(styles, /\.pickerCardGrid/);
 });
 
-test("keeps 3D map navigation legible and off the React render loop", async () => {
+test("adds posters and color-mapped picker portrait cards to the map inspector", async () => {
+  const [component, styles, tasteMap] = await Promise.all([
+    readFile(
+      new URL("../app/semantic-islands/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/semantic-islands/semantic-islands.module.css",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(new URL("../data/taste-map.json", import.meta.url), "utf8").then(
+      JSON.parse,
+    ),
+  ]);
+
+  assert.match(component, /className=\{styles\.selectedPoster\}/);
+  assert.match(component, /className=\{styles\.pickerCard\}/);
+  assert.match(component, /borderColor: pickerColor\(picker\.name\)/);
+  assert.match(component, /src=\{picker\.image\}/);
+  assert.match(component, /src=\{film\.poster\}/);
+  assert.match(styles, /\.pickerCardGrid/);
+  assert.match(styles, /\.neighbors button > img/);
+  assert.ok(Object.values(tasteMap.films).every((film) => film.poster));
+  assert.ok(tasteMap.pickers.every((picker) => picker.image));
+});
+
+test("keeps Semantic Map navigation legible and off the React render loop", async () => {
   const [component, styles] = await Promise.all([
     readFile(
       new URL("../app/semantic-islands/page.tsx", import.meta.url),

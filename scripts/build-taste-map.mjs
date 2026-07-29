@@ -939,6 +939,7 @@ async function main() {
       {
         director: film.director,
         island: filmIslandAssignments[index],
+        poster: film.poster,
         title: film.title,
         year: film.year,
         wikipediaUrl: cache[film.filmId]?.url ?? "",

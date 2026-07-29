@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element -- Posters and picker portraits are remote Criterion archive data. */
 
 import {
   KeyboardEvent,
@@ -24,6 +25,7 @@ type Dimension = {
 type Film = {
   director: string;
   island: number;
+  poster: string;
   title: string;
   wikipediaUrl: string;
   x: number;
@@ -35,6 +37,7 @@ type Film = {
 type Picker = {
   filmIds: string[];
   id: string;
+  image: string;
   name: string;
   pickCount: number;
 };
@@ -914,7 +917,7 @@ export default function SemanticIslandsPage() {
         </p>
       </section>
 
-      <section className={styles.controlBar} aria-label="3D map controls">
+      <section className={styles.controlBar} aria-label="Semantic map controls">
         <label className={styles.pickerFilter}>
           <span>Highlight picker</span>
           <div>
@@ -1035,40 +1038,58 @@ export default function SemanticIslandsPage() {
         <aside className={styles.inspector}>
           {selectedFilm && (
             <section className={styles.filmDetail}>
-              <span>Selected film</span>
-              <h2>{selectedFilm.title}</h2>
-              <p>
-                {selectedFilm.year ?? "Year unknown"} · {selectedFilm.director}
-              </p>
-              <div className={styles.islandBadge}>
-                <i
-                  style={{
-                    background: islandColors[selectedFilm.island],
-                  }}
+              <div className={styles.selectedFilmOverview}>
+                <img
+                  className={styles.selectedPoster}
+                  src={selectedFilm.poster}
+                  alt={`${selectedFilm.title} poster`}
                 />
-                {data.meta.filmIslands[selectedFilm.island].name}
-              </div>
-              <dl>
                 <div>
-                  <dt>Picked by</dt>
-                  <dd>
-                    <span className={styles.pickerNameList}>
-                      {(pickerMembership.get(selectedFilmId) ?? []).map(
-                        (picker) => (
-                          <span key={picker.id}>
-                            <i
-                              style={{
-                                background: pickerColor(picker.name),
-                              }}
-                            />
-                            {picker.name}
-                          </span>
-                        ),
-                      )}
-                    </span>
-                  </dd>
+                  <span>Selected film</span>
+                  <h2>{selectedFilm.title}</h2>
+                  <p>
+                    {selectedFilm.year ?? "Year unknown"} ·{" "}
+                    {selectedFilm.director}
+                  </p>
+                  <div className={styles.islandBadge}>
+                    <i
+                      style={{
+                        background: islandColors[selectedFilm.island],
+                      }}
+                    />
+                    {data.meta.filmIslands[selectedFilm.island].name}
+                  </div>
                 </div>
-              </dl>
+              </div>
+              <div className={styles.pickerGallery}>
+                <span>Picked by</span>
+                <div className={styles.pickerCardGrid}>
+                  {(pickerMembership.get(selectedFilmId) ?? []).map((picker) => (
+                    <article
+                      className={styles.pickerCard}
+                      key={picker.id}
+                      style={{ borderColor: pickerColor(picker.name) }}
+                    >
+                      {picker.image ? (
+                        <img
+                          src={picker.image}
+                          alt={`${picker.name}, Criterion Closet picker`}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <i aria-hidden="true">
+                          {picker.name
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((part) => part[0])
+                            .join("")}
+                        </i>
+                      )}
+                      <b>{picker.name}</b>
+                    </article>
+                  ))}
+                </div>
+              </div>
               {selectedFilm.wikipediaUrl && (
                 <a
                   className={styles.sourceLink}
@@ -1092,6 +1113,11 @@ export default function SemanticIslandsPage() {
                     onClick={() => setSelectedFilmId(filmId)}
                   >
                     <b>{String(index + 1).padStart(2, "0")}</b>
+                    <img
+                      src={film.poster}
+                      alt={`${film.title} poster`}
+                      loading="lazy"
+                    />
                     <span>
                       {film.title}
                       <small>
