@@ -328,6 +328,14 @@ test("ranks picker and director taste from diverse to consistent", async () => {
   assert.match(component, /\[\.\.\.new Set\(candidate\.filmIds\)\]/);
   assert.match(component, /alt=\{`\$\{film\.title\} poster`\}/);
   assert.match(component, /<span>\{film\.year \?\? "Year unknown"\}<\/span>/);
+  assert.match(
+    component,
+    /<span>Mapped films<\/span>\s*<span>RMS spread<\/span>\s*<span>Films<\/span>/,
+  );
+  assert.match(
+    component,
+    /className=\{styles\.leaderboardScore\}[\s\S]*className=\{styles\.leaderboardFilmography\}/,
+  );
   assert.match(styles, /\.semanticAwards/);
   assert.match(styles, /\.leaderboardTabs/);
   assert.match(styles, /\.leaderboardSort/);

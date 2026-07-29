@@ -1521,9 +1521,9 @@ export default function SemanticIslandsPage() {
           <div className={styles.leaderboardColumns} aria-hidden="true">
             <span>Rank</span>
             <span>{leaderboardEntity === "picker" ? "Picker" : "Director"}</span>
-            <span>Films</span>
             <span>Mapped films</span>
             <span>RMS spread</span>
+            <span>Films</span>
           </div>
           <ol
             aria-labelledby={`${leaderboardEntity}-leaderboard-tab`}
@@ -1581,12 +1581,21 @@ export default function SemanticIslandsPage() {
                       </span>
                     </div>
                   </div>
+                  <b className={styles.leaderboardFilmCount}>
+                    {candidate.filmIds.length}
+                  </b>
+                  <div className={styles.leaderboardScore}>
+                    <b>{candidate.spread.toFixed(3)}</b>
+                  </div>
                   <div
                     aria-label={`${candidate.name}'s mapped films`}
                     className={styles.leaderboardFilmography}
                   >
                     {candidateFilms.map(({ film, id }) => (
-                      <figure key={id} title={`${film.title}${formatYear(film.year)}`}>
+                      <figure
+                        key={id}
+                        title={`${film.title}${formatYear(film.year)}`}
+                      >
                         <div>
                           {film.poster ? (
                             <img
@@ -1604,12 +1613,6 @@ export default function SemanticIslandsPage() {
                         </figcaption>
                       </figure>
                     ))}
-                  </div>
-                  <b className={styles.leaderboardFilmCount}>
-                    {candidate.filmIds.length}
-                  </b>
-                  <div className={styles.leaderboardScore}>
-                    <b>{candidate.spread.toFixed(3)}</b>
                   </div>
                 </li>
               );
