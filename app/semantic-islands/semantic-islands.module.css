@@ -659,6 +659,175 @@
   color: #777;
 }
 
+.semanticAwards {
+  border-bottom: 1px solid var(--ink);
+  padding: 28px 24px 24px;
+}
+
+.semanticAwards > header {
+  align-items: end;
+  display: grid;
+  gap: 36px;
+  grid-template-columns: 1.25fr 0.75fr;
+  margin-bottom: 22px;
+}
+
+.semanticAwards > header span {
+  color: var(--red);
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.semanticAwards h2 {
+  font-size: clamp(36px, 5vw, 68px);
+  letter-spacing: -0.065em;
+  line-height: 0.88;
+  margin: 9px 0 0;
+  text-transform: uppercase;
+}
+
+.semanticAwards > header p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 440px;
+}
+
+.awardGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.awardCard {
+  background: white;
+  border: 1px solid #b9b6ac;
+  border-right: 0;
+  border-top: 7px solid;
+  min-width: 0;
+  padding: 14px;
+}
+
+.awardCard:last-child {
+  border-right: 1px solid #b9b6ac;
+}
+
+.awardNumber {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.awardNumber b {
+  color: var(--red);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+}
+
+.awardNumber span,
+.awardIdentity span,
+.awardCard dt,
+.semanticAwards > footer {
+  color: #777;
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.awardIdentity {
+  align-items: center;
+  display: grid;
+  gap: 11px;
+  grid-template-columns: 58px minmax(0, 1fr);
+  margin-top: 14px;
+}
+
+.awardIdentity > img,
+.awardIdentity > i {
+  aspect-ratio: 1;
+  border: 1px solid var(--ink);
+  display: block;
+  height: 58px;
+  object-fit: cover;
+  width: 58px;
+}
+
+.awardIdentity > i {
+  align-items: center;
+  color: white;
+  display: flex;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 850;
+  justify-content: center;
+}
+
+.awardIdentity > div {
+  min-width: 0;
+}
+
+.awardIdentity h3 {
+  font-size: 19px;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.awardCard dl {
+  border-bottom: 1px solid #d2cfc5;
+  border-top: 1px solid #d2cfc5;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 14px 0;
+}
+
+.awardCard dl > div {
+  padding: 8px 0;
+}
+
+.awardCard dl > div + div {
+  border-left: 1px solid #d2cfc5;
+  padding-left: 10px;
+}
+
+.awardCard dt,
+.awardCard dd {
+  margin: 0;
+}
+
+.awardCard dd {
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.awardPosterRail {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.awardPosterRail img {
+  aspect-ratio: 2 / 3;
+  background: #dedbd1;
+  border: 1px solid #aaa79d;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.semanticAwards > footer {
+  line-height: 1.5;
+  margin-top: 14px;
+  max-width: 880px;
+}
+
 .method {
   align-items: center;
   background: var(--black);
@@ -735,6 +904,18 @@
   .islandStrip button {
     border-bottom: 1px solid #cbc8bd;
   }
+
+  .awardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .awardCard:nth-child(2) {
+    border-right: 1px solid #b9b6ac;
+  }
+
+  .awardCard:nth-child(n + 3) {
+    border-top-width: 7px;
+  }
 }
 
 @media (max-width: 760px) {
@@ -802,6 +983,11 @@
     align-items: start;
     flex-direction: column;
   }
+
+  .semanticAwards > header {
+    gap: 14px;
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -838,5 +1024,18 @@
 
   .islandStrip {
     grid-template-columns: 1fr;
+  }
+
+  .semanticAwards {
+    padding: 24px 14px 18px;
+  }
+
+  .awardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .awardCard,
+  .awardCard:nth-child(2) {
+    border-right: 1px solid #b9b6ac;
   }
 }

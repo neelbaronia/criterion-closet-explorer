@@ -207,6 +207,13 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /Change POV/);
   assert.match(html, /Navigate/);
   assert.match(html, /Criterion Genome PCA/);
+  assert.match(html, /Range &amp; Consistency/);
+  assert.match(html, /Most diverse picker/);
+  assert.match(html, /Most diverse director/);
+  assert.match(html, /Most consistent picker/);
+  assert.match(html, /Most consistent director/);
+  assert.match(html, /RMS spread/);
+  assert.match(html, /at least five mapped films/);
   assert.match(html, /not yet an OpenAI text-embedding projection/i);
 });
 
@@ -264,6 +271,37 @@ test("filters the Semantic Map by director and searches individual films", async
   assert.match(component, /selectSearchedFilm\(exactMatch\.id\)/);
   assert.match(styles, /\.directorFilter/);
   assert.match(styles, /\.filmSearch/);
+});
+
+test("awards semantic diversity and consistency using centroid spread", async () => {
+  const [component, styles] = await Promise.all([
+    readFile(
+      new URL("../app/semantic-islands/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/semantic-islands/semantic-islands.module.css",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(
+    component,
+    /function semanticSpread\(filmIds: string\[\], films: Record<string, Film>\)/,
+  );
+  assert.match(component, /if \(points\.length < 5\) return undefined/);
+  assert.match(component, /sum \+ film\.x/);
+  assert.match(component, /\(film\.x - centroid\.x\) \*\* 2/);
+  assert.match(component, /Math\.sqrt\(/);
+  assert.match(component, /label: "Most diverse picker"/);
+  assert.match(component, /label: "Most consistent director"/);
+  assert.match(component, /candidate\.spread\.toFixed\(3\)/);
+  assert.match(styles, /\.semanticAwards/);
+  assert.match(styles, /\.awardGrid/);
+  assert.match(styles, /\.awardPosterRail/);
 });
 
 test("adds posters and color-mapped picker portrait cards to the map inspector", async () => {

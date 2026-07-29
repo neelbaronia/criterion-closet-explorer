@@ -78,6 +78,14 @@ type ProjectedFilm = {
   screenY: number;
 };
 
+type SemanticAwardCandidate = {
+  entity: "director" | "picker";
+  filmIds: string[];
+  image: string;
+  name: string;
+  spread: number;
+};
+
 const initialData = tasteMapData as unknown as TasteData;
 const islandColors = [
   "#d9472f",
@@ -125,6 +133,28 @@ function pickerColor(name: string) {
   const saturation = 64 + ((unsignedHash >>> 16) & 0x0f);
   const lightness = 36 + ((unsignedHash >>> 20) & 0x0f);
   return `hsl(${hue.toFixed(2)} ${saturation}% ${lightness}%)`;
+}
+
+function semanticSpread(filmIds: string[], films: Record<string, Film>) {
+  const points = [...new Set(filmIds)]
+    .map((filmId) => films[filmId])
+    .filter(Boolean);
+  if (points.length < 5) return undefined;
+  const centroid = {
+    x: points.reduce((sum, film) => sum + film.x, 0) / points.length,
+    y: points.reduce((sum, film) => sum + film.y, 0) / points.length,
+    z: points.reduce((sum, film) => sum + film.z, 0) / points.length,
+  };
+  return Math.sqrt(
+    points.reduce(
+      (sum, film) =>
+        sum +
+        (film.x - centroid.x) ** 2 +
+        (film.y - centroid.y) ** 2 +
+        (film.z - centroid.z) ** 2,
+      0,
+    ) / points.length,
+  );
 }
 
 export default function SemanticIslandsPage() {
@@ -261,6 +291,72 @@ export default function SemanticIslandsPage() {
       .sort((left, right) => left.distance - right.distance)
       .slice(0, 5);
   }, [filmEntries, selectedFilm, selectedFilmId]);
+  const semanticAwards = useMemo(() => {
+    const pickerCandidates = data.pickers
+      .map((picker): SemanticAwardCandidate | undefined => {
+        const filmIds = picker.filmIds.filter((filmId) => data.films[filmId]);
+        const spread = semanticSpread(filmIds, data.films);
+        if (spread === undefined) return undefined;
+        return {
+          entity: "picker",
+          filmIds,
+          image: picker.image,
+          name: picker.name,
+          spread,
+        };
+      })
+      .filter((candidate): candidate is SemanticAwardCandidate =>
+        Boolean(candidate),
+      )
+      .sort((left, right) => left.spread - right.spread);
+    const directorCandidates = directorOptions
+      .map((director): SemanticAwardCandidate | undefined => {
+        const spread = semanticSpread(director.filmIds, data.films);
+        if (spread === undefined) return undefined;
+        return {
+          entity: "director",
+          filmIds: director.filmIds,
+          image: "",
+          name: director.name,
+          spread,
+        };
+      })
+      .filter((candidate): candidate is SemanticAwardCandidate =>
+        Boolean(candidate),
+      )
+      .sort((left, right) => left.spread - right.spread);
+
+    return [
+      {
+        candidate: pickerCandidates.at(-1),
+        label: "Most diverse picker",
+        qualifier: "Maximum spread",
+      },
+      {
+        candidate: directorCandidates.at(-1),
+        label: "Most diverse director",
+        qualifier: "Maximum spread",
+      },
+      {
+        candidate: pickerCandidates[0],
+        label: "Most consistent picker",
+        qualifier: "Minimum spread",
+      },
+      {
+        candidate: directorCandidates[0],
+        label: "Most consistent director",
+        qualifier: "Minimum spread",
+      },
+    ].filter(
+      (
+        award,
+      ): award is {
+        candidate: SemanticAwardCandidate;
+        label: string;
+        qualifier: string;
+      } => Boolean(award.candidate),
+    );
+  }, [data.films, data.pickers, directorOptions]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1330,6 +1426,95 @@ export default function SemanticIslandsPage() {
             <b>{island.count}</b>
           </button>
         ))}
+      </section>
+
+      <section
+        className={styles.semanticAwards}
+        aria-labelledby="semantic-awards-title"
+      >
+        <header>
+          <div>
+            <span>Semantic awards / 3D projection</span>
+            <h2 id="semantic-awards-title">Range &amp; Consistency</h2>
+          </div>
+          <p>
+            Who ranges furthest across the map—and who returns to the tightest
+            corner of it?
+          </p>
+        </header>
+        <div className={styles.awardGrid}>
+          {semanticAwards.map(({ candidate, label, qualifier }, index) => {
+            const color =
+              candidate.entity === "picker"
+                ? pickerColor(candidate.name)
+                : pickerColor(`Director: ${candidate.name}`);
+            const awardFilms = candidate.filmIds
+              .map((filmId) => data.films[filmId])
+              .filter(Boolean)
+              .sort((left, right) => left.title.localeCompare(right.title))
+              .slice(0, 4);
+            const initials = candidate.name
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((part) => part[0])
+              .join("");
+
+            return (
+              <article
+                className={styles.awardCard}
+                key={`${candidate.entity}-${label}`}
+                style={{ borderTopColor: color }}
+              >
+                <div className={styles.awardNumber}>
+                  <b>{String(index + 1).padStart(2, "0")}</b>
+                  <span>{qualifier}</span>
+                </div>
+                <div className={styles.awardIdentity}>
+                  {candidate.image ? (
+                    <img
+                      src={candidate.image}
+                      alt={`${candidate.name}, Criterion Closet picker`}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <i style={{ background: color }} aria-hidden="true">
+                      {initials}
+                    </i>
+                  )}
+                  <div>
+                    <span>{label}</span>
+                    <h3>{candidate.name}</h3>
+                  </div>
+                </div>
+                <dl>
+                  <div>
+                    <dt>RMS spread</dt>
+                    <dd>{candidate.spread.toFixed(3)}</dd>
+                  </div>
+                  <div>
+                    <dt>Mapped films</dt>
+                    <dd>{candidate.filmIds.length}</dd>
+                  </div>
+                </dl>
+                <div className={styles.awardPosterRail}>
+                  {awardFilms.map((film) => (
+                    <img
+                      key={`${candidate.name}-${film.title}-${film.year}`}
+                      src={film.poster}
+                      alt={`${film.title} poster`}
+                      loading="lazy"
+                    />
+                  ))}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <footer>
+          RMS spread is the average 3D distance of a person&apos;s film points
+          from their centroid. Awards require at least five mapped films; lower
+          spread means a tighter, more consistent cluster.
+        </footer>
       </section>
 
       <footer className={styles.method}>
