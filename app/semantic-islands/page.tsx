@@ -196,6 +196,9 @@ export default function SemanticIslandsPage() {
   const [leaderboardEntity, setLeaderboardEntity] = useState<
     "director" | "picker"
   >("picker");
+  const [leaderboardSort, setLeaderboardSort] = useState<
+    "consistent" | "diverse"
+  >("diverse");
   const [hasFocus, setHasFocus] = useState(false);
 
   const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
@@ -361,6 +364,10 @@ export default function SemanticIslandsPage() {
     };
   }, [data.films, data.pickers, directorOptions]);
   const activeLeaderboard = semanticLeaderboards[leaderboardEntity];
+  const orderedLeaderboard =
+    leaderboardSort === "diverse"
+      ? activeLeaderboard
+      : [...activeLeaderboard].reverse();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1456,32 +1463,57 @@ export default function SemanticIslandsPage() {
           </p>
         </header>
         <div className={styles.leaderboard}>
-          <div
-            className={styles.leaderboardTabs}
-            role="tablist"
-            aria-label="Semantic leaderboard type"
-          >
+          <div className={styles.leaderboardToolbar}>
+            <div
+              className={styles.leaderboardTabs}
+              role="tablist"
+              aria-label="Semantic leaderboard type"
+            >
+              <button
+                aria-controls="semantic-leaderboard-panel"
+                aria-selected={leaderboardEntity === "picker"}
+                id="picker-leaderboard-tab"
+                onClick={() => setLeaderboardEntity("picker")}
+                role="tab"
+                type="button"
+              >
+                Closet pickers
+                <b>{semanticLeaderboards.picker.length}</b>
+              </button>
+              <button
+                aria-controls="semantic-leaderboard-panel"
+                aria-selected={leaderboardEntity === "director"}
+                id="director-leaderboard-tab"
+                onClick={() => setLeaderboardEntity("director")}
+                role="tab"
+                type="button"
+              >
+                Directors
+                <b>{semanticLeaderboards.director.length}</b>
+              </button>
+            </div>
             <button
-              aria-controls="semantic-leaderboard-panel"
-              aria-selected={leaderboardEntity === "picker"}
-              id="picker-leaderboard-tab"
-              onClick={() => setLeaderboardEntity("picker")}
-              role="tab"
+              aria-label={`Sort by RMS spread: ${
+                leaderboardSort === "diverse"
+                  ? "most diverse first"
+                  : "most consistent first"
+              }`}
+              className={styles.leaderboardSort}
+              onClick={() =>
+                setLeaderboardSort((current) =>
+                  current === "diverse" ? "consistent" : "diverse",
+                )
+              }
               type="button"
             >
-              Closet pickers
-              <b>{semanticLeaderboards.picker.length}</b>
-            </button>
-            <button
-              aria-controls="semantic-leaderboard-panel"
-              aria-selected={leaderboardEntity === "director"}
-              id="director-leaderboard-tab"
-              onClick={() => setLeaderboardEntity("director")}
-              role="tab"
-              type="button"
-            >
-              Directors
-              <b>{semanticLeaderboards.director.length}</b>
+              <span>
+                {leaderboardSort === "diverse"
+                  ? "Most diverse first"
+                  : "Most consistent first"}
+              </span>
+              <b aria-hidden="true">
+                {leaderboardSort === "diverse" ? "↓" : "↑"}
+              </b>
             </button>
           </div>
           <div className={styles.leaderboardColumns} aria-hidden="true">
@@ -1496,7 +1528,7 @@ export default function SemanticIslandsPage() {
             id="semantic-leaderboard-panel"
             role="tabpanel"
           >
-            {activeLeaderboard.map((candidate, index) => {
+            {orderedLeaderboard.map((candidate, index) => {
               const initials = candidate.name
                 .split(/\s+/)
                 .slice(0, 2)
@@ -1521,9 +1553,9 @@ export default function SemanticIslandsPage() {
                     <div>
                       <h3>{candidate.name}</h3>
                       <span>
-                        {index === 0
+                        {candidate === activeLeaderboard[0]
                           ? "Most diverse"
-                          : index === activeLeaderboard.length - 1
+                          : candidate === activeLeaderboard.at(-1)
                             ? "Most consistent"
                             : candidate.entity === "picker"
                               ? "Closet picker"

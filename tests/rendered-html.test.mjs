@@ -313,12 +313,18 @@ test("ranks picker and director taste from diverse to consistent", async () => {
   assert.match(component, /right\.spread - left\.spread/);
   assert.match(component, /setLeaderboardEntity\("picker"\)/);
   assert.match(component, /setLeaderboardEntity\("director"\)/);
+  assert.match(component, /setLeaderboardSort/);
+  assert.match(component, /\[\.\.\.activeLeaderboard\]\.reverse\(\)/);
+  assert.match(component, /Most diverse first/);
+  assert.match(component, /Most consistent first/);
+  assert.match(component, /Sort by RMS spread:/);
   assert.match(component, /role="tablist"/);
   assert.match(component, /role="tabpanel"/);
   assert.match(component, /String\(index \+ 1\)\.padStart\(3, "0"\)/);
   assert.match(component, /candidate\.spread\.toFixed\(3\)/);
   assert.match(styles, /\.semanticAwards/);
   assert.match(styles, /\.leaderboardTabs/);
+  assert.match(styles, /\.leaderboardSort/);
   assert.match(styles, /\.leaderboardList/);
   assert.match(styles, /\.leaderboardScore/);
   assert.doesNotMatch(component, /leaderboardRange/);
