@@ -196,6 +196,10 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /PC3/);
   assert.match(html, /Highlight picker/);
   assert.match(html, /All pickers/);
+  assert.match(html, /Highlight director/);
+  assert.match(html, /All directors/);
+  assert.match(html, /aria-label="Search movie titles"/);
+  assert.match(html, /Search 1,262 titles/);
   assert.match(html, /Christopher Nolan/);
   assert.match(html, /picker colors/);
   assert.doesNotMatch(html, /Picker spotlight/);
@@ -222,7 +226,7 @@ test("color-codes map points by picker and highlights one picker", async () => {
   ]);
 
   assert.match(component, /function pickerColor\(name: string\)/);
-  assert.match(component, /selectedPickerFilmIds\.has\(id\)/);
+  assert.match(component, /activeHighlightFilmIds\.has\(id\)/);
   assert.match(component, /document\.createElement\("canvas"\)/);
   assert.match(component, /const slice = \(Math\.PI \* 2\) \/ memberships\.length/);
   assert.match(component, /context\.drawImage\(/);
@@ -231,6 +235,35 @@ test("color-codes map points by picker and highlights one picker", async () => {
   assert.match(component, /\$\{selectedPicker\.filmIds\.length\} films highlighted/);
   assert.match(styles, /\.pickerFilter/);
   assert.match(styles, /\.pickerCardGrid/);
+});
+
+test("filters the Semantic Map by director and searches individual films", async () => {
+  const [component, styles] = await Promise.all([
+    readFile(
+      new URL("../app/semantic-islands/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/semantic-islands/semantic-islands.module.css",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(component, /aria-label="Highlight a director"/);
+  assert.match(component, /<option value="all">All directors<\/option>/);
+  assert.match(component, /function selectDirector\(directorName: string\)/);
+  assert.match(component, /setSelectedPickerId\("all"\)/);
+  assert.match(component, /setSelectedDirectorName\("all"\)/);
+  assert.match(component, /aria-label="Search movie titles"/);
+  assert.match(component, /list="semantic-map-film-titles"/);
+  assert.match(component, /function searchFilms\(event: FormEvent<HTMLFormElement>\)/);
+  assert.match(component, /film\.title\.toLocaleLowerCase\(\)\.includes\(query\)/);
+  assert.match(component, /selectSearchedFilm\(exactMatch\.id\)/);
+  assert.match(styles, /\.directorFilter/);
+  assert.match(styles, /\.filmSearch/);
 });
 
 test("adds posters and color-mapped picker portrait cards to the map inspector", async () => {

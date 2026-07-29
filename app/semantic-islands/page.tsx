@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- Posters and picker portraits are remote Criterion archive data. */
 
 import {
+  FormEvent,
   KeyboardEvent,
   MouseEvent,
   PointerEvent,
@@ -151,6 +152,9 @@ export default function SemanticIslandsPage() {
   const [hoveredFilmId, setHoveredFilmId] = useState("");
   const [selectedIsland, setSelectedIsland] = useState("all");
   const [selectedPickerId, setSelectedPickerId] = useState("all");
+  const [selectedDirectorName, setSelectedDirectorName] = useState("all");
+  const [filmQuery, setFilmQuery] = useState("");
+  const [filmSearchStatus, setFilmSearchStatus] = useState("");
   const [hasFocus, setHasFocus] = useState(false);
 
   const filmEntries = useMemo(() => Object.entries(data.films), [data.films]);
@@ -169,6 +173,30 @@ export default function SemanticIslandsPage() {
         left.name.localeCompare(right.name),
       ),
     [data.pickers],
+  );
+  const directorOptions = useMemo(() => {
+    const filmsByDirector = new Map<string, string[]>();
+    for (const [filmId, film] of filmEntries) {
+      const filmIds = filmsByDirector.get(film.director) ?? [];
+      filmIds.push(filmId);
+      filmsByDirector.set(film.director, filmIds);
+    }
+    return [...filmsByDirector]
+      .map(([name, filmIds]) => ({ filmIds, name }))
+      .sort((left, right) => left.name.localeCompare(right.name));
+  }, [filmEntries]);
+  const filmSearchOptions = useMemo(
+    () =>
+      filmEntries
+        .map(([id, film]) => ({
+          display: `${film.title}${formatYear(film.year)} — ${film.director}`,
+          film,
+          id,
+        }))
+        .sort((left, right) =>
+          left.film.title.localeCompare(right.film.title),
+        ),
+    [filmEntries],
   );
   const pickerMembership = useMemo(() => {
     const membership = new Map<string, Picker[]>();
@@ -192,6 +220,28 @@ export default function SemanticIslandsPage() {
     () => new Set(selectedPicker?.filmIds ?? []),
     [selectedPicker],
   );
+  const selectedDirector = useMemo(
+    () =>
+      selectedDirectorName === "all"
+        ? undefined
+        : directorOptions.find(
+            (director) => director.name === selectedDirectorName,
+          ),
+    [directorOptions, selectedDirectorName],
+  );
+  const selectedDirectorFilmIds = useMemo(
+    () => new Set(selectedDirector?.filmIds ?? []),
+    [selectedDirector],
+  );
+  const activeHighlight = selectedPicker ?? selectedDirector;
+  const activeHighlightFilmIds = selectedPicker
+    ? selectedPickerFilmIds
+    : selectedDirectorFilmIds;
+  const activeHighlightColor = selectedPicker
+    ? pickerColor(selectedPicker.name)
+    : selectedDirector
+      ? pickerColor(`Director: ${selectedDirector.name}`)
+      : "";
   const selectedFilm = data.films[selectedFilmId];
   const hoveredFilm = hoveredFilmId ? data.films[hoveredFilmId] : undefined;
 
@@ -265,11 +315,62 @@ export default function SemanticIslandsPage() {
 
   function selectPicker(pickerId: string) {
     setSelectedPickerId(pickerId);
+    setSelectedDirectorName("all");
     setSelectedIsland("all");
     if (pickerId === "all") return;
     const nextPicker = data.pickers.find((picker) => picker.id === pickerId);
     const firstFilmId = nextPicker?.filmIds[0];
     if (firstFilmId) setSelectedFilmId(firstFilmId);
+  }
+
+  function selectDirector(directorName: string) {
+    setSelectedDirectorName(directorName);
+    setSelectedPickerId("all");
+    setSelectedIsland("all");
+    if (directorName === "all") return;
+    const director = directorOptions.find(
+      (option) => option.name === directorName,
+    );
+    const firstFilmId = director?.filmIds[0];
+    if (firstFilmId) setSelectedFilmId(firstFilmId);
+  }
+
+  function selectSearchedFilm(filmId: string) {
+    const film = data.films[filmId];
+    if (!film) return;
+    setSelectedFilmId(filmId);
+    setSelectedPickerId("all");
+    setSelectedDirectorName("all");
+    setSelectedIsland("all");
+    setFilmQuery(`${film.title}${formatYear(film.year)} — ${film.director}`);
+    setFilmSearchStatus(`Selected ${film.title}`);
+  }
+
+  function searchFilms(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = filmQuery.trim().toLocaleLowerCase();
+    if (!query) {
+      setFilmSearchStatus("Enter a movie title");
+      return;
+    }
+    const match =
+      filmSearchOptions.find(
+        ({ display }) => display.toLocaleLowerCase() === query,
+      ) ??
+      filmSearchOptions.find(
+        ({ film }) => film.title.toLocaleLowerCase() === query,
+      ) ??
+      filmSearchOptions.find(({ film }) =>
+        film.title.toLocaleLowerCase().startsWith(query),
+      ) ??
+      filmSearchOptions.find(({ film }) =>
+        film.title.toLocaleLowerCase().includes(query),
+      );
+    if (match) {
+      selectSearchedFilm(match.id);
+    } else {
+      setFilmSearchStatus("No matching title");
+    }
   }
 
   function animateKeyboard(timestamp: number) {
@@ -588,8 +689,8 @@ export default function SemanticIslandsPage() {
         depth: number;
         film: Film;
         id: string;
+        filterHighlighted: boolean;
         islandVisible: boolean;
-        pickerHighlighted: boolean;
         radius: number;
         screenX: number;
         screenY: number;
@@ -607,15 +708,15 @@ export default function SemanticIslandsPage() {
         }
         const islandVisible =
           selectedIsland === "all" || film.island === Number(selectedIsland);
-        const pickerHighlighted =
-          !selectedPicker || selectedPickerFilmIds.has(id);
+        const filterHighlighted =
+          !activeHighlight || activeHighlightFilmIds.has(id);
         const scaleByDepth = clamp(focal / screen.depth, 0.75, 2.1);
         projected.push({
           depth: screen.depth,
           film,
+          filterHighlighted,
           id,
           islandVisible,
-          pickerHighlighted,
           radius: 3.1 * scaleByDepth,
           screenX: screen.x,
           screenY: screen.y,
@@ -623,10 +724,10 @@ export default function SemanticIslandsPage() {
       }
       projected.sort((left, right) => right.depth - left.depth);
 
-      const orderedPoints = selectedPicker
+      const orderedPoints = activeHighlight
         ? [
-            ...projected.filter((point) => !point.pickerHighlighted),
-            ...projected.filter((point) => point.pickerHighlighted),
+            ...projected.filter((point) => !point.filterHighlighted),
+            ...projected.filter((point) => point.filterHighlighted),
           ]
         : projected;
 
@@ -690,10 +791,10 @@ export default function SemanticIslandsPage() {
         const fadedByIsland = !point.islandVisible;
         const radius =
           point.radius +
-          (selectedPicker && point.pickerHighlighted ? 1.3 : 0) +
+          (activeHighlight && point.filterHighlighted ? 1.3 : 0) +
           (isSelected || isHovered ? 2 : 0);
-        const opacity = selectedPicker
-          ? point.pickerHighlighted
+        const opacity = activeHighlight
+          ? point.filterHighlighted
             ? fadedByIsland
               ? 0.18
               : 0.98
@@ -704,7 +805,7 @@ export default function SemanticIslandsPage() {
 
         context.save();
         context.globalAlpha = opacity;
-        if (selectedPicker && point.pickerHighlighted) {
+        if (activeHighlight && point.filterHighlighted) {
           context.beginPath();
           context.arc(
             point.screenX,
@@ -724,9 +825,9 @@ export default function SemanticIslandsPage() {
             0,
             Math.PI * 2,
           );
-          context.fillStyle = pickerColor(selectedPicker.name);
+          context.fillStyle = activeHighlightColor;
           context.fill();
-        } else if (selectedPicker) {
+        } else if (activeHighlight) {
           context.beginPath();
           context.arc(
             point.screenX,
@@ -890,6 +991,9 @@ export default function SemanticIslandsPage() {
       drawFrameRef.current = () => undefined;
     };
   }, [
+    activeHighlight,
+    activeHighlightColor,
+    activeHighlightFilmIds,
     data.meta.filmIslands,
     filmPoints,
     hoveredFilmId,
@@ -897,8 +1001,6 @@ export default function SemanticIslandsPage() {
     requestDraw,
     selectedFilmId,
     selectedIsland,
-    selectedPicker,
-    selectedPickerFilmIds,
   ]);
 
   return (
@@ -948,6 +1050,71 @@ export default function SemanticIslandsPage() {
               : `${pickerOptions.length} picker colors`}
           </small>
         </label>
+        <label className={styles.directorFilter}>
+          <span>Highlight director</span>
+          <div>
+            <i
+              className={selectedDirector ? "" : styles.allDirectors}
+              style={
+                selectedDirector
+                  ? {
+                      background: pickerColor(
+                        `Director: ${selectedDirector.name}`,
+                      ),
+                    }
+                  : undefined
+              }
+            />
+            <select
+              aria-label="Highlight a director"
+              value={selectedDirectorName}
+              onChange={(event) => selectDirector(event.target.value)}
+            >
+              <option value="all">All directors</option>
+              {directorOptions.map((director) => (
+                <option key={director.name} value={director.name}>
+                  {director.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <small>
+            {selectedDirector
+              ? `${selectedDirector.filmIds.length} films highlighted`
+              : `${directorOptions.length} directors`}
+          </small>
+        </label>
+        <form className={styles.filmSearch} onSubmit={searchFilms}>
+          <span>Find a movie</span>
+          <div>
+            <input
+              aria-label="Search movie titles"
+              autoComplete="off"
+              list="semantic-map-film-titles"
+              placeholder={`Search ${filmSearchOptions.length.toLocaleString()} titles`}
+              type="search"
+              value={filmQuery}
+              onChange={(event) => {
+                const value = event.target.value;
+                setFilmQuery(value);
+                setFilmSearchStatus("");
+                const exactMatch = filmSearchOptions.find(
+                  ({ display }) => display === value,
+                );
+                if (exactMatch) selectSearchedFilm(exactMatch.id);
+              }}
+            />
+            <button type="submit">Find</button>
+          </div>
+          <datalist id="semantic-map-film-titles">
+            {filmSearchOptions.map(({ display, id }) => (
+              <option key={id} value={display} />
+            ))}
+          </datalist>
+          <small aria-live="polite">
+            {filmSearchStatus || `${filmSearchOptions.length} searchable films`}
+          </small>
+        </form>
         <div className={styles.axisGuide}>
           <span>Orientation</span>
           <div>
@@ -994,12 +1161,19 @@ export default function SemanticIslandsPage() {
             <b>
               {selectedPicker
                 ? `${selectedPicker.name} · ${selectedPicker.filmIds.length} films`
+                : selectedDirector
+                  ? `${selectedDirector.name} · ${selectedDirector.filmIds.length} films`
                 : "Picker colors + PCA axes"}
             </b>
             {selectedPicker ? (
               <span>
                 Their picks are enlarged in one stable color; all other films
                 are dimmed for context.
+              </span>
+            ) : selectedDirector ? (
+              <span>
+                Their directed films are enlarged in one stable color; all
+                other films are dimmed for context.
               </span>
             ) : (
               <span>
