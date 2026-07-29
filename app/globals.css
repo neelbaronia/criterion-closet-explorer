@@ -48,6 +48,7 @@ a {
   border-bottom: 1px solid #333;
   display: flex;
   height: 64px;
+  justify-content: space-between;
   padding: 0 28px;
   position: sticky;
   top: 0;
@@ -61,14 +62,15 @@ a {
   color: var(--black);
   display: inline-flex;
   font-family: Arial Black, Arial, sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 900;
   height: 34px;
   justify-content: center;
-  letter-spacing: -0.08em;
+  letter-spacing: -0.055em;
   line-height: 1;
-  padding: 0 8px 1px 7px;
+  padding: 0 9px 1px 8px;
   text-decoration: none;
+  text-transform: uppercase;
 }
 
 .wordmark:hover,
@@ -76,6 +78,21 @@ a {
   background: var(--white);
   outline: 2px solid var(--yellow);
   outline-offset: 2px;
+}
+
+.maker-link {
+  color: #aaa;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.maker-link:hover,
+.maker-link:focus-visible {
+  color: var(--yellow);
+  outline: none;
 }
 
 .database-shell {
@@ -780,8 +797,12 @@ footer a:focus-visible {
   }
 
   .wordmark {
-    font-size: 21px;
+    font-size: 15px;
     height: 31px;
+  }
+
+  .maker-link {
+    font-size: 7px;
   }
 
   .database-shell {

@@ -579,8 +579,20 @@ export default function Home() {
   return (
     <main id="top">
       <header className="site-header">
-        <a className="wordmark" href="#top" aria-label="CCDB home">
-          CCDB
+        <a
+          className="wordmark"
+          href="#top"
+          aria-label="Criterion Closet DB home"
+        >
+          Criterion Closet DB
+        </a>
+        <a
+          className="maker-link"
+          href="https://github.com/neelbaronia"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Made by nbaronia ↗
         </a>
       </header>
 

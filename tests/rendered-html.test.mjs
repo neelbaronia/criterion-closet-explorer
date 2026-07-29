@@ -42,7 +42,9 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Newest Closet interviews/);
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
-  assert.match(html, />CCDB</);
+  assert.match(html, />Criterion Closet DB</);
+  assert.match(html, /Made by nbaronia/);
+  assert.match(html, /https:\/\/github\.com\/neelbaronia/);
   assert.doesNotMatch(html, /Criterion Closet Picks \/ Unofficial database/);
   assert.doesNotMatch(html, /Archive links/);
   assert.match(html, /sprocket-rail/);
