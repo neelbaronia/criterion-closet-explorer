@@ -43,6 +43,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Newest Closet interviews/);
   assert.match(html, /Movie Hall of Fame: most picks/);
   assert.match(html, /Director Hall of Fame: most picks/);
+  assert.match(html, />CCDB</);
   assert.match(html, />Criterion Closet DB</);
   assert.match(html, /Made by nbaronia/);
   assert.match(html, /https:\/\/github\.com\/neelbaronia/);
@@ -106,8 +107,19 @@ test("consolidates Hall of Fame rows and links every picker video", async () => 
   assert.match(source, /collectPickerVideos\(records, closetVideos\)/);
   assert.match(source, /<PickerVideoLinks entries=\{row\.pickerVideos\}/);
   assert.match(source, /href=\{videoUrl\}/);
+  assert.match(
+    source,
+    /sortField === "moviePicks" && \(\s*<th className="mentions-column"/,
+  );
+  assert.match(
+    source,
+    /sortField === "directorPicks" && \(\s*<th className="mentions-column"/,
+  );
+  assert.match(source, /aria-label=\{`\$\{row\.pickCount\} mentions`\}/);
   assert.match(styles, /\.aggregate-picker-list/);
   assert.match(styles, /\.poster-collage/);
+  assert.match(styles, /\.mentions-cell/);
+  assert.doesNotMatch(source, /hall-of-fame-count/);
 
   const movieCollections = new Map();
   const directorCollections = new Map();

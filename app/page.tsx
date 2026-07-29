@@ -677,25 +677,49 @@ export default function Home() {
         <div className="filmstrip-table">
           <div className="sprocket-rail" aria-hidden="true" />
           <div className="table-wrap">
-            <table>
+            <table
+              className={
+                sortField === "moviePicks" ||
+                sortField === "directorPicks"
+                  ? "hall-of-fame-table"
+                  : undefined
+              }
+            >
               <thead>
                 <tr>
                   <th className="poster-column" scope="col">
                     {sortField === "directorPicks" ? "Posters" : "Poster"}
                   </th>
-                  <th scope="col" aria-sort={ariaSort("title")}>
+                  <th
+                    className="title-column"
+                    scope="col"
+                    aria-sort={ariaSort("title")}
+                  >
                     <button type="button" onClick={() => toggleSort("title")}>
                       {sortField === "directorPicks" ? "Picked films" : "Title"}{" "}
                       <span>{sortMark("title")}</span>
                     </button>
                   </th>
-                  <th scope="col" aria-sort={ariaSort("year")}>
+                  {sortField === "moviePicks" && (
+                    <th className="mentions-column" scope="col">
+                      Mentions
+                    </th>
+                  )}
+                  <th
+                    className="year-column"
+                    scope="col"
+                    aria-sort={ariaSort("year")}
+                  >
                     <button type="button" onClick={() => toggleSort("year")}>
                       {sortField === "directorPicks" ? "Years" : "Year"}{" "}
                       <span>{sortMark("year")}</span>
                     </button>
                   </th>
-                  <th scope="col" aria-sort={ariaSort("director")}>
+                  <th
+                    className="director-column"
+                    scope="col"
+                    aria-sort={ariaSort("director")}
+                  >
                     <button
                       type="button"
                       onClick={() => toggleSort("director")}
@@ -703,7 +727,16 @@ export default function Home() {
                       Director <span>{sortMark("director")}</span>
                     </button>
                   </th>
-                  <th scope="col" aria-sort={ariaSort("picker")}>
+                  {sortField === "directorPicks" && (
+                    <th className="mentions-column" scope="col">
+                      Mentions
+                    </th>
+                  )}
+                  <th
+                    className="picker-column"
+                    scope="col"
+                    aria-sort={ariaSort("picker")}
+                  >
                     <button type="button" onClick={() => toggleSort("picker")}>
                       {sortField === "moviePicks" ||
                       sortField === "directorPicks"
@@ -775,11 +808,15 @@ export default function Home() {
                             />
                             <span className="ranked-metadata">
                               <span>{film.director}</span>
-                              <span className="hall-of-fame-count">
-                                {row.pickCount} Closet picks
-                              </span>
                             </span>
                           </div>
+                        </td>
+                        <td
+                          className="mentions-cell"
+                          aria-label={`${row.pickCount} mentions`}
+                        >
+                          <strong>{row.pickCount}</strong>
+                          <span>mentions</span>
                         </td>
                         <td className="picker-cell picker-cell--aggregate">
                           <PickerVideoLinks entries={row.pickerVideos} />
@@ -823,13 +860,17 @@ export default function Home() {
                       <td className="title-cell">
                         <span className="ranked-metadata">
                           <strong>{film.title}</strong>
-                          {row.kind === "movie" && (
-                            <span className="hall-of-fame-count">
-                              {row.pickCount} Closet picks
-                            </span>
-                          )}
                         </span>
                       </td>
+                      {row.kind === "movie" && (
+                        <td
+                          className="mentions-cell"
+                          aria-label={`${row.pickCount} mentions`}
+                        >
+                          <strong>{row.pickCount}</strong>
+                          <span>mentions</span>
+                        </td>
+                      )}
                       <td className="year-cell">{film.year ?? "—"}</td>
                       <td className="director-cell">
                         <div className="person-entry">

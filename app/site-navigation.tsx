@@ -13,8 +13,9 @@ export default function SiteNavigation({
           href="/"
           aria-label="Criterion Closet DB home"
         >
-          Criterion Closet DB
+          CCDB
         </a>
+        <span className="site-title">Criterion Closet DB</span>
         <a
           className="maker-link"
           href="https://github.com/neelbaronia"
