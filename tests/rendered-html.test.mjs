@@ -212,11 +212,11 @@ test("server-renders the navigable 3D Semantic Islands explorer", async () => {
   assert.match(html, /Change POV/);
   assert.match(html, /Navigate/);
   assert.doesNotMatch(html, /Criterion Genome PCA/);
-  assert.match(html, /Range &amp; Consistency/);
-  assert.match(html, /Most diverse picker/);
-  assert.match(html, /Most diverse director/);
-  assert.match(html, /Most consistent picker/);
-  assert.match(html, /Most consistent director/);
+  assert.match(html, /Taste Range Leaderboard/);
+  assert.match(html, /Closet pickers/);
+  assert.match(html, /role="tablist"/);
+  assert.match(html, /Most diverse/);
+  assert.match(html, /Most consistent/);
   assert.match(html, /RMS spread/);
   assert.match(html, /at least five mapped films/);
   assert.doesNotMatch(html, /not yet an OpenAI text-embedding projection/i);
@@ -284,7 +284,7 @@ test("searches the Semantic Map by film, director, and picker", async () => {
   assert.match(styles, /\.filmSearch/);
 });
 
-test("awards semantic diversity and consistency using centroid spread", async () => {
+test("ranks picker and director taste from diverse to consistent", async () => {
   const [component, styles] = await Promise.all([
     readFile(
       new URL("../app/semantic-islands/page.tsx", import.meta.url),
@@ -307,12 +307,18 @@ test("awards semantic diversity and consistency using centroid spread", async ()
   assert.match(component, /sum \+ film\.x/);
   assert.match(component, /\(film\.x - centroid\.x\) \*\* 2/);
   assert.match(component, /Math\.sqrt\(/);
-  assert.match(component, /label: "Most diverse picker"/);
-  assert.match(component, /label: "Most consistent director"/);
+  assert.match(component, /const semanticLeaderboards = useMemo/);
+  assert.match(component, /right\.spread - left\.spread/);
+  assert.match(component, /setLeaderboardEntity\("picker"\)/);
+  assert.match(component, /setLeaderboardEntity\("director"\)/);
+  assert.match(component, /role="tablist"/);
+  assert.match(component, /role="tabpanel"/);
+  assert.match(component, /String\(index \+ 1\)\.padStart\(3, "0"\)/);
   assert.match(component, /candidate\.spread\.toFixed\(3\)/);
   assert.match(styles, /\.semanticAwards/);
-  assert.match(styles, /\.awardGrid/);
-  assert.match(styles, /\.awardPosterRail/);
+  assert.match(styles, /\.leaderboardTabs/);
+  assert.match(styles, /\.leaderboardList/);
+  assert.match(styles, /\.leaderboardScore/);
 });
 
 test("adds posters and color-mapped picker portrait cards to the map inspector", async () => {
@@ -346,10 +352,6 @@ test("adds posters and color-mapped picker portrait cards to the map inspector",
   assert.match(
     styles,
     /\.neighbors button > img\s*\{[^}]*object-fit: contain;/s,
-  );
-  assert.match(
-    styles,
-    /\.awardPosterRail img\s*\{[^}]*object-fit: contain;/s,
   );
   assert.ok(Object.values(tasteMap.films).every((film) => film.poster));
   assert.ok(tasteMap.pickers.every((picker) => picker.image));
