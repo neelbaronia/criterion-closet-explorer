@@ -338,6 +338,10 @@
   color: #777;
 }
 
+.controlNotice .touchControl {
+  display: none;
+}
+
 .controlNotice.focused {
   background: var(--yellow);
   border-color: var(--ink);
@@ -988,8 +992,37 @@
   }
 
   .viewport {
-    height: 62vh;
-    min-height: 480px;
+    height: 60svh;
+    min-height: 430px;
+  }
+
+  .controlNotice {
+    bottom: 10px;
+    right: 10px;
+    top: auto;
+  }
+
+  .controlNotice .keyboardControl {
+    display: none;
+  }
+
+  .controlNotice b.touchControl {
+    display: flex;
+  }
+
+  .controlNotice span.touchControl {
+    display: block;
+  }
+
+  .mapLegend {
+    left: 10px;
+    max-width: min(260px, calc(100% - 20px));
+    top: 10px;
+  }
+
+  .coordinates {
+    bottom: 10px;
+    left: 10px;
   }
 
   .inspector {
@@ -1002,7 +1035,15 @@
   }
 
   .islandStrip {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-color: var(--red) #dedcd4;
+  }
+
+  .islandStrip button {
+    flex: 0 0 145px;
+    scroll-snap-align: start;
   }
 
   .method {
@@ -1014,11 +1055,110 @@
     gap: 14px;
     grid-template-columns: 1fr;
   }
+
+  .semanticAwards h2 {
+    font-size: clamp(34px, 10vw, 52px);
+  }
+
+  .leaderboardTabs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .leaderboardColumns {
+    display: none;
+  }
+
+  .leaderboardList {
+    max-height: 68svh;
+  }
+
+  .leaderboardList li {
+    align-items: stretch;
+    grid-template-areas:
+      "rank identity identity"
+      "rank films score";
+    grid-template-columns: 46px minmax(0, 0.82fr) minmax(0, 1.18fr);
+    min-height: 88px;
+  }
+
+  .leaderboardRank {
+    align-items: center;
+    display: flex;
+    grid-area: rank;
+    justify-content: center;
+    padding: 0 6px;
+  }
+
+  .leaderboardIdentity {
+    grid-area: identity;
+    padding: 8px 10px;
+  }
+
+  .leaderboardFilmCount {
+    gap: 7px;
+    grid-area: films;
+    padding: 8px 10px;
+  }
+
+  .leaderboardFilmCount::before,
+  .leaderboardScore::before {
+    color: #777;
+    font-family: var(--font-mono), monospace;
+    font-size: 7px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .leaderboardFilmCount::before {
+    content: "Films";
+  }
+
+  .leaderboardScore {
+    gap: 7px;
+    grid-area: score;
+    grid-template-columns: auto auto minmax(20px, 1fr);
+    padding: 8px 10px;
+  }
+
+  .leaderboardScore::before {
+    content: "RMS";
+  }
 }
 
 @media (max-width: 480px) {
   .controlBar {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pickerFilter {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .directorFilter {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .filmSearch {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .axisGuide {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .cameraActions {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .controlBar > p {
+    display: none;
   }
 
   .pickerFilter,
@@ -1031,48 +1171,46 @@
     min-height: 58px;
   }
 
+  .pickerFilter,
+  .axisGuide {
+    border-right: 1px solid #cbc8bd;
+  }
+
   .cameraActions {
+    border-bottom: 1px solid #cbc8bd;
+    border-right: 0;
     border-top: 0;
   }
 
   .viewport {
-    height: 58vh;
-    min-height: 420px;
+    height: 58svh;
+    min-height: 390px;
   }
 
   .mapLegend {
-    max-width: 210px;
+    max-width: min(210px, calc(100% - 20px));
   }
 
-  .islandStrip {
-    grid-template-columns: 1fr;
+  .selectedFilmOverview {
+    gap: 10px;
+    grid-template-columns: 78px minmax(0, 1fr);
+  }
+
+  .selectedPoster {
+    width: 78px;
+  }
+
+  .filmDetail h2 {
+    font-size: 23px;
   }
 
   .semanticAwards {
     padding: 24px 14px 18px;
   }
 
-  .leaderboardTabs {
-    grid-template-columns: 1fr 1fr;
-  }
-
   .leaderboardTabs button {
     font-size: 8px;
     padding: 0 8px;
-  }
-
-  .leaderboardColumns,
-  .leaderboardList li {
-    grid-template-columns: 50px minmax(160px, 1fr) 68px 96px;
-  }
-
-  .leaderboardColumns span,
-  .leaderboardRank,
-  .leaderboardIdentity,
-  .leaderboardFilmCount,
-  .leaderboardScore {
-    padding-left: 8px;
-    padding-right: 8px;
   }
 
   .leaderboardIdentity {
@@ -1091,11 +1229,10 @@
   }
 
   .leaderboardScore {
-    display: block;
-    padding-top: 14px;
+    grid-template-columns: auto auto;
   }
 
   .leaderboardScore > i {
-    margin-top: 6px;
+    display: none;
   }
 }

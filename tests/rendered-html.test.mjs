@@ -395,6 +395,49 @@ test("keeps Semantic Map navigation legible and off the React render loop", asyn
   assert.match(styles, /\.viewport\s*\{[^}]*background: #efede5/s);
 });
 
+test("reflows the database and Semantic Map for narrow mobile screens", async () => {
+  const [databasePage, globalStyles, mapPage, mapStyles] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/semantic-islands/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/semantic-islands/semantic-islands.module.css",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(databasePage, /: "film-table"/);
+  assert.match(globalStyles, /@media \(max-width: 620px\)/);
+  assert.match(
+    globalStyles,
+    /\.film-table tbody tr\s*\{[^}]*display: grid;[^}]*grid-template-areas:/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.director-hall-of-fame-table tbody tr\s*\{[^}]*display: grid;[^}]*grid-template-areas:/s,
+  );
+  assert.match(globalStyles, /\.film-table,\s*\.hall-of-fame-table,/);
+  assert.match(globalStyles, /min-width: 0;/);
+  assert.match(mapPage, /className=\{styles\.touchControl\}/);
+  assert.match(mapPage, /Drag to orbit on touch screens/);
+  assert.match(
+    mapPage,
+    /const initialCamera: Camera = \{\s*pitch: -0\.08,\s*x: 340,\s*y: 130,\s*yaw: -0\.18,/s,
+  );
+  assert.match(mapStyles, /\.controlNotice b\.touchControl/);
+  assert.match(mapStyles, /scroll-snap-type: x proximity/);
+  assert.match(
+    mapStyles,
+    /\.leaderboardList li\s*\{[^}]*grid-template-areas:/s,
+  );
+});
+
 test("returns ranked dream-list matches without requiring an API key", async () => {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("match-test", `${process.pid}-${Date.now()}`);

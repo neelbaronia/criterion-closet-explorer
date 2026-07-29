@@ -912,7 +912,7 @@ footer a:focus-visible {
 @media (max-width: 620px) {
   .site-header {
     height: 56px;
-    padding: 0 16px;
+    padding: 0 12px;
   }
 
   .wordmark {
@@ -926,6 +926,11 @@ footer a:focus-visible {
   }
 
   .maker-link {
+    font-size: 0;
+  }
+
+  .maker-link::after {
+    content: "nbaronia ↗";
     font-size: 7px;
   }
 
@@ -934,9 +939,9 @@ footer a:focus-visible {
   }
 
   .view-tab {
-    font-size: 22px;
+    font-size: clamp(17px, 5.6vw, 22px);
     min-height: 58px;
-    padding: 6px 12px 8px;
+    padding: 6px 8px 8px;
   }
 
   .view-tab--active::before {
@@ -949,23 +954,347 @@ footer a:focus-visible {
   }
 
   .filter-panel {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .filter-panel label {
     border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    padding: 10px 12px 11px;
+  }
+
+  .filter-panel label:first-child {
     border-right: 0;
-    padding: 11px 16px 12px;
+    grid-column: 1 / -1;
+  }
+
+  .filter-panel label:nth-child(3),
+  .filter-panel label:nth-child(5) {
+    border-right: 0;
+  }
+
+  .filter-panel label:nth-child(n + 4) {
+    border-bottom: 0;
   }
 
   .filter-panel label:last-child {
-    border-bottom: 0;
     grid-column: auto;
   }
 
+  .filter-panel input,
+  .filter-panel select {
+    font-size: 12px;
+    height: 34px;
+  }
+
   .table-status {
+    gap: 8px;
     min-height: 38px;
     padding: 8px 16px;
+  }
+
+  .table-status p {
+    line-height: 1.35;
+  }
+
+  .sprocket-rail {
+    height: 22px;
+  }
+
+  .sprocket-rail::before {
+    inset: 6px 0;
+  }
+
+  .table-wrap {
+    overflow-x: visible;
+    padding: 10px;
+  }
+
+  .film-table,
+  .hall-of-fame-table,
+  .director-hall-of-fame-table {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .film-table thead,
+  .hall-of-fame-table thead {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+
+  .film-table tbody,
+  .hall-of-fame-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .film-table tbody tr,
+  .movie-hall-of-fame-table tbody tr,
+  .director-hall-of-fame-table tbody tr {
+    background: var(--white);
+    border: 1px solid var(--black);
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .film-table tbody tr {
+    display: grid;
+    grid-template-areas:
+      "poster title"
+      "poster year"
+      "director director"
+      "picker picker"
+      "buy buy";
+    grid-template-columns: 86px minmax(0, 1fr);
+  }
+
+  .movie-hall-of-fame-table tbody tr {
+    display: grid;
+    grid-template-areas:
+      "poster title mentions"
+      "poster year mentions"
+      "director director director"
+      "picker picker picker"
+      "buy buy buy";
+    grid-template-columns: 86px minmax(0, 1fr) 72px;
+  }
+
+  .director-hall-of-fame-table tbody tr {
+    display: grid;
+    grid-template-areas:
+      "director mentions"
+      "count mentions"
+      "films films"
+      "pickers pickers"
+      "buy buy";
+    grid-template-columns: minmax(0, 1fr) 78px;
+  }
+
+  .film-table td,
+  .hall-of-fame-table td {
+    border-bottom: 1px solid var(--line);
+    border-right: 0;
+    min-width: 0;
+  }
+
+  .film-table .poster-cell,
+  .movie-hall-of-fame-table .poster-cell {
+    grid-area: poster;
+    height: 130px;
+    padding: 0;
+  }
+
+  .film-table .poster-frame,
+  .movie-hall-of-fame-table .poster-frame {
+    height: 130px;
+  }
+
+  .film-table .title-cell,
+  .movie-hall-of-fame-table .title-cell {
+    align-items: end;
+    display: flex;
+    grid-area: title;
+    padding: 14px 12px 5px;
+  }
+
+  .film-table .title-cell strong,
+  .movie-hall-of-fame-table .title-cell strong {
+    font-size: 20px;
+  }
+
+  .film-table .year-cell,
+  .movie-hall-of-fame-table .year-cell {
+    align-items: start;
+    display: flex;
+    font-size: 11px;
+    grid-area: year;
+    padding: 5px 12px 12px;
+  }
+
+  .film-table .year-cell::before,
+  .movie-hall-of-fame-table .year-cell::before {
+    color: var(--muted);
+    content: "Year";
+    font-size: 7px;
+    margin-right: 8px;
+    text-transform: uppercase;
+  }
+
+  .film-table .director-cell,
+  .movie-hall-of-fame-table .director-cell {
+    grid-area: director;
+  }
+
+  .film-table .picker-cell,
+  .movie-hall-of-fame-table .picker-cell {
+    grid-area: picker;
+  }
+
+  .film-table .director-cell,
+  .film-table .picker-cell,
+  .movie-hall-of-fame-table .director-cell,
+  .movie-hall-of-fame-table .picker-cell {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    padding: 0 10px 0 0;
+  }
+
+  .film-table .director-cell::before,
+  .film-table .picker-cell::before,
+  .movie-hall-of-fame-table .director-cell::before,
+  .movie-hall-of-fame-table .picker-cell::before {
+    align-items: center;
+    color: var(--muted);
+    display: flex;
+    font-family: var(--font-mono), monospace;
+    font-size: 7px;
+    justify-content: center;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .film-table .director-cell::before,
+  .movie-hall-of-fame-table .director-cell::before {
+    content: "Director";
+  }
+
+  .film-table .picker-cell::before,
+  .movie-hall-of-fame-table .picker-cell::before {
+    content: "Picker";
+  }
+
+  .film-table .person-entry,
+  .movie-hall-of-fame-table .person-entry {
+    gap: 9px;
+    height: 74px;
+    min-width: 0;
+  }
+
+  .film-table .person-avatar,
+  .film-table .picker-cell .person-avatar:not(.person-avatar--initials),
+  .movie-hall-of-fame-table .person-avatar,
+  .movie-hall-of-fame-table .picker-cell .person-avatar:not(
+      .person-avatar--initials
+    ) {
+    flex-basis: 82px;
+    height: 74px;
+    width: 82px;
+  }
+
+  .film-table td:last-child,
+  .movie-hall-of-fame-table td:last-child {
+    border-bottom: 0;
+    grid-area: buy;
+    padding: 11px 12px;
+  }
+
+  .movie-hall-of-fame-table .mentions-cell,
+  .director-hall-of-fame-table .mentions-cell {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    grid-area: mentions;
+    justify-content: center;
+  }
+
+  .director-hall-of-fame-table .director-hof-director-cell {
+    grid-area: director;
+    padding: 0 10px 0 0;
+  }
+
+  .director-hall-of-fame-table .director-hof-director-cell .person-entry {
+    gap: 10px;
+    height: 82px;
+  }
+
+  .director-hall-of-fame-table .director-hof-director-cell .person-avatar {
+    flex-basis: 88px;
+    height: 82px;
+    width: 88px;
+  }
+
+  .director-hall-of-fame-table .director-film-count-cell {
+    align-items: center;
+    display: flex;
+    gap: 7px;
+    grid-area: count;
+    padding: 9px 12px;
+    text-align: left;
+  }
+
+  .director-hall-of-fame-table .director-film-count-cell strong {
+    font-size: 18px;
+  }
+
+  .director-hall-of-fame-table .director-film-count-cell span {
+    margin: 0;
+  }
+
+  .director-hall-of-fame-table .director-hof-films-cell {
+    grid-area: films;
+    padding: 12px;
+  }
+
+  .director-hall-of-fame-table .director-hof-films-cell::before,
+  .director-hall-of-fame-table .picker-cell::before,
+  .director-hall-of-fame-table td:last-child::before {
+    color: var(--muted);
+    display: block;
+    font-family: var(--font-mono), monospace;
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .director-hall-of-fame-table .director-hof-films-cell::before {
+    content: "Picked films";
+  }
+
+  .director-hall-of-fame-table .director-hof-film-list {
+    grid-template-columns: 1fr;
+  }
+
+  .director-hall-of-fame-table .picker-cell {
+    grid-area: pickers;
+    padding: 12px;
+  }
+
+  .director-hall-of-fame-table .picker-cell::before {
+    content: "Closet pickers";
+  }
+
+  .director-hall-of-fame-table td:last-child {
+    border-bottom: 0;
+    grid-area: buy;
+    padding: 12px;
+  }
+
+  .director-hall-of-fame-table td:last-child::before {
+    content: "Buy from Criterion";
+  }
+
+  .criterion-buy-link,
+  .aggregate-picker-link {
+    min-height: 32px;
+  }
+
+  .infinite-scroll-sentinel {
+    margin: 0 -10px -10px;
+    min-height: 58px;
+    padding: 12px 16px;
+  }
+
+  .infinite-scroll-sentinel b {
+    right: 16px;
   }
 
   footer {

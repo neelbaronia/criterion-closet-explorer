@@ -105,11 +105,12 @@ const islandColors = [
   "#bd641f",
 ];
 const axisColors = ["#9f3529", "#2857ae", "#08745a"];
+// Keep all three axes legible without starting the film cloud off-center.
 const initialCamera: Camera = {
-  pitch: -0.18,
-  x: 0,
-  y: -20,
-  yaw: -0.45,
+  pitch: -0.08,
+  x: 340,
+  y: 130,
+  yaw: -0.18,
   z: -1_450,
 };
 
@@ -1245,7 +1246,7 @@ export default function SemanticIslandsPage() {
         <div className={styles.viewport}>
           <canvas
             ref={canvasRef}
-            aria-label="Navigable three-dimensional semantic map of Criterion Closet films. Use arrow keys to change point of view and WASD to move."
+            aria-label="Navigable three-dimensional semantic map of Criterion Closet films. Drag to orbit on touch screens; use arrow keys to change point of view and WASD to move with a keyboard."
             onBlur={() => {
               stopKeyboardMotion();
               setHasFocus(false);
@@ -1295,13 +1296,21 @@ export default function SemanticIslandsPage() {
               hasFocus ? styles.focused : ""
             }`}
           >
-            <b>
+            <b className={styles.keyboardControl}>
               <kbd>← ↑ ↓ →</kbd> Change POV
             </b>
-            <b>
+            <b className={styles.keyboardControl}>
               <kbd>W A S D</kbd> Navigate
             </b>
-            <span>{hasFocus ? "Controls active" : "Click map to activate"}</span>
+            <b className={styles.touchControl}>
+              <kbd>Drag</kbd> Orbit map
+            </b>
+            <span className={styles.keyboardControl}>
+              {hasFocus ? "Controls active" : "Click map to activate"}
+            </span>
+            <span className={styles.touchControl}>
+              Tap a dot to inspect a film
+            </span>
           </div>
           {hoveredFilm && (
             <div className={styles.hoverCard}>

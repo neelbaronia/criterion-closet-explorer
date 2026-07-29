@@ -683,7 +683,7 @@ export default function Home() {
                   ? "hall-of-fame-table director-hall-of-fame-table"
                   : sortField === "moviePicks"
                     ? "hall-of-fame-table movie-hall-of-fame-table"
-                    : undefined
+                    : "film-table"
               }
             >
               <thead>
