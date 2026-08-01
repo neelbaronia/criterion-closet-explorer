@@ -577,22 +577,6 @@ export default function Home() {
           </label>
 
           <label>
-            <span>Closet picker</span>
-            <select
-              value={picker}
-              onChange={(event) => {
-                setPicker(event.target.value);
-                setVisibleCount(pageSize);
-              }}
-            >
-              <option>All closet pickers</option>
-              {pickers.map((name) => (
-                <option key={name}>{name}</option>
-              ))}
-            </select>
-          </label>
-
-          <label>
             <span>Director</span>
             <select
               value={director}
@@ -603,6 +587,22 @@ export default function Home() {
             >
               <option>All directors</option>
               {directors.map((name) => (
+                <option key={name}>{name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>Closet picker</span>
+            <select
+              value={picker}
+              onChange={(event) => {
+                setPicker(event.target.value);
+                setVisibleCount(pageSize);
+              }}
+            >
+              <option>All closet pickers</option>
+              {pickers.map((name) => (
                 <option key={name}>{name}</option>
               ))}
             </select>
