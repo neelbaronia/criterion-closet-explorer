@@ -1,11 +1,18 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 const ROOT = process.cwd();
 const CACHE_DIR = path.join(ROOT, ".cache", "criterion");
 const DATA_DIR = path.join(ROOT, "data");
 const READER_URL = "https://r.jina.ai/";
+const YOUTUBE_FEED_URL =
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCAP57cF-FSjJKzzXg7ntPlQ";
+const REQUEST_HEADERS = {
+  "User-Agent":
+    "CriterionClosetExplorer/0.1 (+https://github.com/neelbaronia/criterion-closet-explorer)",
+};
 const refresh = process.argv.includes("--refresh");
 const refreshIndexes = refresh || process.argv.includes("--indexes");
 
@@ -78,6 +85,14 @@ function youtubeUrl(value) {
     : "";
 }
 
+function youtubeVideoId(value) {
+  return (
+    value?.match(/[?&]v=([^&]+)/)?.[1] ??
+    value?.match(/youtu\.be\/([^?]+)/)?.[1] ??
+    ""
+  );
+}
+
 function isoDate(month, day, year) {
   return `${year}-${monthNumbers[month]}-${String(day).padStart(2, "0")}`;
 }
@@ -100,6 +115,41 @@ async function fetchWithRetry(url, format, attempts = 5) {
         throw new Error(`${response.status} ${response.statusText}`);
       }
 
+      const text = await response.text();
+      if (!text.trim()) throw new Error("empty response");
+      const readerError = text.match(
+        /^Warning: Target URL returned error (\d{3}):/m,
+      );
+      if (readerError) {
+        throw new Error(`reader target returned ${readerError[1]}`);
+      }
+      return text;
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) {
+        const delay = String(error).includes("429")
+          ? attempt * 10_000
+          : attempt * 1_000;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw new Error(`Could not fetch ${url}: ${lastError}`);
+}
+
+async function fetchDirectWithRetry(url, attempts = 5) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        headers: REQUEST_HEADERS,
+        signal: AbortSignal.timeout(60_000),
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
       const text = await response.text();
       if (!text.trim()) throw new Error("empty response");
       return text;
@@ -135,19 +185,40 @@ async function cachedBoxsetFetch(id, url) {
 
 async function cachedJson(kind, id, url, force = refresh) {
   const filename = cachePath(kind, id, "json");
+  let cachedPayload;
+  try {
+    cachedPayload = JSON.parse(await readFile(filename, "utf8"));
+    if (!force) return cachedPayload;
+  } catch {
+    // Cache miss.
+  }
+
+  try {
+    const payload = JSON.parse(await fetchDirectWithRetry(url));
+    await writeFile(filename, `${JSON.stringify(payload, null, 2)}\n`);
+    return payload;
+  } catch (error) {
+    if (cachedPayload !== undefined) {
+      console.warn(`Could not refresh ${url}; using cached JSON: ${error}`);
+      return cachedPayload;
+    }
+    throw error;
+  }
+}
+
+async function cachedDirectFetch(kind, id, url, force = refresh) {
+  const filename = cachePath(kind, id, "xml");
   if (!force) {
     try {
-      return JSON.parse(await readFile(filename, "utf8"));
+      return await readFile(filename, "utf8");
     } catch {
       // Cache miss.
     }
   }
 
-  const response = await fetch(url, { signal: AbortSignal.timeout(60_000) });
-  if (!response.ok) throw new Error(`Could not fetch ${url}: ${response.status}`);
-  const payload = await response.json();
-  await writeFile(filename, `${JSON.stringify(payload, null, 2)}\n`);
-  return payload;
+  const text = await fetchDirectWithRetry(url);
+  await writeFile(filename, text);
+  return text;
 }
 
 async function cachedFetch(
@@ -261,6 +332,103 @@ function parseTrackedVisits(videos) {
   }
 
   return { collectionUrls, visitsByCollection };
+}
+
+function parseYoutubeClosetFeed(xml) {
+  const episodes = [];
+
+  for (const match of xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)) {
+    const entry = match[1];
+    const title = decodeHtml(entry.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "")
+      .replace(/\s+/g, " ")
+      .trim();
+    const url = decodeHtml(
+      entry.match(/<link rel="alternate" href="([^"]+)"\s*\/?\s*>/)?.[1] ??
+        "",
+    );
+    const publishedOn =
+      entry.match(/<published>(\d{4}-\d{2}-\d{2})T/)?.[1] ?? "";
+    const picker = pickerFromTitle(title);
+
+    if (!youtubeUrl(url) || !publishedOn || picker === title) continue;
+    episodes.push({ picker, publishedOn, title, url });
+  }
+
+  return episodes;
+}
+
+function mergeCollectionUrls(...urlGroups) {
+  const urlsByCollectionId = new Map();
+
+  for (const url of urlGroups.flat()) {
+    const collectionId = url.match(/collection\/(\d+)/)?.[1];
+    if (collectionId && !urlsByCollectionId.has(collectionId)) {
+      urlsByCollectionId.set(collectionId, url);
+    }
+  }
+
+  return [...urlsByCollectionId.values()].sort((a, b) => {
+    const aId = Number(a.match(/collection\/(\d+)/)?.[1] ?? 0);
+    const bId = Number(b.match(/collection\/(\d+)/)?.[1] ?? 0);
+    return bId - aId;
+  });
+}
+
+function youtubeEpisodeForCollection(collection, episodes) {
+  const collectionTitle = normalize(collection.title);
+  return episodes.find(
+    (episode) => normalize(episode.title) === collectionTitle,
+  );
+}
+
+function findPendingYoutubeEpisodes(episodes, trackedVideos, guestMetadata) {
+  const knownVideoIds = new Set([
+    ...Object.values(trackedVideos).map((video) => youtubeVideoId(video.url)),
+    ...[...guestMetadata.visitsByCollection.values()].map((visit) =>
+      youtubeVideoId(visit.url),
+    ),
+  ]);
+  const knownTitles = new Set(
+    Object.values(trackedVideos).flatMap((video) => [
+      normalize(video.title ?? ""),
+      normalize(video.picker ?? ""),
+    ]),
+  );
+
+  return episodes.filter((episode) => {
+    const videoId = youtubeVideoId(episode.url);
+    return (
+      (!videoId || !knownVideoIds.has(videoId)) &&
+      !knownTitles.has(normalize(episode.title)) &&
+      !knownTitles.has(normalize(episode.picker))
+    );
+  });
+}
+
+function collectionSlug(title) {
+  return normalize(title).replace(/\s+/g, "-");
+}
+
+async function discoverCollectionUrl(episode, candidateIds) {
+  for (const collectionId of candidateIds) {
+    const url = `https://www.criterion.com/shop/collection/${collectionId}-${collectionSlug(episode.title)}`;
+    try {
+      const document = await fetchWithRetry(url, "html", 1);
+      const collection = parseCollectionDocument(document, url);
+      if (
+        collection.selections.length > 0 &&
+        (normalize(collection.title) === normalize(episode.title) ||
+          normalize(collection.picker) === normalize(episode.picker))
+      ) {
+        await writeFile(cachePath("collection", collectionId, "html"), document);
+        return url;
+      }
+    } catch {
+      // The guessed collection ID is not this episode; try the next one.
+    }
+  }
+
+  return "";
 }
 
 function parseBrowseFilms(html) {
@@ -434,12 +602,14 @@ function matchVisits(collections, visits) {
 async function main() {
   await mkdir(CACHE_DIR, { recursive: true });
   await mkdir(DATA_DIR, { recursive: true });
+  const incremental = refreshIndexes && !refresh;
 
   console.log("Fetching official archive indexes...");
   const [
     indexMarkdown,
     searchMarkdown,
     browseHtml,
+    youtubeFeedXml,
     trackedVideos,
     trackedFilmPicks,
     trackedStats,
@@ -451,7 +621,12 @@ async function main() {
         "https://www.criterion.com/closet-picks",
         "markdown",
         refreshIndexes,
-      ),
+      ).catch((error) => {
+        console.warn(
+          `Criterion's featured Closet index was unavailable; continuing with verified and feed-discovered collection URLs: ${error}`,
+        );
+        return "";
+      }),
       cachedFetch(
         "search",
         "closet-picks",
@@ -466,6 +641,12 @@ async function main() {
         "html",
         refreshIndexes,
       ),
+      cachedDirectFetch(
+        "youtube",
+        "criterion-feed",
+        YOUTUBE_FEED_URL,
+        refreshIndexes,
+      ),
       readFile(path.join(DATA_DIR, "closet-videos.json"), "utf8").then(
         JSON.parse,
       ),
@@ -476,6 +657,8 @@ async function main() {
     ]);
 
   const visits = parseArchive(searchMarkdown);
+  const youtubeEpisodes = parseYoutubeClosetFeed(youtubeFeedXml);
+  const trackedMetadata = parseTrackedVisits(trackedVideos);
   let guestMetadata;
   try {
     const guestExport = await cachedJson(
@@ -491,23 +674,38 @@ async function main() {
     );
     guestMetadata = parseTrackedVisits(trackedVideos);
   }
-  const urlsByCollectionId = new Map();
-  for (const url of [
-    ...parseCollectionUrls(indexMarkdown),
-    ...guestMetadata.collectionUrls,
-  ]) {
-    const collectionId = url.match(/collection\/(\d+)/)?.[1];
-    if (collectionId && !urlsByCollectionId.has(collectionId)) {
-      urlsByCollectionId.set(collectionId, url);
+  const trackedCollectionIds = new Set(Object.keys(trackedVideos));
+  let collectionUrls = mergeCollectionUrls(
+    incremental ? trackedMetadata.collectionUrls : [],
+    parseCollectionUrls(indexMarkdown),
+    guestMetadata.collectionUrls,
+  );
+  const pendingYoutubeEpisodes = findPendingYoutubeEpisodes(
+    youtubeEpisodes,
+    trackedVideos,
+    guestMetadata,
+  );
+  const maxTrackedCollectionId = Math.max(
+    0,
+    ...[...trackedCollectionIds].map(Number),
+  );
+  const candidateIds = Array.from(
+    { length: 16 },
+    (_, index) => maxTrackedCollectionId + index + 1,
+  );
+
+  for (const episode of pendingYoutubeEpisodes) {
+    const expectedSlug = collectionSlug(episode.title);
+    const alreadyDiscovered = collectionUrls.some((url) =>
+      url.endsWith(`-${expectedSlug}`),
+    );
+    if (alreadyDiscovered) continue;
+    const discoveredUrl = await discoverCollectionUrl(episode, candidateIds);
+    if (discoveredUrl) {
+      collectionUrls = mergeCollectionUrls(collectionUrls, [discoveredUrl]);
     }
   }
-  const collectionUrls = [...urlsByCollectionId.values()].sort((a, b) => {
-    const aId = Number(a.match(/collection\/(\d+)/)?.[1] ?? 0);
-    const bId = Number(b.match(/collection\/(\d+)/)?.[1] ?? 0);
-    return bId - aId;
-  });
-  const incremental = refreshIndexes && !refresh;
-  const trackedCollectionIds = new Set(Object.keys(trackedVideos));
+
   const collectionUrlsToFetch = incremental
     ? collectionUrls.filter((url) => {
         const collectionId = url.match(/collection\/(\d+)/)?.[1];
@@ -516,8 +714,18 @@ async function main() {
     : collectionUrls;
   const browseFilms = parseBrowseFilms(browseHtml);
 
+  if (
+    incremental &&
+    collectionUrlsToFetch.length > 0 &&
+    browseFilms.size < trackedStats.uniqueFilms
+  ) {
+    throw new Error(
+      `Criterion film index is incomplete (${browseFilms.size} records); refusing to ingest ${collectionUrlsToFetch.length} new collection(s).`,
+    );
+  }
+
   console.log(
-    `Found ${visits.length} visits, ${collectionUrls.length} collections (${collectionUrlsToFetch.length} to fetch), and ${browseFilms.size} Criterion film records.`,
+    `Found ${visits.length} visits, ${collectionUrls.length} collections (${collectionUrlsToFetch.length} to fetch), ${youtubeEpisodes.length} recent YouTube episodes, and ${browseFilms.size} Criterion film records.`,
   );
 
   const collections = await mapLimit(
@@ -538,7 +746,32 @@ async function main() {
     },
   );
 
+  const invalidCollections = collections.filter(
+    (collection) => !collection.collectionId || collection.selections.length === 0,
+  );
+  if (invalidCollections.length) {
+    throw new Error(
+      `Could not parse complete metadata for collection(s): ${invalidCollections
+        .map((collection) => collection.sourceUrl)
+        .join(", ")}`,
+    );
+  }
+
   const matchedCollections = matchVisits(collections, visits);
+  const unresolvedYoutubeEpisodes = pendingYoutubeEpisodes.filter(
+    (episode) =>
+      !collections.some(
+        (collection) =>
+          youtubeEpisodeForCollection(collection, [episode]) !== undefined,
+      ),
+  );
+  if (unresolvedYoutubeEpisodes.length) {
+    throw new Error(
+      `YouTube published new Closet Picks without ingestible collection metadata: ${unresolvedYoutubeEpisodes
+        .map((episode) => episode.title)
+        .join(", ")}`,
+    );
+  }
   const boxsetUrls = [
     ...new Set(
       collections.flatMap((collection) =>
@@ -561,23 +794,8 @@ async function main() {
     }),
   );
 
-  const liveCollectionIds = new Set(
-    collectionUrls
-      .map((url) => url.match(/collection\/(\d+)/)?.[1])
-      .filter(Boolean),
-  );
-  const closetVideos = incremental
-    ? Object.fromEntries(
-        Object.entries(trackedVideos).filter(([collectionId]) =>
-          liveCollectionIds.has(collectionId),
-        ),
-      )
-    : {};
-  const filmPicks = incremental
-    ? trackedFilmPicks.filter((film) =>
-        liveCollectionIds.has(film.collectionId),
-      )
-    : [];
+  const closetVideos = incremental ? { ...trackedVideos } : {};
+  const filmPicks = incremental ? [...trackedFilmPicks] : [];
   const missingFilms = new Set();
   let expandedBoxsetFilms = incremental
     ? trackedStats.expandedBoxsetFilms
@@ -588,10 +806,18 @@ async function main() {
       const published = guestMetadata.visitsByCollection.get(
         collectionId,
       );
+      const youtubeEpisode = youtubeEpisodeForCollection(
+        previous,
+        youtubeEpisodes,
+      );
       closetVideos[collectionId] = {
         ...previous,
-        publishedOn: published?.publishedOn || previous.publishedOn,
+        publishedOn:
+          youtubeEpisode?.publishedOn ||
+          published?.publishedOn ||
+          previous.publishedOn,
         url:
+          youtubeUrl(youtubeEpisode?.url) ||
           youtubeUrl(published?.url) ||
           youtubeUrl(previous.url) ||
           previous.criterionUrl,
@@ -630,12 +856,17 @@ async function main() {
     const published = guestMetadata.visitsByCollection.get(
       collection.collectionId,
     );
+    const youtubeEpisode = youtubeEpisodeForCollection(
+      collection,
+      youtubeEpisodes,
+    );
     closetVideos[collection.collectionId] = {
       collectionId: collection.collectionId,
       criterionUrl: collection.sourceUrl,
       picker: collection.picker,
       pickerImage: visit?.image ?? "",
       publishedOn:
+        youtubeEpisode?.publishedOn ||
         published?.publishedOn ||
         videoPublishedDates.get(collection.collectionId) ||
         visit?.recordedOn ||
@@ -643,6 +874,7 @@ async function main() {
       recordedOn: visit?.recordedOn ?? "",
       title: collection.title,
       url:
+        youtubeUrl(youtubeEpisode?.url) ||
         youtubeUrl(published?.url) ||
         youtubeUrl(collection.videoUrl) ||
         collection.sourceUrl,
@@ -677,6 +909,12 @@ async function main() {
     }
   }
 
+  if (incremental && collections.length > 0 && missingFilms.size > 0) {
+    throw new Error(
+      `New collection metadata references ${missingFilms.size} film(s) absent from Criterion's film index; refusing a partial update.`,
+    );
+  }
+
   filmPicks.sort((a, b) => {
     const aDate = closetVideos[a.collectionId]?.publishedOn ?? "";
     const bDate = closetVideos[b.collectionId]?.publishedOn ?? "";
@@ -706,7 +944,7 @@ async function main() {
       recordedOn: visit.recordedOn,
       title: visit.title,
     })),
-    collections: collectionUrls.length,
+    collections: Object.keys(closetVideos).length,
     expandedBoxsetFilms,
     filmPicks: filmPicks.length,
     generatedOn:
@@ -739,7 +977,7 @@ async function main() {
   ]);
 
   console.log(
-    `Wrote ${filmPicks.length} movie picks covering ${stats.uniqueFilms} unique films across ${collectionUrls.length} Closet collections.`,
+    `Wrote ${filmPicks.length} movie picks covering ${stats.uniqueFilms} unique films across ${stats.collections} Closet collections.`,
   );
   if (missingFilms.size) {
     console.warn(`Skipped ${missingFilms.size} film URLs missing from browse data.`);
@@ -751,4 +989,18 @@ async function main() {
   }
 }
 
-await main();
+export {
+  findPendingYoutubeEpisodes,
+  mergeCollectionUrls,
+  parseGuestVisits,
+  parseTrackedVisits,
+  parseYoutubeClosetFeed,
+  youtubeEpisodeForCollection,
+};
+
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  await main();
+}

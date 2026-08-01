@@ -2,7 +2,7 @@ name: Refresh Criterion Closet archive
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "37 * * * *"
   workflow_dispatch:
 
 permissions:

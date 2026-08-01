@@ -9,7 +9,7 @@ Live at [ccdb.nbaronia.com](https://ccdb.nbaronia.com).
 The repository includes:
 
 - a responsive, searchable film table
-- 5,749 movie-pick rows covering 1,262 unique films from 397 published
+- 5,761 movie-pick rows covering 1,263 unique films from 398 published
   Closet pick lists
 - box-set picks expanded into the individual films Criterion lists in each set
 - poster artwork and direct purchase links to each title’s Criterion page
@@ -65,11 +65,14 @@ Refresh the snapshot from Criterion’s current archive with:
 npm run data:sync
 ```
 
-GitHub Actions also refreshes the live Criterion indexes every six hours. It
-reuses cached collection metadata, rebuilds portraits and semantic profiles only
-when `films.json` or `closet-videos.json` changes, runs the full test suite, and
-commits verified data updates to `main`. The workflow can also be run manually
-from the Actions tab.
+GitHub Actions also refreshes the live Criterion indexes every hour. It checks
+Criterion's YouTube feed for newly published episodes, preserves verified
+collections when an upstream index is temporarily incomplete, rebuilds portraits
+and semantic profiles only when `films.json` or `closet-videos.json` changes,
+runs the full test suite, and commits verified data updates to `main`. A new
+YouTube episode with unavailable collection metadata fails visibly instead of
+being reported as a clean refresh. The workflow can also be run manually from
+the Actions tab.
 
 The deployed explorer reads those verified JSON snapshots from `main` through
 `/api/archive` and `/api/taste-data`. Responses are cached for up to 15 minutes,
@@ -77,7 +80,7 @@ so a successful scheduled update reaches the existing deployment without a new
 site build. Bundled data remains available as a fallback if GitHub is
 temporarily unreachable.
 
-The sync reads Criterion’s official visit archive, all 397 published collection
+The sync reads Criterion’s official visit archive, all 398 published collection
 pages, the complete film browse list, and selected box-set contents. It writes
 the film picks, interview metadata, and audit counts to `data/`. The generated
 audit currently has no unmatched visits, collection pages, or film records.

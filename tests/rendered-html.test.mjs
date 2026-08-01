@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import {
+  findPendingYoutubeEpisodes,
+  mergeCollectionUrls,
+  parseGuestVisits,
+  parseTrackedVisits,
+  parseYoutubeClosetFeed,
+} from "../scripts/sync-criterion-closet.mjs";
 
 async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -75,7 +82,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Jul 27, 2026/);
   assert.match(html, /dateTime="2026-07-27"/);
   assert.doesNotMatch(html, /dateTime="2026-07-16"/);
-  assert.match(html, /5749/);
+  assert.match(html, /5761/);
   assert.match(html, /movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /Load next/);
@@ -541,18 +548,18 @@ test("ships the complete generated Closet archive snapshot", async () => {
     ),
   );
 
-  assert.equal(stats.visits, 397);
-  assert.equal(stats.collections, 397);
+  assert.equal(stats.visits, 398);
+  assert.equal(stats.collections, 398);
   assert.deepEqual(stats.archiveOnlyVisits, []);
   assert.deepEqual(stats.missingFilms, []);
   assert.deepEqual(stats.unmatchedCollections, []);
   assert.equal(stats.filmPicks, films.length);
-  assert.equal(stats.filmPicks, 5_749);
-  assert.equal(stats.uniqueFilms, 1_262);
-  assert.equal(Object.keys(videos).length, 397);
-  assert.equal(films[0].picker, "Matt Damon");
-  assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-27");
-  assert.equal(videos[films[0].collectionId].recordedOn, "2026-07-16");
+  assert.equal(stats.filmPicks, 5_761);
+  assert.equal(stats.uniqueFilms, 1_263);
+  assert.equal(Object.keys(videos).length, 398);
+  assert.equal(films[0].picker, "Cooper Hoffman");
+  assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-31");
+  assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-11");
 });
 
 test("never exposes Vimeo as a picker-video destination", async () => {
@@ -575,12 +582,12 @@ test("ships a quantified and explainable picker Taste Map", async () => {
     await readFile(new URL("../data/taste-map.json", import.meta.url), "utf8"),
   );
 
-  assert.equal(tasteMap.meta.pickerCount, 391);
-  assert.equal(tasteMap.meta.uniqueFilms, 1_262);
+  assert.equal(tasteMap.meta.pickerCount, 392);
+  assert.equal(tasteMap.meta.uniqueFilms, 1_263);
   assert.equal(tasteMap.meta.dimensions.length, 36);
   assert.equal(tasteMap.meta.filmIslands.length, 8);
   assert.ok(tasteMap.meta.filmCoverage >= 90);
-  assert.equal(tasteMap.pickers.length, 391);
+  assert.equal(tasteMap.pickers.length, 392);
   assert.ok(tasteMap.edges.length > 500);
 
   for (const film of Object.values(tasteMap.films)) {
@@ -661,12 +668,90 @@ test("ships a standalone semantic-map design lab", async () => {
   assert.equal((html.match(/class="concept(?: active)?"/g) ?? []).length, 12);
 });
 
-test("checks the live Closet archive on a six-hour schedule", async () => {
+test("detects new YouTube episodes without pruning verified collections", () => {
+  const youtubeFeed = `
+    <feed>
+      <entry>
+        <title>Cooper Hoffman’s Closet Picks</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=6UCSuaFuwrY"/>
+        <published>2026-07-31T17:51:51+00:00</published>
+      </entry>
+      <entry>
+        <title>The Definition of Goated | Criterion Mobile Closet Picks</title>
+        <link rel="alternate" href="https://www.youtube.com/shorts/yFtXAyyruMg"/>
+        <published>2026-07-31T16:07:12+00:00</published>
+      </entry>
+    </feed>`;
+  const trackedVideos = {
+    538: {
+      collectionId: "538",
+      criterionUrl:
+        "https://www.criterion.com/shop/collection/538-mike-leigh-s-closet-picks",
+      picker: "Mike Leigh",
+      title: "Mike Leigh’s Closet Picks",
+      url: "https://www.youtube.com/watch?v=f31TXhdC-Ps",
+    },
+    985: {
+      collectionId: "985",
+      criterionUrl:
+        "https://www.criterion.com/shop/collection/985-matt-damon-s-closet-picks",
+      picker: "Matt Damon",
+      title: "Matt Damon’s Closet Picks",
+      url: "https://www.youtube.com/watch?v=ZCxYGx6ueNM",
+    },
+  };
+
+  const episodes = parseYoutubeClosetFeed(youtubeFeed);
+  assert.deepEqual(episodes, [
+    {
+      picker: "Cooper Hoffman",
+      publishedOn: "2026-07-31",
+      title: "Cooper Hoffman’s Closet Picks",
+      url: "https://www.youtube.com/watch?v=6UCSuaFuwrY",
+    },
+  ]);
+
+  const trackedMetadata = parseTrackedVisits(trackedVideos);
+  assert.deepEqual(
+    findPendingYoutubeEpisodes(episodes, trackedVideos, trackedMetadata).map(
+      (episode) => episode.picker,
+    ),
+    ["Cooper Hoffman"],
+  );
+
+  const mergedUrls = mergeCollectionUrls(trackedMetadata.collectionUrls, [
+    "https://www.criterion.com/shop/collection/986-cooper-hoffman-s-closet-picks",
+  ]);
+  assert.equal(mergedUrls.length, 3);
+  assert.ok(mergedUrls.some((url) => url.includes("/538-mike-leigh")));
+
+  const currentGuestMetadata = parseGuestVisits({
+    data: [
+      {
+        criterion_page_url:
+          "https://www.criterion.com/shop/collection/986-cooper-hoffman-s-closet-picks",
+        episode_date: "2026-07-31",
+        youtube_video_url:
+          "https://www.youtube.com/watch?v=6UCSuaFuwrY",
+      },
+    ],
+  });
+  assert.deepEqual(
+    findPendingYoutubeEpisodes(
+      episodes,
+      trackedVideos,
+      currentGuestMetadata,
+    ),
+    [],
+  );
+});
+
+test("checks the live Closet archive hourly", async () => {
   const workflow = await readFile(
     new URL("../.github/workflows/refresh-closet.yml", import.meta.url),
     "utf8",
   );
-  assert.match(workflow, /cron: "17 \*\/6 \* \* \*"/);
+  assert.match(workflow, /cron: "37 \* \* \* \*"/);
   assert.match(workflow, /npm run data:sync:indexes/);
   assert.match(workflow, /npm run data:taste/);
   assert.match(workflow, /npm test/);
