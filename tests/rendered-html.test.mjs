@@ -82,7 +82,7 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /Jul 27, 2026/);
   assert.match(html, /dateTime="2026-07-27"/);
   assert.doesNotMatch(html, /dateTime="2026-07-16"/);
-  assert.match(html, /5761/);
+  assert.match(html, /5818/);
   assert.match(html, /movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /Load next/);
@@ -548,18 +548,18 @@ test("ships the complete generated Closet archive snapshot", async () => {
     ),
   );
 
-  assert.equal(stats.visits, 398);
-  assert.equal(stats.collections, 398);
+  assert.equal(stats.visits, 400);
+  assert.equal(stats.collections, 400);
   assert.deepEqual(stats.archiveOnlyVisits, []);
   assert.deepEqual(stats.missingFilms, []);
   assert.deepEqual(stats.unmatchedCollections, []);
   assert.equal(stats.filmPicks, films.length);
-  assert.equal(stats.filmPicks, 5_761);
+  assert.equal(stats.filmPicks, 5_818);
   assert.equal(stats.uniqueFilms, 1_263);
-  assert.equal(Object.keys(videos).length, 398);
-  assert.equal(films[0].picker, "Cooper Hoffman");
-  assert.equal(videos[films[0].collectionId].publishedOn, "2026-07-31");
-  assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-11");
+  assert.equal(Object.keys(videos).length, 400);
+  assert.equal(films[0].picker, "Thomas Bangalter");
+  assert.equal(videos[films[0].collectionId].publishedOn, "2026-08-07");
+  assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-08");
 });
 
 test("never exposes Vimeo as a picker-video destination", async () => {
@@ -582,12 +582,12 @@ test("ships a quantified and explainable picker Taste Map", async () => {
     await readFile(new URL("../data/taste-map.json", import.meta.url), "utf8"),
   );
 
-  assert.equal(tasteMap.meta.pickerCount, 392);
+  assert.equal(tasteMap.meta.pickerCount, 394);
   assert.equal(tasteMap.meta.uniqueFilms, 1_263);
   assert.equal(tasteMap.meta.dimensions.length, 36);
   assert.equal(tasteMap.meta.filmIslands.length, 8);
   assert.ok(tasteMap.meta.filmCoverage >= 90);
-  assert.equal(tasteMap.pickers.length, 392);
+  assert.equal(tasteMap.pickers.length, 394);
   assert.ok(tasteMap.edges.length > 500);
 
   for (const film of Object.values(tasteMap.films)) {

@@ -3978,5 +3978,25 @@
     "recordedOn": "2026-06-11",
     "title": "Cooper Hoffman’s Closet Picks",
     "url": "https://www.youtube.com/watch?v=6UCSuaFuwrY"
+  },
+  "989": {
+    "collectionId": "989",
+    "criterionUrl": "https://www.criterion.com/shop/collection/989-fred-armisen-and-carrie-brownstein-s-closet-picks",
+    "picker": "Fred Armisen and Carrie Brownstein",
+    "pickerImage": "https://s3.amazonaws.com/criterion-production/images/7480-9da9fbd8597e5d6d80c325d6878043db/PeKArWwSHsA63cWk8ZEUb6TArwOrDN_original.jpg",
+    "publishedOn": "2026-08-03",
+    "recordedOn": "2026-05-31",
+    "title": "Fred Armisen and Carrie Brownstein’s Closet Picks",
+    "url": "https://www.youtube.com/watch?v=uy3FoDjNR-k"
+  },
+  "990": {
+    "collectionId": "990",
+    "criterionUrl": "https://www.criterion.com/shop/collection/990-thomas-bangalter-s-closet-picks",
+    "picker": "Thomas Bangalter",
+    "pickerImage": "https://s3.amazonaws.com/criterion-production/images/7484-ae4cc45ddf1e810f6c96695138446fcd/I4lOHkMhD5AtsAUXpGYGmk45CRX8W5_original.jpg",
+    "publishedOn": "2026-08-07",
+    "recordedOn": "2026-06-08",
+    "title": "Thomas Bangalter’s Closet Picks",
+    "url": "https://www.youtube.com/watch?v=uaajhIBkE-g"
   }
 }

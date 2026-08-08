@@ -101,7 +101,20 @@ function cachePath(kind, id, extension) {
   return path.join(CACHE_DIR, `${kind}-${id}.${extension}`);
 }
 
-async function fetchWithRetry(url, format, attempts = 5) {
+function isReaderChallenge(text) {
+  return (
+    /<title>Just a moment\.\.\.<\/title>/i.test(text) ||
+    /Enable JavaScript and cookies to continue/i.test(text) ||
+    /challenge-platform\/[^"']*orchestrate\/chl_/i.test(text)
+  );
+}
+
+async function fetchWithRetry(
+  url,
+  format,
+  attempts = 5,
+  validate = () => true,
+) {
   let lastError;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
@@ -123,13 +136,22 @@ async function fetchWithRetry(url, format, attempts = 5) {
       if (readerError) {
         throw new Error(`reader target returned ${readerError[1]}`);
       }
+      if (isReaderChallenge(text)) {
+        throw new Error("reader returned an anti-bot challenge");
+      }
+      if (!validate(text)) {
+        throw new Error("reader response failed content validation");
+      }
       return text;
     } catch (error) {
       lastError = error;
       if (attempt < attempts) {
-        const delay = String(error).includes("429")
+        const message = String(error);
+        const delay = message.includes("429")
           ? attempt * 10_000
-          : attempt * 1_000;
+          : message.includes("anti-bot") || message.includes("validation")
+            ? attempt * 5_000
+            : attempt * 1_000;
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
@@ -227,21 +249,36 @@ async function cachedFetch(
   url,
   format = "markdown",
   force = refresh,
+  validate = () => true,
 ) {
   const extension = format === "html" ? "html" : "md";
   const filename = cachePath(kind, id, extension);
+  let cachedText;
 
-  if (!force) {
-    try {
-      return await readFile(filename, "utf8");
-    } catch {
-      // Cache miss.
+  try {
+    cachedText = await readFile(filename, "utf8");
+    if (!force && validate(cachedText) && !isReaderChallenge(cachedText)) {
+      return cachedText;
     }
+  } catch {
+    // Cache miss.
   }
 
-  const text = await fetchWithRetry(url, format);
-  await writeFile(filename, text);
-  return text;
+  try {
+    const text = await fetchWithRetry(url, format, 5, validate);
+    await writeFile(filename, text);
+    return text;
+  } catch (error) {
+    if (
+      cachedText &&
+      validate(cachedText) &&
+      !isReaderChallenge(cachedText)
+    ) {
+      console.warn(`Could not refresh ${url}; using cached page: ${error}`);
+      return cachedText;
+    }
+    throw error;
+  }
 }
 
 async function mapLimit(items, limit, callback) {
@@ -466,6 +503,23 @@ function parseBrowseFilms(html) {
   return films;
 }
 
+function trackedFilmCatalog(filmPicks) {
+  const films = new Map();
+  for (const film of filmPicks) {
+    if (!film.criterionUrl || films.has(film.criterionUrl)) continue;
+    films.set(film.criterionUrl, {
+      criterionUrl: film.criterionUrl,
+      director: film.director,
+      filmId: film.filmId,
+      poster: film.poster,
+      slug: film.slug,
+      title: film.title,
+      year: film.year,
+    });
+  }
+  return films;
+}
+
 function parseCollection(markdown, url) {
   const collectionId = url.match(/collection\/(\d+)/)?.[1];
   const title =
@@ -604,15 +658,22 @@ async function main() {
   await mkdir(DATA_DIR, { recursive: true });
   const incremental = refreshIndexes && !refresh;
 
+  const [trackedVideos, trackedFilmPicks, trackedStats] = await Promise.all([
+    readFile(path.join(DATA_DIR, "closet-videos.json"), "utf8").then(
+      JSON.parse,
+    ),
+    readFile(path.join(DATA_DIR, "films.json"), "utf8").then(JSON.parse),
+    readFile(path.join(DATA_DIR, "archive-stats.json"), "utf8").then(
+      JSON.parse,
+    ),
+  ]);
+
   console.log("Fetching official archive indexes...");
   const [
     indexMarkdown,
     searchMarkdown,
     browseHtml,
     youtubeFeedXml,
-    trackedVideos,
-    trackedFilmPicks,
-    trackedStats,
   ] =
     await Promise.all([
       cachedFetch(
@@ -640,19 +701,18 @@ async function main() {
         "https://www.criterion.com/shop/browse/list",
         "html",
         refreshIndexes,
-      ),
+        (document) => parseBrowseFilms(document).size > 0,
+      ).catch((error) => {
+        console.warn(
+          `Criterion's full film index was unavailable; using verified film metadata already in the archive: ${error}`,
+        );
+        return "";
+      }),
       cachedDirectFetch(
         "youtube",
         "criterion-feed",
         YOUTUBE_FEED_URL,
         refreshIndexes,
-      ),
-      readFile(path.join(DATA_DIR, "closet-videos.json"), "utf8").then(
-        JSON.parse,
-      ),
-      readFile(path.join(DATA_DIR, "films.json"), "utf8").then(JSON.parse),
-      readFile(path.join(DATA_DIR, "archive-stats.json"), "utf8").then(
-        JSON.parse,
       ),
     ]);
 
@@ -712,20 +772,14 @@ async function main() {
         return collectionId && !trackedCollectionIds.has(collectionId);
       })
     : collectionUrls;
-  const browseFilms = parseBrowseFilms(browseHtml);
-
-  if (
-    incremental &&
-    collectionUrlsToFetch.length > 0 &&
-    browseFilms.size < trackedStats.uniqueFilms
-  ) {
-    throw new Error(
-      `Criterion film index is incomplete (${browseFilms.size} records); refusing to ingest ${collectionUrlsToFetch.length} new collection(s).`,
-    );
+  const liveBrowseFilms = parseBrowseFilms(browseHtml);
+  const browseFilms = trackedFilmCatalog(trackedFilmPicks);
+  for (const [url, metadata] of liveBrowseFilms) {
+    browseFilms.set(url, metadata);
   }
 
   console.log(
-    `Found ${visits.length} visits, ${collectionUrls.length} collections (${collectionUrlsToFetch.length} to fetch), ${youtubeEpisodes.length} recent YouTube episodes, and ${browseFilms.size} Criterion film records.`,
+    `Found ${visits.length} visits, ${collectionUrls.length} collections (${collectionUrlsToFetch.length} to fetch), ${youtubeEpisodes.length} recent YouTube episodes, ${liveBrowseFilms.size} live Criterion film records, and ${browseFilms.size} usable film records.`,
   );
 
   const collections = await mapLimit(
@@ -733,7 +787,17 @@ async function main() {
     8,
     async (url, index) => {
       const id = url.match(/collection\/(\d+)/)?.[1];
-      const document = await cachedFetch("collection", id, url, "html");
+      const document = await cachedFetch(
+        "collection",
+        id,
+        url,
+        "html",
+        refreshIndexes,
+        (candidate) => {
+          const parsed = parseCollectionDocument(candidate, url);
+          return Boolean(parsed.collectionId && parsed.selections.length);
+        },
+      );
       if (
         (index + 1) % 20 === 0 ||
         index + 1 === collectionUrlsToFetch.length
@@ -766,10 +830,10 @@ async function main() {
       ),
   );
   if (unresolvedYoutubeEpisodes.length) {
-    throw new Error(
-      `YouTube published new Closet Picks without ingestible collection metadata: ${unresolvedYoutubeEpisodes
+    console.warn(
+      `Waiting for Criterion to publish collection metadata for: ${unresolvedYoutubeEpisodes
         .map((episode) => episode.title)
-        .join(", ")}`,
+        .join(", ")}. The next scheduled refresh will try again.`,
     );
   }
   const boxsetUrls = [
