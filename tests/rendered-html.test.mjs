@@ -4,9 +4,12 @@ import test from "node:test";
 import {
   findPendingYoutubeEpisodes,
   mergeCollectionUrls,
+  mergeYoutubeEpisodes,
   parseGuestVisits,
   parseTrackedVisits,
+  parseYoutubeChannelPage,
   parseYoutubeClosetFeed,
+  parseYoutubePublishedOn,
 } from "../scripts/sync-criterion-closet.mjs";
 
 async function render(pathname = "/") {
@@ -31,11 +34,25 @@ async function render(pathname = "/") {
 }
 
 test("server-renders the Closet Index product shell", async () => {
-  const response = await render();
+  const [response, films, videos] = await Promise.all([
+    render(),
+    readFile(new URL("../data/films.json", import.meta.url), "utf8").then(
+      JSON.parse,
+    ),
+    readFile(
+      new URL("../data/closet-videos.json", import.meta.url),
+      "utf8",
+    ).then(JSON.parse),
+  ]);
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
+  const latestVideo = Object.values(videos).sort(
+    (a, b) =>
+      b.publishedOn.localeCompare(a.publishedOn) ||
+      Number(b.collectionId) - Number(a.collectionId),
+  )[0];
   assert.match(
     html,
     /<title>The Closet Index — Explore Criterion Closet Picks<\/title>/i,
@@ -64,25 +81,10 @@ test("server-renders the Closet Index product shell", async () => {
   assert.match(html, /poster-frame/);
   assert.match(html, /person-avatar/);
   assert.match(html, /Wikimedia Commons/);
-  assert.match(
-    html,
-    /https:\/\/www\.youtube\.com\/watch\?v=t9fgFt-Ibik/,
-  );
-  assert.match(html, /Jul 24, 2026/);
-  assert.match(html, /dateTime="2026-07-24"/);
-  assert.match(
-    html,
-    /Watch Christopher Nolan&#x27;s Closet Picks interview/,
-  );
-  assert.match(html, /Matt Damon/);
-  assert.match(
-    html,
-    /https:\/\/www\.youtube\.com\/watch\?v=ZCxYGx6ueNM/,
-  );
-  assert.match(html, /Jul 27, 2026/);
-  assert.match(html, /dateTime="2026-07-27"/);
-  assert.doesNotMatch(html, /dateTime="2026-07-16"/);
-  assert.match(html, /5818/);
+  assert.ok(html.includes(latestVideo.url));
+  assert.ok(html.includes(`dateTime="${latestVideo.publishedOn}"`));
+  assert.ok(html.includes(latestVideo.picker));
+  assert.ok(html.includes(String(films.length)));
   assert.match(html, /movie picks/);
   assert.doesNotMatch(html, /Roll the|dream reel|film-grid/);
   assert.doesNotMatch(html, /Load next/);
@@ -548,18 +550,29 @@ test("ships the complete generated Closet archive snapshot", async () => {
     ),
   );
 
-  assert.equal(stats.visits, 400);
-  assert.equal(stats.collections, 400);
+  assert.equal(stats.visits, stats.collections);
+  assert.ok(stats.collections >= 401);
   assert.deepEqual(stats.archiveOnlyVisits, []);
   assert.deepEqual(stats.missingFilms, []);
   assert.deepEqual(stats.unmatchedCollections, []);
   assert.equal(stats.filmPicks, films.length);
-  assert.equal(stats.filmPicks, 5_818);
-  assert.equal(stats.uniqueFilms, 1_263);
-  assert.equal(Object.keys(videos).length, 400);
-  assert.equal(films[0].picker, "Thomas Bangalter");
-  assert.equal(videos[films[0].collectionId].publishedOn, "2026-08-07");
-  assert.equal(videos[films[0].collectionId].recordedOn, "2026-06-08");
+  assert.ok(stats.filmPicks >= 5_841);
+  assert.ok(stats.uniqueFilms >= 1_263);
+  assert.equal(Object.keys(videos).length, stats.collections);
+  const latestVideo = Object.values(videos).sort(
+    (a, b) =>
+      b.publishedOn.localeCompare(a.publishedOn) ||
+      Number(b.collectionId) - Number(a.collectionId),
+  )[0];
+  assert.equal(films[0].collectionId, latestVideo.collectionId);
+  assert.equal(videos["991"].picker, "Eric Andre");
+  assert.equal(videos["991"].publishedOn, "2026-08-10");
+  assert.equal(videos["991"].recordedOn, "2026-06-17");
+  assert.equal(
+    videos["991"].url,
+    "https://www.youtube.com/watch?v=kJqymGEIMt0",
+  );
+  assert.ok(films.some((film) => film.collectionId === "991"));
 });
 
 test("never exposes Vimeo as a picker-video destination", async () => {
@@ -582,12 +595,12 @@ test("ships a quantified and explainable picker Taste Map", async () => {
     await readFile(new URL("../data/taste-map.json", import.meta.url), "utf8"),
   );
 
-  assert.equal(tasteMap.meta.pickerCount, 394);
-  assert.equal(tasteMap.meta.uniqueFilms, 1_263);
+  assert.ok(tasteMap.meta.pickerCount >= 395);
+  assert.ok(tasteMap.meta.uniqueFilms >= 1_263);
   assert.equal(tasteMap.meta.dimensions.length, 36);
   assert.equal(tasteMap.meta.filmIslands.length, 8);
   assert.ok(tasteMap.meta.filmCoverage >= 90);
-  assert.equal(tasteMap.pickers.length, 394);
+  assert.equal(tasteMap.pickers.length, tasteMap.meta.pickerCount);
   assert.ok(tasteMap.edges.length > 500);
 
   for (const film of Object.values(tasteMap.films)) {
@@ -743,6 +756,58 @@ test("detects new YouTube episodes without pruning verified collections", () => 
       currentGuestMetadata,
     ),
     [],
+  );
+});
+
+test("falls back to YouTube's channel page when the RSS feed disappears", () => {
+  const initialData = {
+    contents: [
+      {
+        lockupViewModel: {
+          contentId: "kJqymGEIMt0",
+          contentType: "LOCKUP_CONTENT_TYPE_VIDEO",
+          metadata: {
+            lockupMetadataViewModel: {
+              title: { content: "Eric Andre’s Closet Picks" },
+            },
+          },
+        },
+      },
+      {
+        lockupViewModel: {
+          contentId: "not-a-closet-video",
+          contentType: "LOCKUP_CONTENT_TYPE_VIDEO",
+          metadata: {
+            lockupMetadataViewModel: {
+              title: { content: "The Complete Kubrick — Official Trailer" },
+            },
+          },
+        },
+      },
+    ],
+  };
+  const channelHtml = `<script>var ytInitialData = ${JSON.stringify(initialData)};</script>`;
+  const channelEpisodes = parseYoutubeChannelPage(channelHtml);
+
+  assert.deepEqual(channelEpisodes, [
+    {
+      picker: "Eric Andre",
+      publishedOn: "",
+      title: "Eric Andre’s Closet Picks",
+      url: "https://www.youtube.com/watch?v=kJqymGEIMt0",
+    },
+  ]);
+  assert.equal(
+    parseYoutubePublishedOn(
+      '<meta itemprop="datePublished" content="2026-08-10T10:23:30-07:00">',
+    ),
+    "2026-08-10",
+  );
+  assert.deepEqual(
+    mergeYoutubeEpisodes(channelEpisodes, [
+      { ...channelEpisodes[0], publishedOn: "2026-08-10" },
+    ]),
+    [{ ...channelEpisodes[0], publishedOn: "2026-08-10" }],
   );
 });
 

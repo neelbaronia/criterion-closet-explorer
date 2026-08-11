@@ -9,6 +9,8 @@ const DATA_DIR = path.join(ROOT, "data");
 const READER_URL = "https://r.jina.ai/";
 const YOUTUBE_FEED_URL =
   "https://www.youtube.com/feeds/videos.xml?channel_id=UCAP57cF-FSjJKzzXg7ntPlQ";
+const YOUTUBE_CHANNEL_URL =
+  "https://www.youtube.com/@criterioncollection/videos";
 const REQUEST_HEADERS = {
   "User-Agent":
     "CriterionClosetExplorer/0.1 (+https://github.com/neelbaronia/criterion-closet-explorer)",
@@ -228,19 +230,34 @@ async function cachedJson(kind, id, url, force = refresh) {
   }
 }
 
-async function cachedDirectFetch(kind, id, url, force = refresh) {
-  const filename = cachePath(kind, id, "xml");
-  if (!force) {
-    try {
-      return await readFile(filename, "utf8");
-    } catch {
-      // Cache miss.
-    }
+async function cachedDirectFetch(
+  kind,
+  id,
+  url,
+  force = refresh,
+  extension = "xml",
+) {
+  const filename = cachePath(kind, id, extension);
+  let cachedText;
+
+  try {
+    cachedText = await readFile(filename, "utf8");
+    if (!force) return cachedText;
+  } catch {
+    // Cache miss.
   }
 
-  const text = await fetchDirectWithRetry(url);
-  await writeFile(filename, text);
-  return text;
+  try {
+    const text = await fetchDirectWithRetry(url);
+    await writeFile(filename, text);
+    return text;
+  } catch (error) {
+    if (cachedText) {
+      console.warn(`Could not refresh ${url}; using cached response: ${error}`);
+      return cachedText;
+    }
+    throw error;
+  }
 }
 
 async function cachedFetch(
@@ -392,6 +409,114 @@ function parseYoutubeClosetFeed(xml) {
   }
 
   return episodes;
+}
+
+function extractAssignedJson(document, marker) {
+  const markerIndex = document.indexOf(marker);
+  if (markerIndex < 0) return undefined;
+  const objectStart = document.indexOf("{", markerIndex + marker.length);
+  if (objectStart < 0) return undefined;
+
+  let depth = 0;
+  let escaped = false;
+  let inString = false;
+  for (let index = objectStart; index < document.length; index += 1) {
+    const character = document[index];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (character === "\\") {
+        escaped = true;
+      } else if (character === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (character === '"') {
+      inString = true;
+    } else if (character === "{") {
+      depth += 1;
+    } else if (character === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        try {
+          return JSON.parse(document.slice(objectStart, index + 1));
+        } catch {
+          return undefined;
+        }
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function parseYoutubeChannelPage(html) {
+  const initialData =
+    extractAssignedJson(html, "var ytInitialData =") ??
+    extractAssignedJson(html, "window[\"ytInitialData\"] =");
+  if (!initialData) return [];
+
+  const episodesByVideoId = new Map();
+  function addEpisode(videoId, title) {
+    const cleanTitle = decodeHtml(title ?? "").replace(/\s+/g, " ").trim();
+    const picker = pickerFromTitle(cleanTitle);
+    if (!videoId || !cleanTitle || picker === cleanTitle) return;
+    episodesByVideoId.set(videoId, {
+      picker,
+      publishedOn: "",
+      title: cleanTitle,
+      url: `https://www.youtube.com/watch?v=${videoId}`,
+    });
+  }
+
+  function visit(value) {
+    if (!value || typeof value !== "object") return;
+    const lockup = value.lockupViewModel;
+    if (lockup?.contentType === "LOCKUP_CONTENT_TYPE_VIDEO") {
+      addEpisode(
+        lockup.contentId,
+        lockup.metadata?.lockupMetadataViewModel?.title?.content,
+      );
+    }
+    const video = value.videoRenderer;
+    if (video) {
+      addEpisode(
+        video.videoId,
+        video.title?.runs?.map((run) => run.text).join("") ??
+          video.title?.simpleText,
+      );
+    }
+    for (const child of Object.values(value)) visit(child);
+  }
+  visit(initialData);
+
+  return [...episodesByVideoId.values()];
+}
+
+function parseYoutubePublishedOn(html) {
+  return (
+    html.match(/"(?:publishDate|uploadDate)":"(\d{4}-\d{2}-\d{2})/)?.[1] ??
+    html.match(
+      /itemprop="datePublished"\s+content="(\d{4}-\d{2}-\d{2})/,
+    )?.[1] ??
+    ""
+  );
+}
+
+function mergeYoutubeEpisodes(...episodeGroups) {
+  const episodesByKey = new Map();
+  for (const episode of episodeGroups.flat()) {
+    const key = youtubeVideoId(episode.url) || normalize(episode.title);
+    if (!key) continue;
+    const previous = episodesByKey.get(key);
+    episodesByKey.set(key, {
+      ...previous,
+      ...episode,
+      publishedOn: episode.publishedOn || previous?.publishedOn || "",
+    });
+  }
+  return [...episodesByKey.values()];
 }
 
 function mergeCollectionUrls(...urlGroups) {
@@ -674,6 +799,7 @@ async function main() {
     searchMarkdown,
     browseHtml,
     youtubeFeedXml,
+    youtubeChannelHtml,
   ] =
     await Promise.all([
       cachedFetch(
@@ -713,11 +839,31 @@ async function main() {
         "criterion-feed",
         YOUTUBE_FEED_URL,
         refreshIndexes,
-      ),
+      ).catch((error) => {
+        console.warn(
+          `YouTube's RSS feed was unavailable; continuing with the channel page and verified metadata: ${error}`,
+        );
+        return "";
+      }),
+      cachedDirectFetch(
+        "youtube",
+        "criterion-channel",
+        YOUTUBE_CHANNEL_URL,
+        refreshIndexes,
+        "html",
+      ).catch((error) => {
+        console.warn(
+          `YouTube's channel page was unavailable; continuing with Criterion and verified metadata: ${error}`,
+        );
+        return "";
+      }),
     ]);
 
   const visits = parseArchive(searchMarkdown);
-  const youtubeEpisodes = parseYoutubeClosetFeed(youtubeFeedXml);
+  let youtubeEpisodes = mergeYoutubeEpisodes(
+    parseYoutubeChannelPage(youtubeChannelHtml),
+    parseYoutubeClosetFeed(youtubeFeedXml),
+  );
   const trackedMetadata = parseTrackedVisits(trackedVideos);
   let guestMetadata;
   try {
@@ -740,10 +886,41 @@ async function main() {
     parseCollectionUrls(indexMarkdown),
     guestMetadata.collectionUrls,
   );
-  const pendingYoutubeEpisodes = findPendingYoutubeEpisodes(
+  let pendingYoutubeEpisodes = findPendingYoutubeEpisodes(
     youtubeEpisodes,
     trackedVideos,
     guestMetadata,
+  );
+  pendingYoutubeEpisodes = await mapLimit(
+    pendingYoutubeEpisodes,
+    4,
+    async (episode) => {
+      if (episode.publishedOn) return episode;
+      const videoId = youtubeVideoId(episode.url);
+      if (!videoId) return episode;
+      try {
+        const videoPage = await cachedDirectFetch(
+          "youtube-video",
+          videoId,
+          episode.url,
+          refreshIndexes,
+          "html",
+        );
+        return {
+          ...episode,
+          publishedOn: parseYoutubePublishedOn(videoPage),
+        };
+      } catch (error) {
+        console.warn(
+          `Could not resolve the release date for ${episode.title}: ${error}`,
+        );
+        return episode;
+      }
+    },
+  );
+  youtubeEpisodes = mergeYoutubeEpisodes(
+    youtubeEpisodes,
+    pendingYoutubeEpisodes,
   );
   const maxTrackedCollectionId = Math.max(
     0,
@@ -1056,9 +1233,12 @@ async function main() {
 export {
   findPendingYoutubeEpisodes,
   mergeCollectionUrls,
+  mergeYoutubeEpisodes,
   parseGuestVisits,
   parseTrackedVisits,
+  parseYoutubeChannelPage,
   parseYoutubeClosetFeed,
+  parseYoutubePublishedOn,
   youtubeEpisodeForCollection,
 };
 
